@@ -7,7 +7,10 @@ use Phpactor\ProjectQuery\Model\Record\ClassRecord;
 
 interface IndexQuery
 {
-    public function implementing(FullyQualifiedName $name): References;
+    /**
+     * @return array<FullyQualifiedName>
+     */
+    public function implementing(FullyQualifiedName $name): array;
 
     public function class(FullyQualifiedName $name): ?ClassRecord;
 }

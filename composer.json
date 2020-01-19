@@ -13,8 +13,7 @@
         "phpactor/worse-reflection": "^0.3",
         "phpactor/source-code-filesystem": "^0.1",
         "phpactor/text-document": "^1.1",
-        "phpactor/name-specification": "dev-master",
-        "dantleech/invoke": "^1.0"
+        "phpactor/name-specification": "dev-master"
     },
     "autoload": {
         "psr-4": {
@@ -34,7 +33,8 @@
     "require-dev": {
         "phpunit/phpunit": "^8.0",
         "friendsofphp/php-cs-fixer": "^2.15.0",
-        "phpstan/phpstan": "^0.12.0"
+        "phpstan/phpstan": "^0.12.0",
+        "phpactor/test-utils": "^1.0"
     },
     "scripts": {
         "integrate": [

@@ -3,6 +3,7 @@
 namespace Phpactor\ProjectQuery\Adapter\Worse;
 
 use DTL\Invoke\Invoke;
+use Phpactor\Filesystem\Domain\FilePath;
 use Phpactor\Filesystem\Domain\Filesystem;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\ProjectQuery\Model\Index;
@@ -10,10 +11,10 @@ use Phpactor\ProjectQuery\Model\IndexBuilder;
 use Phpactor\ProjectQuery\Model\Record\ClassRecord;
 use Phpactor\WorseReflection\Core\Reflection\Collection\ReflectionClassCollection;
 use Phpactor\WorseReflection\Core\Reflection\Collection\ReflectionCollection;
+use Phpactor\WorseReflection\Core\Reflection\ReflectionClass;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionClassLike;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionInterface;
 use Phpactor\WorseReflection\Core\Reflector\SourceCodeReflector;
-use SplFileInfo;
 
 class WorseIndexBuilder implements IndexBuilder
 {
@@ -21,11 +22,6 @@ class WorseIndexBuilder implements IndexBuilder
      * @var Index
      */
     private $index;
-
-    /**
-     * @var string
-     */
-    private $projectPath;
 
     /**
      * @var Filesystem
@@ -40,11 +36,9 @@ class WorseIndexBuilder implements IndexBuilder
     public function __construct(
         Index $index,
         Filesystem $filesystem,
-        SourceCodeReflector $reflector,
-        string $projectPath
+        SourceCodeReflector $reflector
     ) {
         $this->index = $index;
-        $this->projectPath = $projectPath;
         $this->filesystem = $filesystem;
         $this->reflector = $reflector;
     }
@@ -53,19 +47,19 @@ class WorseIndexBuilder implements IndexBuilder
     {
         // Pass 1
         foreach ($this->filesystem->fileList()->phpFiles() as $fileInfo) {
-            assert($fileInfo instanceof SplFileInfo);
+            assert($fileInfo instanceof FilePath);
             $this->indexClasses(
                 $fileInfo,
-                $this->reflector->reflectClassesIn(file_get_contents($fileInfo->getPathname()))
+                $this->reflector->reflectClassesIn(file_get_contents($fileInfo->path()))
             );
         }
 
         // Pass 2
         foreach ($this->filesystem->fileList()->phpFiles() as $fileInfo) {
-            assert($fileInfo instanceof SplFileInfo);
+            assert($fileInfo instanceof FilePath);
             $this->updateClassRelations(
                 $fileInfo,
-                $this->reflector->reflectClassesIn(file_get_contents($fileInfo->getPathname()))
+                $this->reflector->reflectClassesIn(file_get_contents($fileInfo->path()))
             );
         }
     }
@@ -73,13 +67,13 @@ class WorseIndexBuilder implements IndexBuilder
     /**
      * @param ReflectionClassCollection<ReflectionClassLike> $classes
      */
-    private function indexClasses(SplFileInfo $fileInfo, ReflectionClassCollection $classes): void
+    private function indexClasses(FilePath $fileInfo, ReflectionClassCollection $classes): void
     {
         foreach ($classes as $reflectionClass) {
             assert($reflectionClass instanceof ReflectionClassLike);
 
             $record = Invoke::new(ClassRecord::class, [
-                'lastModified' => $fileInfo->getMTime(),
+                'lastModified' => $fileInfo->asSplFileInfo()->getMTime(),
                 'fqn' => $reflectionClass->name()->full(),
                 'type' => WorseUtil::classType($reflectionClass)
             ]);
@@ -91,11 +85,14 @@ class WorseIndexBuilder implements IndexBuilder
     /**
      * @param ReflectionClassCollection<ReflectionClassLike> $classes
      */
-    private function updateClassRelations(SplFileInfo $fileInfo, ReflectionClassCollection $classes): void
+    private function updateClassRelations(FilePath $fileInfo, ReflectionClassCollection $classes): void
     {
         foreach ($classes as $classLike) {
             if ($classLike instanceof ReflectionInterface) {
                 $this->updateClassImplementations($classLike, $classLike->parents());
+            }
+            if ($classLike instanceof ReflectionClass) {
+                $this->updateClassImplementations($classLike, $classLike->interfaces());
             }
         }
     }
