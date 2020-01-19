@@ -1,0 +1,45 @@
+{
+    "name": "phpactor/project-query",
+    "description": "Query a project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Daniel Leech",
+            "email": "daniel@dantleech.com"
+        }
+    ],
+    "require": {
+        "php": "^7.1",
+        "phpactor/worse-reflection": "^0.3",
+        "phpactor/source-code-filesystem": "^0.1",
+        "phpactor/text-document": "^1.1",
+        "phpactor/name-specification": "dev-master",
+        "dantleech/invoke": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Phpactor\\ProjectQuery\\": "lib/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Phpactor\\ProjectQuery\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1.x-dev"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.0",
+        "friendsofphp/php-cs-fixer": "^2.15.0",
+        "phpstan/phpstan": "^0.12.0"
+    },
+    "scripts": {
+        "integrate": [
+            "vendor/bin/php-cs-fixer fix",
+            "vendor/bin/phpstan analyse"
+        ]
+    }
+}
