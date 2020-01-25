@@ -23,6 +23,10 @@ class InMemoryQuery implements IndexQuery
     {
         $class = $this->repository->getClass($name->__toString());
 
+        if (!$class) {
+            return [];
+        }
+
         return array_map(function (string $fqn) {
             return FullyQualifiedName::fromString($fqn);
         }, $class->implementations());

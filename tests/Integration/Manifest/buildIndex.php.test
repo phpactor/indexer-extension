@@ -1,0 +1,15 @@
+// File: Index.php
+<?php
+interface Index
+{
+}
+// File: InMemoryIndex.php
+<?php
+class InMemoryIndex implements Index
+{
+}
+// File: DbalIndex.php
+<?php
+class InMemoryIndex implements Index
+{
+}

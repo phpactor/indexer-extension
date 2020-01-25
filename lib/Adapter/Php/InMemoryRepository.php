@@ -21,6 +21,7 @@ class InMemoryRepository
         if (!isset($this->classes[$fqn])) {
             return null;
         }
+
         return $this->classes[$fqn];
     }
 
