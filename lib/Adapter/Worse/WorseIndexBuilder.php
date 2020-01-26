@@ -23,6 +23,7 @@ use Phpactor\WorseReflection\Core\SourceCode;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use SplFileInfo;
+use function Safe\file_get_contents;
 
 class WorseIndexBuilder implements IndexBuilder
 {

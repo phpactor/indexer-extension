@@ -44,8 +44,7 @@ class ClassRecord
         string $type,
         ByteOffset $start,
         string $filePath
-    )
-    {
+    ) {
         $this->lastModified = $lastModified;
         $this->type = $type;
         $this->fqn = $fqn;

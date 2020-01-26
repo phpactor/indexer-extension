@@ -22,9 +22,9 @@ class ProjectQueryExtensionTest extends TestCase
         $container = $this->createContainer();
         $finder = $container->get(ReferenceFinderExtension::SERVICE_IMPLEMENTATION_FINDER);
         self::assertInstanceOf(IndexedImplementationFinder::class, $finder);
-        }
+    }
 
-        private function createContainer()
+    private function createContainer()
     {
         return PhpactorContainer::fromExtensions([
             ConsoleExtension::class,
@@ -44,4 +44,4 @@ class ProjectQueryExtensionTest extends TestCase
             LoggingExtension::PARAM_LEVEL => 'debug',
         ]);
     }
-    }
+}

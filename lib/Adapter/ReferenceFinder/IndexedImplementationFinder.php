@@ -31,6 +31,9 @@ class IndexedImplementationFinder implements ClassImplementationFinder
         $this->reflector = $reflector;
     }
 
+    /**
+     * @return Locations<Location>
+     */
     public function findImplementations(TextDocument $document, ByteOffset $byteOffset): Locations
     {
         if ($this->index->lastUpdate() === 0) {

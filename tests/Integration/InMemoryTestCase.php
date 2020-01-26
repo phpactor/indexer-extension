@@ -3,7 +3,6 @@
 namespace Phpactor\ProjectQuery\Tests\Integration;
 
 use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
-use Phpactor\Name\FullyQualifiedName;
 use Phpactor\ProjectQuery\Adapter\Php\InMemory\InMemoryIndex;
 use Phpactor\ProjectQuery\Adapter\Php\InMemory\InMemoryRepository;
 use Phpactor\ProjectQuery\Model\Index;
@@ -14,7 +13,6 @@ use Phpactor\WorseReflection\Core\SourceCodeLocator\StubSourceLocator;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\WorseReflection\ReflectorBuilder;
 use Psr\Log\NullLogger;
-use function Safe\file_get_contents;
 
 abstract class InMemoryTestCase extends IntegrationTestCase
 {
