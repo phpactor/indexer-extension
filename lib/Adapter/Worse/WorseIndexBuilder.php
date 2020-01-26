@@ -74,7 +74,7 @@ class WorseIndexBuilder implements IndexBuilder
 
             $record = Invoke::new(ClassRecord::class, [
                 'lastModified' => $fileInfo->asSplFileInfo()->getMTime(),
-                'fqn' => $reflectionClass->name()->full(),
+                'fqn' => FullyQualifiedName::fromString($reflectionClass->name()->full()),
                 'type' => WorseUtil::classType($reflectionClass)
             ]);
 

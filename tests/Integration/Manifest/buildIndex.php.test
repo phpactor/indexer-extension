@@ -1,15 +1,15 @@
-// File: Index.php
+// File: project/Index.php
 <?php
 interface Index
 {
 }
-// File: InMemoryIndex.php
+// File: project/InMemoryIndex.php
 <?php
 class InMemoryIndex implements Index
 {
 }
-// File: DbalIndex.php
+// File: project/DbalIndex.php
 <?php
-class InMemoryIndex implements Index
+class DbalIndex implements Index
 {
 }

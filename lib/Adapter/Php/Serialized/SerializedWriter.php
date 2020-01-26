@@ -1,18 +1,19 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Adapter\Php;
+namespace Phpactor\ProjectQuery\Adapter\Php\Serialized;
 
 use Phpactor\ProjectQuery\Model\IndexWriter;
 use Phpactor\ProjectQuery\Model\Record\ClassRecord;
+use RuntimeException;
 
-class InMemoryWriter implements IndexWriter
+class SerializedWriter implements IndexWriter
 {
     /**
-     * @var InMemoryRepository
+     * @var FileRepository
      */
     private $repository;
 
-    public function __construct(InMemoryRepository $repository)
+    public function __construct(FileRepository $repository)
     {
         $this->repository = $repository;
     }

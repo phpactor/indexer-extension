@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Adapter\Php;
+namespace Phpactor\ProjectQuery\Adapter\Php\InMemory;
 
 use Phpactor\ProjectQuery\Model\Record\ClassRecord;
 
@@ -13,7 +13,7 @@ class InMemoryRepository
 
     public function putClass(ClassRecord $class): void
     {
-        $this->classes[$class->fqn()] = $class;
+        $this->classes[$class->fqn()->__toString()] = $class;
     }
 
     public function getClass(string $fqn): ?ClassRecord
@@ -23,13 +23,5 @@ class InMemoryRepository
         }
 
         return $this->classes[$fqn];
-    }
-
-    /**
-     * @return array<ClassRecord>
-     */
-    public function classes(): array
-    {
-        return $this->classes;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Adapter\Php;
+namespace Phpactor\ProjectQuery\Adapter\Php\InMemory;
 
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\ProjectQuery\Model\IndexQuery;

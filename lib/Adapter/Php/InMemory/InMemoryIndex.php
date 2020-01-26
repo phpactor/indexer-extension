@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Adapter\Php;
+namespace Phpactor\ProjectQuery\Adapter\Php\InMemory;
 
 use DateTimeImmutable;
 use Phpactor\ProjectQuery\Model\Index;
@@ -16,13 +16,14 @@ class InMemoryIndex implements Index
 
     public function __construct(InMemoryRepository $repository = null)
     {
-        $this->repository = $repository ?: new InMemoryRepository();
+        $this->repository = $repository;
     }
 
     public function lastUpdate(): DateTimeImmutable
     {
         return new DateTimeImmutable();
     }
+
     public function query(): IndexQuery
     {
         return new InMemoryQuery($this->repository);

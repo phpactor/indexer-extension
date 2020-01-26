@@ -2,6 +2,7 @@
 
 namespace Phpactor\ProjectQuery\Model\Record;
 
+use Phpactor\Name\FullyQualifiedName;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionClassLike;
 
 class ClassRecord
@@ -12,7 +13,7 @@ class ClassRecord
     private $lastModified;
 
     /**
-     * @var string
+     * @var FullyQualifiedName
      */
     private $fqn;
 
@@ -26,11 +27,11 @@ class ClassRecord
      */
     private $implementations = [];
 
-    public function __construct(int $lastModified, string $fqn, string $type)
+    public function __construct(int $lastModified, FullyQualifiedName $fqn, string $type)
     {
         $this->lastModified = $lastModified;
-        $this->fqn = $fqn;
         $this->type = $type;
+        $this->fqn = $fqn;
     }
 
     public function addImplementation(ReflectionClassLike $implementation): void
@@ -38,7 +39,7 @@ class ClassRecord
         $this->implementations[$implementation->name()->full()] = $implementation->name()->full();
     }
 
-    public function fqn(): string
+    public function fqn(): FullyQualifiedName
     {
         return $this->fqn;
     }
