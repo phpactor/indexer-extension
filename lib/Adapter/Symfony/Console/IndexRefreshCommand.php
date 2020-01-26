@@ -30,10 +30,10 @@ class IndexRefreshCommand extends Command
         $index = 0;
         foreach ($this->index->build($input->getArgument(self::ARG_SUB_PATH)) as $tick) {
             if (++$index % 500 === 0) {
-                $output->writeln(sprintf('Ticks %s', $index));
+                $output->writeln('.');
             }
         }
-        $output->writeln(sprintf('Ticks %s', $index));
+        $output->writeln('Done');
         return 0;
     }
 

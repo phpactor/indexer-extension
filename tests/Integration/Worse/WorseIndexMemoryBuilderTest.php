@@ -12,6 +12,7 @@ use Phpactor\ProjectQuery\Tests\IntegrationTestCase;
 use Phpactor\ProjectQuery\Tests\Integration\IndexBuilderIndexTestCase;
 use Phpactor\WorseReflection\Core\SourceCodeLocator\StubSourceLocator;
 use Phpactor\WorseReflection\ReflectorBuilder;
+use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
 
 class WorseIndexMemoryBuilderTest extends IndexBuilderIndexTestCase
@@ -27,7 +28,8 @@ class WorseIndexMemoryBuilderTest extends IndexBuilderIndexTestCase
                     $this->workspace()->path('/'),
                     $this->workspace()->path('/')
                 )
-            )->build()
+            )->build(),
+            new NullLogger()
         );
         return $indexBuilder;
     }
