@@ -7,12 +7,14 @@ use Phpactor\Container\ContainerBuilder;
 use Phpactor\Container\Extension;
 use Phpactor\Extension\Console\ConsoleExtension;
 use Phpactor\Extension\Logger\LoggingExtension;
+use Phpactor\Extension\ReferenceFinder\ReferenceFinderExtension;
 use Phpactor\Extension\SourceCodeFilesystem\SourceCodeFilesystemExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
 use Phpactor\MapResolver\Resolver;
 use Phpactor\ProjectQuery\Adapter\Php\Serialized\FileRepository;
 use Phpactor\ProjectQuery\Adapter\Php\Serialized\SerializedIndex;
+use Phpactor\ProjectQuery\Adapter\ReferenceFinder\IndexedImplementationFinder;
 use Phpactor\ProjectQuery\Adapter\Symfony\Console\IndexQueryClassCommand;
 use Phpactor\ProjectQuery\Adapter\Symfony\Console\IndexRefreshCommand;
 use Phpactor\ProjectQuery\Adapter\Worse\WorseIndexBuilder;
@@ -61,11 +63,19 @@ class ProjectQueryExtension implements Extension
             );
             return new SerializedIndex($repository);
         });
+
         $container->register(IndexQuery::class, function (Container $container) {
             $index = $container->get(Index::class);
             assert($index instanceof Index);
             return $index->query();
         });
+
+        $container->register(IndexedImplementationFinder::class, function (Container $container) {
+            return new IndexedImplementationFinder(
+                $container->get(Index::class),
+                $this->createReflector($container)
+            );
+        }, [ ReferenceFinderExtension::TAG_IMPLEMENTATION_FINDER => []]);
     }
 
     /**

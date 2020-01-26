@@ -9,7 +9,7 @@ use Phpactor\ProjectQuery\Adapter\Worse\WorseIndexBuilder;
 use Phpactor\ProjectQuery\Tests\IntegrationTestCase;
 use function Safe\file_get_contents;
 
-abstract class IndexBuilderIndexTestCase extends IntegrationTestCase
+abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
 {
     public function testInterfaceImplementations(): void
     {
@@ -38,8 +38,6 @@ abstract class IndexBuilderIndexTestCase extends IntegrationTestCase
         $this->workspace()->reset();
         $this->workspace()->loadManifest(file_get_contents(__DIR__ . '/Manifest/buildIndex.php.test'));
     }
-
-    abstract protected function createBuilder(InMemoryIndex $index): WorseIndexBuilder;
 
     private function buildIndex(): InMemoryIndex
     {

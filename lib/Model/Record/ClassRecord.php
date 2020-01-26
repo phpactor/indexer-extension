@@ -3,6 +3,7 @@
 namespace Phpactor\ProjectQuery\Model\Record;
 
 use Phpactor\Name\FullyQualifiedName;
+use Phpactor\TextDocument\ByteOffset;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionClassLike;
 
 class ClassRecord
@@ -27,11 +28,29 @@ class ClassRecord
      */
     private $implementations = [];
 
-    public function __construct(int $lastModified, FullyQualifiedName $fqn, string $type)
+    /**
+     * @var string
+     */
+    private $filePath;
+
+    /**
+     * @var ByteOffset
+     */
+    private $start;
+
+    public function __construct(
+        int $lastModified,
+        FullyQualifiedName $fqn,
+        string $type,
+        ByteOffset $start,
+        string $filePath
+    )
     {
         $this->lastModified = $lastModified;
         $this->type = $type;
         $this->fqn = $fqn;
+        $this->filePath = $filePath;
+        $this->start = $start;
     }
 
     public function addImplementation(ReflectionClassLike $implementation): void
@@ -60,5 +79,15 @@ class ClassRecord
     public function type(): string
     {
         return $this->type;
+    }
+
+    public function filePath(): string
+    {
+        return $this->filePath;
+    }
+
+    public function start(): ByteOffset
+    {
+        return $this->start;
     }
 }

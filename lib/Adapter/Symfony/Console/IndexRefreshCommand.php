@@ -53,7 +53,7 @@ class IndexRefreshCommand extends Command
                 $output->writeln('.');
             }
         }
-        $output->writeln(sprintf('Done (%s operations in %s seconds)', $index, number_format(microtime(true) - $start, 2)));
+        $output->writeln(sprintf('<bg=green;fg=black;option>Done (%s operations in %s seconds)</>', $index, number_format(microtime(true) - $start, 2)));
         return 0;
     }
 }

@@ -11,6 +11,7 @@ use Phpactor\Name\FullyQualifiedName;
 use Phpactor\ProjectQuery\Model\Index;
 use Phpactor\ProjectQuery\Model\IndexBuilder;
 use Phpactor\ProjectQuery\Model\Record\ClassRecord;
+use Phpactor\TextDocument\ByteOffset;
 use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
 use Phpactor\WorseReflection\Core\Reflection\Collection\ReflectionClassCollection;
 use Phpactor\WorseReflection\Core\Reflection\Collection\ReflectionCollection;
@@ -18,8 +19,10 @@ use Phpactor\WorseReflection\Core\Reflection\ReflectionClass;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionClassLike;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionInterface;
 use Phpactor\WorseReflection\Core\Reflector\SourceCodeReflector;
+use Phpactor\WorseReflection\Core\SourceCode;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use SplFileInfo;
 
 class WorseIndexBuilder implements IndexBuilder
 {
@@ -67,45 +70,16 @@ class WorseIndexBuilder implements IndexBuilder
             $this->formatTimestamp()
         ));
         $this->logger->info(sprintf('Starting pass 1/2: Indexing classes'));
+        $generator = $this->createPass1Generator($subPath);
+        yield from $generator;
 
-        foreach ($this->createFileIterator($subPath) as $fileInfo) {
-            if ($this->index->isFresh($fileInfo)) {
-                continue;
-            }
-
-            assert($fileInfo instanceof FilePath);
-            $this->logger->debug(sprintf('Indexing: %s', $fileInfo->path()));
-            try {
-                $this->indexClasses(
-                    $fileInfo,
-                    $this->reflector->reflectClassesIn(file_get_contents($fileInfo->path()))
-                );
-            } catch (SourceNotFound $e) {
-                $this->logger->error($e->getMessage());
-            }
-
-            yield $fileInfo->path();
+        if (true === $generator->getReturn()) {
+            $this->logger->info(sprintf('Starting pass 2/2: Indexing implementations'));
+            yield from $this->createPass2Generator($subPath);
+        } else {
+            $this->logger->info(sprintf('Skipping pass 2/2: No changes'));
         }
 
-        $this->logger->info(sprintf('Starting pass 2/2: Indexing implementations'));
-        foreach ($this->createFileIterator($subPath) as $fileInfo) {
-            if ($this->index->isFresh($fileInfo)) {
-                continue;
-            }
-            $this->logger->debug(sprintf('Implementations: %s', $fileInfo->path()));
-
-            assert($fileInfo instanceof FilePath);
-            try {
-                $this->updateClassRelations(
-                    $fileInfo,
-                    $this->reflector->reflectClassesIn(file_get_contents($fileInfo->path()))
-                );
-            } catch (SourceNotFound $e) {
-                $this->logger->error($e->getMessage());
-            }
-
-            yield $fileInfo->path();
-        }
         $this->index->write()->timestamp();
     }
 
@@ -124,7 +98,9 @@ class WorseIndexBuilder implements IndexBuilder
             $record = Invoke::new(ClassRecord::class, [
                 'lastModified' => $fileInfo->asSplFileInfo()->getMTime(),
                 'fqn' => FullyQualifiedName::fromString($name),
-                'type' => WorseUtil::classType($reflectionClass)
+                'type' => WorseUtil::classType($reflectionClass),
+                'filePath' => $reflectionClass->sourceCode()->path(),
+                'start' => ByteOffset::fromInt($reflectionClass->position()->start()),
             ]);
 
             $this->index->write()->class($record);
@@ -208,5 +184,64 @@ class WorseIndexBuilder implements IndexBuilder
             throw new RuntimeException('This never happens');
         }
         return $format;
+    }
+
+    /**
+     * @return Generator<SplFileInfo>
+     */
+    private function createPass1Generator(?string $subPath): Generator
+    {
+        $count = 0;
+        foreach ($this->createFileIterator($subPath) as $fileInfo) {
+            if ($this->index->isFresh($fileInfo)) {
+                continue;
+            }
+
+            assert($fileInfo instanceof FilePath);
+            $this->logger->debug(sprintf('Indexing: %s', $fileInfo->path()));
+            try {
+                $this->indexClasses(
+                    $fileInfo,
+                    $this->reflector->reflectClassesIn(
+                        SourceCode::fromPathAndString(
+                            $fileInfo->path(),
+                            file_get_contents($fileInfo->path())
+                        )
+                    )
+                );
+            } catch (SourceNotFound $e) {
+                $this->logger->error($e->getMessage());
+            }
+
+            yield $fileInfo->path();
+            $count++;
+        }
+
+        return $count > 0;
+    }
+
+    /**
+     * @return Generator<SplFileInfo>
+     */
+    private function createPass2Generator(?string $subPath): Generator
+    {
+        foreach ($this->createFileIterator($subPath) as $fileInfo) {
+            if ($this->index->isFresh($fileInfo)) {
+                continue;
+            }
+            $this->logger->debug(sprintf('Implementations: %s', $fileInfo->path()));
+
+            assert($fileInfo instanceof FilePath);
+            try {
+                $this->updateClassRelations(
+                    $fileInfo,
+                    $this->reflector->reflectClassesIn(file_get_contents($fileInfo->path()))
+                );
+            } catch (SourceNotFound $e) {
+                $this->logger->error($e->getMessage());
+            }
+
+            yield $fileInfo->path();
+        }
     }
 }

@@ -14,14 +14,20 @@ class InMemoryIndex implements Index
      */
     private $repository;
 
+    /**
+     * @var int
+     */
+    private $lastUpdate;
+
     public function __construct(InMemoryRepository $repository = null)
     {
         $this->repository = $repository;
+        $this->lastUpdate = time();
     }
 
     public function lastUpdate(): int
     {
-        return 0;
+        return $this->lastUpdate;
     }
 
     public function query(): IndexQuery
@@ -41,6 +47,7 @@ class InMemoryIndex implements Index
 
     public function reset(): void
     {
+        $this->lastUpdate = 0;
         $this->repository->reset();
     }
 }
