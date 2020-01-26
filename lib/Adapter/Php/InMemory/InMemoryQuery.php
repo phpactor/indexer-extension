@@ -5,7 +5,6 @@ namespace Phpactor\ProjectQuery\Adapter\Php\InMemory;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\ProjectQuery\Model\IndexQuery;
 use Phpactor\ProjectQuery\Model\Record\ClassRecord;
-use Phpactor\ProjectQuery\Model\References;
 
 class InMemoryQuery implements IndexQuery
 {

@@ -5,6 +5,9 @@ namespace Phpactor\ProjectQuery\Adapter\Php\Serialized;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\ProjectQuery\Model\Record\ClassRecord;
 use RuntimeException;
+use function Safe\file_get_contents;
+use function Safe\file_put_contents;
+use function Safe\mkdir;
 
 class FileRepository
 {
@@ -13,22 +16,22 @@ class FileRepository
      */
     private $path;
 
+    /**
+     * @var int
+     */
+    private $lastUpdate;
+
     public function __construct(string $path)
     {
         $this->path = $path;
-        $this->ensureDirectoryExists($path);
+        $this->initializeLastUpdate();
     }
 
     public function putClass(ClassRecord $class): void
     {
         $path = $this->pathFor($class->fqn());
-        if (file_put_contents($path, serialize($class))) {
-            return;
-        }
-
-        throw new RuntimeException(sprintf(
-            'Could not write to file "%s"', $path
-        ));
+        $this->ensureDirectoryExists(dirname($path));
+        file_put_contents($path, serialize($class));
     }
 
     public function getClass(FullyQualifiedName $name): ?ClassRecord
@@ -39,10 +42,7 @@ class FileRepository
             return null;
         }
 
-        if (!$contents = file_get_contents($path)) {
-            throw new RuntimeException(sprintf('Could not read file "%s"', $path));
-        }
-
+        $contents = file_get_contents($path);
         $deserialized = unserialize($contents);
 
         if (!$deserialized) {
@@ -54,7 +54,14 @@ class FileRepository
 
     private function pathFor(FullyQualifiedName $class): string
     {
-        return sprintf('%s/%s.cache', $this->path, md5($class->__toString()));
+        $hash = md5($class->__toString());
+        return sprintf(
+            '%s/%s/%s/%s.cache',
+            $this->path,
+            substr($hash, 0, 1),
+            substr($hash, 1, 1),
+            $hash
+        );
     }
 
     private function ensureDirectoryExists(string $path): void
@@ -63,13 +70,35 @@ class FileRepository
             return;
         }
 
-        if (mkdir($path)) {
-            return;
-        }
+        mkdir($path, 0777, true);
+    }
 
-        throw new RuntimeException(sprintF(
-            'Could not create index directory "%s"',
-            $path
-        ));
+    public function putTimestamp(int $time = null): void
+    {
+        file_put_contents($this->timestampPath(), $time ?? time());
+        $this->lastUpdate = $time;
+    }
+
+    public function lastUpdate(): int
+    {
+        return $this->lastUpdate;
+    }
+
+    private function initializeLastUpdate(): void
+    {
+        $this->lastUpdate = file_exists($this->timestampPath()) ?
+            (int)file_get_contents($this->timestampPath()) :
+            0
+        ;
+    }
+
+    private function timestampPath(): string
+    {
+        return $this->path . '/timestamp';
+    }
+
+    public function reset(): void
+    {
+        $this->putTimestamp(0);
     }
 }

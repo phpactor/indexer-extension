@@ -3,6 +3,7 @@
 namespace Phpactor\ProjectQuery\Adapter\Php\InMemory;
 
 use DateTimeImmutable;
+use Phpactor\Filesystem\Domain\FilePath;
 use Phpactor\ProjectQuery\Model\Index;
 use Phpactor\ProjectQuery\Model\IndexQuery;
 use Phpactor\ProjectQuery\Model\IndexWriter;
@@ -32,5 +33,14 @@ class InMemoryIndex implements Index
     public function write(): IndexWriter
     {
         return new InMemoryWriter($this->repository);
+    }
+
+    public function isFresh(FilePath $fileInfo): bool
+    {
+    }
+
+    public function reset(): void
+    {
+        $this->repository->reset();
     }
 }

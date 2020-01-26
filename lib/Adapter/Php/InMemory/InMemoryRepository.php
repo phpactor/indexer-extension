@@ -24,4 +24,9 @@ class InMemoryRepository
 
         return $this->classes[$fqn];
     }
+
+    public function reset(): void
+    {
+        $this->classes = [];
+    }
 }

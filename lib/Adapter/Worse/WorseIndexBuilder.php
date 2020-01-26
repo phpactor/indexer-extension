@@ -2,8 +2,8 @@
 
 namespace Phpactor\ProjectQuery\Adapter\Worse;
 
-use CachingIterator;
 use DTL\Invoke\Invoke;
+use DateTimeImmutable;
 use Generator;
 use Phpactor\Filesystem\Domain\FileList;
 use Phpactor\Filesystem\Domain\FilePath;
@@ -61,10 +61,14 @@ class WorseIndexBuilder implements IndexBuilder
      */
     public function build(?string $subPath = null): Generator
     {
+        $this->logger->info(sprintf('Last update: %s (%s)', $this->index->lastUpdate(), DateTimeImmutable::createFromFormat('U', (string)$this->index->lastUpdate())->format('c')));
         $this->logger->info(sprintf('Starting pass 1/2: Indexing classes'));
-        ;
 
         foreach ($this->createFileIterator($subPath) as $fileInfo) {
+            if ($this->index->isFresh($fileInfo)) {
+                continue;
+            }
+
             assert($fileInfo instanceof FilePath);
             $this->logger->debug(sprintf('Indexing: %s', $fileInfo->path()));
             try {
@@ -73,6 +77,7 @@ class WorseIndexBuilder implements IndexBuilder
                     $this->reflector->reflectClassesIn(file_get_contents($fileInfo->path()))
                 );
             } catch (SourceNotFound $e) {
+                $this->logger->error($e->getMessage());
             }
 
             yield $fileInfo->path();
@@ -80,6 +85,11 @@ class WorseIndexBuilder implements IndexBuilder
 
         $this->logger->info(sprintf('Starting pass 2/2: Indexing implementations'));
         foreach ($this->createFileIterator($subPath) as $fileInfo) {
+            if ($this->index->isFresh($fileInfo)) {
+                continue;
+            }
+            $this->logger->debug(sprintf('Implementations: %s', $fileInfo->path()));
+
             assert($fileInfo instanceof FilePath);
             try {
                 $this->updateClassRelations(
@@ -92,6 +102,7 @@ class WorseIndexBuilder implements IndexBuilder
 
             yield $fileInfo->path();
         }
+        $this->index->write()->timestamp();
     }
 
     /**
@@ -123,27 +134,23 @@ class WorseIndexBuilder implements IndexBuilder
     {
         foreach ($classes as $classLike) {
             if ($classLike instanceof ReflectionInterface) {
-                $this->logger->debug(sprintf('Interface impls. for: %s', $classLike->name()->full()));
-                $this->updateClassImplementations($classLike, $classLike->parents());
+                $this->updateClassImplementations($classLike, iterator_to_array($classLike->parents()));
             }
+
             if ($classLike instanceof ReflectionClass) {
-                $this->logger->debug(sprintf('Class impls. for: %s', $classLike->name()->full()));
-                $interfaces = $classLike->interfaces();
-                $this->logger->debug(sprintf('Resolved interfaces: %s', implode('", "', array_map(function (ReflectionClassLike $class) {
-                    return $class->name()->full();
-                }, iterator_to_array($interfaces)))));
-                $this->updateClassImplementations($classLike, $interfaces);
-                $this->logger->debug(sprintf('DONE: Class impls. for: %s', $classLike->name()->full()));
+                $this->updateClassImplementations($classLike, iterator_to_array($classLike->interfaces()));
+                $this->updateClassImplementations($classLike, $this->descendents($classLike));
             }
         }
     }
 
     /**
      * @param ReflectionCollection<ReflectionClassLike> $implementedClasses
+     * @param array<ReflectionClassLike> $implementedClasses
      */
     private function updateClassImplementations(
         ReflectionClassLike $implementingClass,
-        ReflectionCollection $implementedClasses
+        array $implementedClasses
     ): void {
         foreach ($implementedClasses as $implementedClass) {
             $record = $this->index->query()->class(
@@ -171,5 +178,22 @@ class WorseIndexBuilder implements IndexBuilder
             $files = $files->within(FilePath::fromString($subPath));
         }
         return $files;
+    }
+
+    /**
+     * @return array<ReflectionClass>
+     */
+    private function descendents(ReflectionClass $classLike): array
+    {
+        $parents = [];
+        while ($parent = $classLike->parent()) {
+            // avoid self-referencing classes
+            if (array_key_exists($parent->name()->full(), $parents)) {
+                break;
+            }
+            $parents[$parent->name()->full()] = $parent;
+            $classLike = $parent;
+        }
+        return array_values($parents);
     }
 }

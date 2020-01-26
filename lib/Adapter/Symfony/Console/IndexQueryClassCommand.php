@@ -29,6 +29,10 @@ class IndexQueryClassCommand extends Command
         $class = $this->query->class(
             FullyQualifiedName::fromString($input->getArgument(self::ARG_FQN))
         );
+        if (!$class) {
+            $output->writeln('Class not found');
+            return 1;
+        }
         $output->writeln('<info>Class:</>'.$class->fqn());
         $output->writeln('<info>Implementations</>:');
         foreach ($class->implementations() as $fqn) {

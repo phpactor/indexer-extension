@@ -19,7 +19,6 @@ use Phpactor\ProjectQuery\Adapter\Worse\WorseIndexBuilder;
 use Phpactor\ProjectQuery\Model\Index;
 use Phpactor\ProjectQuery\Model\IndexBuilder;
 use Phpactor\ProjectQuery\Model\IndexQuery;
-use Phpactor\ProjectQuery\Model\IndexWriter;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\WorseReflection\ReflectorBuilder;
 
@@ -33,7 +32,10 @@ class ProjectQueryExtension implements Extension
     public function load(ContainerBuilder $container)
     {
         $container->register(IndexRefreshCommand::class, function (Container $container) {
-            return new IndexRefreshCommand($container->get(IndexBuilder::class));
+            return new IndexRefreshCommand(
+                $container->get(IndexBuilder::class),
+                $container->get(Index::class)
+            );
         }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:refresh']]);
 
         $container->register(IndexQueryClassCommand::class, function (Container $container) {
