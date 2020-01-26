@@ -1,6 +1,7 @@
 {
     "name": "phpactor/project-query",
     "description": "Query a project",
+    "type": "phpactor-extension",
     "license": "MIT",
     "minimum-stability": "dev",
     "prefer-stable": true,
