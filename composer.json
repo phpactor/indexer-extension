@@ -15,6 +15,17 @@
         "phpactor/text-document": "^1.1",
         "phpactor/name-specification": "dev-master"
     },
+    "require-dev": {
+        "phpunit/phpunit": "^8.0",
+        "friendsofphp/php-cs-fixer": "^2.15.0",
+        "phpstan/phpstan": "^0.12.0",
+        "phpactor/test-utils": "^1.0",
+        "thecodingmachine/safe": "^1.0",
+        "phpactor/console-extension": "^0.1.2",
+        "phpactor/source-code-filesystem-extension": "^0.1.3",
+        "phpactor/worse-reflection-extension": "^0.2.2",
+        "phpactor/file-path-resolver-extension": "^0.3.1"
+    },
     "autoload": {
         "psr-4": {
             "Phpactor\\ProjectQuery\\": "lib/"
@@ -29,13 +40,6 @@
         "branch-alias": {
             "dev-master": "0.1.x-dev"
         }
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^8.0",
-        "friendsofphp/php-cs-fixer": "^2.15.0",
-        "phpstan/phpstan": "^0.12.0",
-        "phpactor/test-utils": "^1.0",
-        "thecodingmachine/safe": "^1.0"
     },
     "scripts": {
         "integrate": [

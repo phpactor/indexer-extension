@@ -24,7 +24,7 @@ abstract class IndexBuilderIndexTestCase extends IntegrationTestCase
         $repository = new InMemoryRepository();
         $index = new InMemoryIndex($repository);
         $indexBuilder = $this->createBuilder($index);
-        $indexBuilder->refresh();
+        $indexBuilder->build();
 
         $references = $foo = $index->query()->implementing(
             FullyQualifiedName::fromString('Index')

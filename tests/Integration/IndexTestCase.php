@@ -20,7 +20,7 @@ abstract class IndexTestCase extends IntegrationTestCase
     {
         $index = $this->createIndex();
         $builder = $this->createBuilder($index);
-        $builder->refresh();
+        $builder->build();
         $references = $foo = $index->query()->implementing(
             FullyQualifiedName::fromString('Index')
         );

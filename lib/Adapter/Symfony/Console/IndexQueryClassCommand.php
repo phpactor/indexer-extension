@@ -1,0 +1,43 @@
+<?php
+
+namespace Phpactor\ProjectQuery\Adapter\Symfony\Console;
+
+use Phpactor\Name\FullyQualifiedName;
+use Phpactor\ProjectQuery\Model\IndexQuery;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
+class IndexQueryClassCommand extends Command
+{
+    const ARG_FQN = 'fqn';
+
+    /**
+     * @var IndexQuery
+     */
+    private $query;
+
+    public function __construct(IndexQuery $query)
+    {
+        $this->query = $query;
+        parent::__construct();
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $class = $this->query->class(
+            FullyQualifiedName::fromString($input->getArgument(self::ARG_FQN))
+        );
+        $output->writeln('<info>Class:</>'.$class->fqn());
+        $output->writeln('<info>Implementations</>:');
+        foreach ($class->implementations() as $fqn) {
+            $output->writeln(' - ' . (string)$fqn);
+        }
+    }
+
+    protected function configure(): void
+    {
+        $this->addArgument(self::ARG_FQN, InputArgument::REQUIRED, 'Fully qualified name');
+    }
+}

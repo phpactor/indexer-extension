@@ -2,7 +2,12 @@
 
 namespace Phpactor\ProjectQuery\Model;
 
+use Generator;
+
 interface IndexBuilder
 {
-    public function refresh(): void;
+    /**
+     * @return Generator<string>
+     */
+    public function build(?string $subPath = null): Generator;
 }
