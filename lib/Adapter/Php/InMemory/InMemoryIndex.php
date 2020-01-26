@@ -2,7 +2,6 @@
 
 namespace Phpactor\ProjectQuery\Adapter\Php\InMemory;
 
-use DateTimeImmutable;
 use Phpactor\Filesystem\Domain\FilePath;
 use Phpactor\ProjectQuery\Model\Index;
 use Phpactor\ProjectQuery\Model\IndexQuery;

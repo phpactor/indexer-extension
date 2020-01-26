@@ -3,7 +3,6 @@
 namespace Phpactor\ProjectQuery\Adapter\Worse;
 
 use DTL\Invoke\Invoke;
-use DateTimeImmutable;
 use Generator;
 use Phpactor\Filesystem\Domain\FileList;
 use Phpactor\Filesystem\Domain\FilePath;
