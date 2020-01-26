@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Phpactor\ProjectQuery\Util\Cast;
 
 class IndexRefreshCommand extends Command
 {
@@ -45,7 +46,9 @@ class IndexRefreshCommand extends Command
         }
         $start = microtime(true);
         $index = 0;
-        foreach ($this->indexBuilder->build($input->getArgument(self::ARG_SUB_PATH)) as $tick) {
+        foreach ($this->indexBuilder->build(
+            Cast::toStringOrNull($input->getArgument(self::ARG_SUB_PATH))
+        ) as $tick) {
             if (++$index % 500 === 0) {
                 $output->writeln('.');
             }

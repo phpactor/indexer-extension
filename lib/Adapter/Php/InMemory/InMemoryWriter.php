@@ -21,4 +21,8 @@ class InMemoryWriter implements IndexWriter
     {
         $this->repository->putClass($class);
     }
+
+    public function timestamp(): void
+    {
+    }
 }

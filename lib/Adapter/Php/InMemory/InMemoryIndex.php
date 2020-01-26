@@ -20,9 +20,9 @@ class InMemoryIndex implements Index
         $this->repository = $repository;
     }
 
-    public function lastUpdate(): DateTimeImmutable
+    public function lastUpdate(): int
     {
-        return new DateTimeImmutable();
+        return 0;
     }
 
     public function query(): IndexQuery
@@ -37,6 +37,7 @@ class InMemoryIndex implements Index
 
     public function isFresh(FilePath $fileInfo): bool
     {
+        return false;
     }
 
     public function reset(): void

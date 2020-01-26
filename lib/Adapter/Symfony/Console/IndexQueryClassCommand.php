@@ -4,6 +4,7 @@ namespace Phpactor\ProjectQuery\Adapter\Symfony\Console;
 
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\ProjectQuery\Model\IndexQuery;
+use Phpactor\ProjectQuery\Util\Cast;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -27,7 +28,9 @@ class IndexQueryClassCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $class = $this->query->class(
-            FullyQualifiedName::fromString($input->getArgument(self::ARG_FQN))
+            FullyQualifiedName::fromString(
+                Cast::toString($input->getArgument(self::ARG_FQN))
+            )
         );
         if (!$class) {
             $output->writeln('Class not found');
@@ -38,6 +41,7 @@ class IndexQueryClassCommand extends Command
         foreach ($class->implementations() as $fqn) {
             $output->writeln(' - ' . (string)$fqn);
         }
+        return 0;
     }
 
     protected function configure(): void

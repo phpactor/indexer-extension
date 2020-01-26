@@ -20,6 +20,7 @@ use Phpactor\WorseReflection\Core\Reflection\ReflectionClassLike;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionInterface;
 use Phpactor\WorseReflection\Core\Reflector\SourceCodeReflector;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 class WorseIndexBuilder implements IndexBuilder
 {
@@ -61,7 +62,11 @@ class WorseIndexBuilder implements IndexBuilder
      */
     public function build(?string $subPath = null): Generator
     {
-        $this->logger->info(sprintf('Last update: %s (%s)', $this->index->lastUpdate(), DateTimeImmutable::createFromFormat('U', (string)$this->index->lastUpdate())->format('c')));
+        $this->logger->info(sprintf(
+            'Last update: %s (%s)',
+            $this->index->lastUpdate(),
+            $this->formatTimestamp()
+        ));
         $this->logger->info(sprintf('Starting pass 1/2: Indexing classes'));
 
         foreach ($this->createFileIterator($subPath) as $fileInfo) {
@@ -195,5 +200,14 @@ class WorseIndexBuilder implements IndexBuilder
             $classLike = $parent;
         }
         return array_values($parents);
+    }
+
+    private function formatTimestamp(): string
+    {
+        $format = date('c', $this->index->lastUpdate());
+        if (!$format) {
+            throw new RuntimeException('This never happens');
+        }
+        return $format;
     }
 }
