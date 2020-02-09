@@ -68,6 +68,7 @@ class IndexRefreshCommand extends Command
         }
         $progress->finish();
         $output->write(PHP_EOL);
+        $output->write(PHP_EOL);
 
         $output->writeln(sprintf(
             '<bg=green;fg=black;option>Done (%s operations in %s seconds, %sb of memory)</>',
