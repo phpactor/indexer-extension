@@ -10,4 +10,6 @@ interface IndexBuilder
      * @return Generator<string>
      */
     public function build(?string $subPath = null): Generator;
+
+    public function size(): int;
 }

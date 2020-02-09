@@ -5,6 +5,7 @@ namespace Phpactor\WorkspaceQuery\Adapter\Symfony\Console;
 use Phpactor\WorkspaceQuery\Model\Index;
 use Phpactor\WorkspaceQuery\Model\IndexBuilder;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -56,17 +57,25 @@ class IndexRefreshCommand extends Command
 
         $start = microtime(true);
         $index = 0;
+        $output->writeln('<info>Building index</info>');
+        $output->write(PHP_EOL);
+
+        $progress = new ProgressBar($output, $this->indexBuilder->size(), 0.001);
         foreach ($this->indexBuilder->build($subPath) as $tick) {
-            if (++$index % 500 === 0) {
-                $output->writeln('.');
+            if (!$output->isVerbose()) {
+                $progress->advance();
             }
         }
+        $progress->finish();
+        $output->write(PHP_EOL);
+
         $output->writeln(sprintf(
             '<bg=green;fg=black;option>Done (%s operations in %s seconds, %sb of memory)</>',
             $index,
             number_format(microtime(true) - $start, 2),
-            number_format(memory_get_peak_usage())
+            number_format(memory_get_usage(true))
         ));
+
         return 0;
     }
 }

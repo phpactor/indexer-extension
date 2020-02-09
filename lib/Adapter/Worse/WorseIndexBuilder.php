@@ -47,8 +47,6 @@ class WorseIndexBuilder implements IndexBuilder
      */
     private $logger;
 
-    private $indexed = [];
-
     public function __construct(
         Index $index,
         Filesystem $filesystem,
@@ -231,5 +229,10 @@ class WorseIndexBuilder implements IndexBuilder
             throw new RuntimeException('This never happens');
         }
         return $format;
+    }
+
+    public function size(): int
+    {
+        return count(iterator_to_array($this->createFileIterator()));
     }
 }
