@@ -107,6 +107,7 @@ class WorkspaceQueryExtension implements Extension
         foreach (array_keys($container->getServiceIdsForTag(WorseReflectionExtension::TAG_SOURCE_LOCATOR)) as $serviceId) {
             $builder->addLocator($container->get($serviceId));
         }
+        $builder->enableCache();
 
         return $builder->build();
     }
