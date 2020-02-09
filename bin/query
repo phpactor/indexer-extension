@@ -31,6 +31,7 @@ $container = PhpactorContainer::fromExtensions([
 ], [
     FilePathResolverExtension::PARAM_APPLICATION_ROOT => __DIR__ . '/../',
     WorkspaceQueryExtension::PARAM_INDEX_PATH => __DIR__ . '/../cache',
+    WorseReflectionExtension::PARAM_ENABLE_CACHE => true,
     LoggingExtension::PARAM_PATH => 'php://stderr',
     LoggingExtension::PARAM_ENABLED => true,
     LoggingExtension::PARAM_LEVEL => 'debug',

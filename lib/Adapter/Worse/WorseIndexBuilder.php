@@ -47,6 +47,7 @@ class WorseIndexBuilder implements IndexBuilder
      */
     private $logger;
 
+    private $indexed = [];
 
     public function __construct(
         Index $index,
@@ -70,83 +71,47 @@ class WorseIndexBuilder implements IndexBuilder
             $this->index->lastUpdate(),
             $this->formatTimestamp()
         ));
-        $this->logger->info(sprintf('Starting pass 1/2: Indexing classes'));
-        $generator = $this->createPass1Generator($subPath);
-        yield from $generator;
 
-        if (true === $generator->getReturn()) {
-            $this->logger->info(sprintf('Starting pass 2/2: Indexing implementations'));
-            yield from $this->createPass2Generator($subPath);
-        } else {
-            $this->logger->info(sprintf('Skipping pass 2/2: No changes'));
-        }
+        yield from $this->indexer($subPath);
 
         $this->index->write()->timestamp();
     }
 
     /**
-     * @param ReflectionClassCollection<ReflectionClassLike> $classes
+     * @return Generator<SplFileInfo>
      */
-    private function indexClasses(FilePath $fileInfo, ReflectionClassCollection $classes): void
+    private function indexer(?string $subPath): Generator
     {
-        foreach ($classes as $reflectionClass) {
-            assert($reflectionClass instanceof ReflectionClassLike);
-
-            $name = $reflectionClass->name()->full();
-            if (empty($name)) {
+        $count = 0;
+        foreach ($this->createFileIterator($subPath) as $fileInfo) {
+            if ($this->index->isFresh($fileInfo)) {
                 continue;
             }
-            $record = Invoke::new(ClassRecord::class, [
-                'lastModified' => $fileInfo->asSplFileInfo()->getMTime(),
-                'fqn' => FullyQualifiedName::fromString($name),
-                'type' => WorseUtil::classType($reflectionClass),
-                'filePath' => $reflectionClass->sourceCode()->path(),
-                'start' => ByteOffset::fromInt($reflectionClass->position()->start()),
-            ]);
 
-            $this->index->write()->class($record);
-        }
-    }
+            assert($fileInfo instanceof FilePath);
 
-    /**
-     * @param ReflectionClassCollection<ReflectionClassLike> $classes
-     */
-    private function updateClassRelations(FilePath $fileInfo, ReflectionClassCollection $classes): void
-    {
-        foreach ($classes as $classLike) {
-            if ($classLike instanceof ReflectionInterface) {
-                $this->updateClassImplementations($classLike, iterator_to_array($classLike->parents()));
+            $this->logger->debug(sprintf('Indexing: %s', $fileInfo->path()));
+
+            try {
+                $this->indexClasses(
+                    $fileInfo,
+                    $this->reflector->reflectClassesIn(
+                        SourceCode::fromPathAndString(
+                            $fileInfo->path(),
+                            file_get_contents($fileInfo->path())
+                        )
+                    )
+                );
+            } catch (SourceNotFound $e) {
+                $this->logger->error($e->getMessage());
             }
 
-            if ($classLike instanceof ReflectionClass) {
-                $this->updateClassImplementations($classLike, iterator_to_array($classLike->interfaces()));
-                $this->updateClassImplementations($classLike, $this->descendents($classLike));
-            }
+            yield $fileInfo->path();
+
+            $count++;
         }
-    }
 
-    /**
-     * @param ReflectionCollection<ReflectionClassLike> $implementedClasses
-     * @param array<ReflectionClassLike> $implementedClasses
-     */
-    private function updateClassImplementations(
-        ReflectionClassLike $implementingClass,
-        array $implementedClasses
-    ): void {
-        foreach ($implementedClasses as $implementedClass) {
-            $record = $this->index->query()->class(
-                FullyQualifiedName::fromString(
-                    $implementedClass->name()->full()
-                )
-            );
-
-            if (null === $record) {
-                return;
-            }
-
-            $record->addImplementation($implementingClass);
-            $this->index->write()->class($record);
-        }
+        return $count > 0;
     }
 
     /**
@@ -159,6 +124,87 @@ class WorseIndexBuilder implements IndexBuilder
             $files = $files->within(FilePath::fromString($subPath));
         }
         return $files;
+    }
+
+    /**
+     * @param ReflectionClassCollection<ReflectionClassLike> $classes
+     */
+    private function indexClasses(FilePath $fileInfo, ReflectionClassCollection $classes): void
+    {
+        $mtime = $fileInfo->asSplFileInfo()->getMTime();
+        foreach ($classes as $reflectionClass) {
+            $this->createClassIndex($reflectionClass, $mtime);
+            $this->updateClassRelations(
+                $reflectionClass
+            );
+        }
+    }
+
+    private function createClassIndex(ReflectionClassLike $reflectionClass, int $mtime): ?ClassRecord
+    {
+        assert($reflectionClass instanceof ReflectionClassLike);
+        
+        $name = $reflectionClass->name()->full();
+        
+        if (empty($name)) {
+            return null;
+        }
+
+        $name = FullyQualifiedName::fromString($name);
+
+        if ($class = $this->index->query()->class($name)) {
+            return $class;
+        }
+        
+        $record = Invoke::new(ClassRecord::class, [
+            'lastModified' => $mtime,
+            'fqn' => $name,
+            'type' => WorseUtil::classType($reflectionClass),
+            'filePath' => $reflectionClass->sourceCode()->path(),
+            'start' => ByteOffset::fromInt($reflectionClass->position()->start()),
+        ]);
+
+        $this->index->write()->class($record);
+
+        return $record;
+    }
+
+    private function updateClassRelations(ReflectionClassLike $classLike): void
+    {
+        if ($classLike instanceof ReflectionInterface) {
+            $this->updateClassImplementations($classLike, iterator_to_array($classLike->parents()));
+        }
+
+        if ($classLike instanceof ReflectionClass) {
+            $this->updateClassImplementations($classLike, iterator_to_array($classLike->interfaces()));
+            $this->updateClassImplementations($classLike, $this->descendents($classLike));
+        }
+    }
+
+    /**
+     * @param ReflectionCollection<ReflectionClassLike> $implementedClasses
+     * @param array<ReflectionClassLike> $implementedClasses
+     */
+    private function updateClassImplementations(
+        ReflectionClassLike $implementingClass,
+        array $implementedClasses
+    ): void {
+        foreach ($implementedClasses as $implementedClass) {
+            $implementedFqn = FullyQualifiedName::fromString(
+                $implementedClass->name()->full()
+            );
+
+            $mtime = filemtime($implementedClass->sourceCode()->path());
+
+            $record = $this->createClassIndex($implementedClass, $mtime ?: 0);
+
+            if (null === $record) {
+                continue;
+            }
+
+            $record->addImplementation($implementingClass);
+            $this->index->write()->class($record);
+        }
     }
 
     /**
@@ -185,64 +231,5 @@ class WorseIndexBuilder implements IndexBuilder
             throw new RuntimeException('This never happens');
         }
         return $format;
-    }
-
-    /**
-     * @return Generator<SplFileInfo>
-     */
-    private function createPass1Generator(?string $subPath): Generator
-    {
-        $count = 0;
-        foreach ($this->createFileIterator($subPath) as $fileInfo) {
-            if ($this->index->isFresh($fileInfo)) {
-                continue;
-            }
-
-            assert($fileInfo instanceof FilePath);
-            $this->logger->debug(sprintf('Indexing: %s', $fileInfo->path()));
-            try {
-                $this->indexClasses(
-                    $fileInfo,
-                    $this->reflector->reflectClassesIn(
-                        SourceCode::fromPathAndString(
-                            $fileInfo->path(),
-                            file_get_contents($fileInfo->path())
-                        )
-                    )
-                );
-            } catch (SourceNotFound $e) {
-                $this->logger->error($e->getMessage());
-            }
-
-            yield $fileInfo->path();
-            $count++;
-        }
-
-        return $count > 0;
-    }
-
-    /**
-     * @return Generator<SplFileInfo>
-     */
-    private function createPass2Generator(?string $subPath): Generator
-    {
-        foreach ($this->createFileIterator($subPath) as $fileInfo) {
-            if ($this->index->isFresh($fileInfo)) {
-                continue;
-            }
-            $this->logger->debug(sprintf('Implementations: %s', $fileInfo->path()));
-
-            assert($fileInfo instanceof FilePath);
-            try {
-                $this->updateClassRelations(
-                    $fileInfo,
-                    $this->reflector->reflectClassesIn(file_get_contents($fileInfo->path()))
-                );
-            } catch (SourceNotFound $e) {
-                $this->logger->error($e->getMessage());
-            }
-
-            yield $fileInfo->path();
-        }
     }
 }

@@ -10,6 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phpactor\WorkspaceQuery\Util\Cast;
+use Webmozart\PathUtil\Path;
 
 class IndexRefreshCommand extends Command
 {
@@ -41,14 +42,21 @@ class IndexRefreshCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $subPath = Cast::toStringOrNull($input->getArgument(self::ARG_SUB_PATH));
         if ($input->getOption(self::OPT_RESET)) {
             $this->index->reset();
         }
+
+        if (is_string($subPath)) {
+            $subPath = Path::join(
+                Cast::toStringOrNull(getcwd()),
+                $subPath
+            );
+        }
+
         $start = microtime(true);
         $index = 0;
-        foreach ($this->indexBuilder->build(
-            Cast::toStringOrNull($input->getArgument(self::ARG_SUB_PATH))
-        ) as $tick) {
+        foreach ($this->indexBuilder->build($subPath) as $tick) {
             if (++$index % 500 === 0) {
                 $output->writeln('.');
             }
