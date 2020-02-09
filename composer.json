@@ -1,6 +1,6 @@
 {
-    "name": "phpactor/project-query",
-    "description": "Query a project",
+    "name": "phpactor/workspace-query",
+    "description": "Query a workspace",
     "type": "phpactor-extension",
     "license": "MIT",
     "minimum-stability": "dev",
@@ -35,16 +35,16 @@
     },
     "autoload": {
         "psr-4": {
-            "Phpactor\\ProjectQuery\\": "lib/"
+            "Phpactor\\WorkspaceQuery\\": "lib/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Phpactor\\ProjectQuery\\Tests\\": "tests/"
+            "Phpactor\\WorkspaceQuery\\Tests\\": "tests/"
         }
     },
     "extra": {
-        "phpactor.extension_class": "Phpactor\\ProjectQuery\\Extension\\ProjectQueryExtension",
+        "phpactor.extension_class": "Phpactor\\WorkspaceQuery\\Extension\\WorkspaceQueryExtension",
         "branch-alias": {
             "dev-master": "0.1.x-dev"
         }
