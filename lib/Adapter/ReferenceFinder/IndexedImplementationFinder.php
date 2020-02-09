@@ -45,7 +45,7 @@ class IndexedImplementationFinder implements ClassImplementationFinder
     {
         if (false === $this->index->exists()) {
             throw new RuntimeException(sprintf(
-                'The index must be built before exceuting this operation. Run "%s refresh" on the CLI',
+                'The index must be initialized. Run "%s index:refresh" on the CLI',
                 $_SERVER['SCRIPT_FILENAME']
             ));
         }
