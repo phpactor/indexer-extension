@@ -61,7 +61,12 @@ class IndexRefreshCommand extends Command
                 $output->writeln('.');
             }
         }
-        $output->writeln(sprintf('<bg=green;fg=black;option>Done (%s operations in %s seconds)</>', $index, number_format(microtime(true) - $start, 2)));
+        $output->writeln(sprintf(
+            '<bg=green;fg=black;option>Done (%s operations in %s seconds, %sb of memory)</>',
+            $index,
+            number_format(microtime(true) - $start, 2),
+            number_format(memory_get_peak_usage())
+        ));
         return 0;
     }
 }
