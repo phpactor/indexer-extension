@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Util;
+namespace Phpactor\WorkspaceQuery\Util;
 
 use RuntimeException;
 

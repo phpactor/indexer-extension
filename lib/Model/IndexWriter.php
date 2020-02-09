@@ -1,8 +1,8 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Model;
+namespace Phpactor\WorkspaceQuery\Model;
 
-use Phpactor\ProjectQuery\Model\Record\ClassRecord;
+use Phpactor\WorkspaceQuery\Model\Record\ClassRecord;
 
 interface IndexWriter
 {

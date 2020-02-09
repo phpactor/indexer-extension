@@ -1,9 +1,9 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Adapter\ReferenceFinder;
+namespace Phpactor\WorkspaceQuery\Adapter\ReferenceFinder;
 
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\ProjectQuery\Model\Index;
+use Phpactor\WorkspaceQuery\Model\Index;
 use Phpactor\ReferenceFinder\ClassImplementationFinder;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\Location;

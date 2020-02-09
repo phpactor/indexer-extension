@@ -1,11 +1,11 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Tests\Integration\Php;
+namespace Phpactor\WorkspaceQuery\Tests\Integration\Php;
 
-use Phpactor\ProjectQuery\Adapter\Php\Serialized\FileRepository;
-use Phpactor\ProjectQuery\Adapter\Php\Serialized\SerializedIndex;
-use Phpactor\ProjectQuery\Model\Index;
-use Phpactor\ProjectQuery\Tests\Integration\IndexTestCase;
+use Phpactor\WorkspaceQuery\Adapter\Php\Serialized\FileRepository;
+use Phpactor\WorkspaceQuery\Adapter\Php\Serialized\SerializedIndex;
+use Phpactor\WorkspaceQuery\Model\Index;
+use Phpactor\WorkspaceQuery\Tests\Integration\IndexTestCase;
 
 class SerializedIndexTest extends IndexTestCase
 {

@@ -1,11 +1,11 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Adapter\Php\Serialized;
+namespace Phpactor\WorkspaceQuery\Adapter\Php\Serialized;
 
 use Phpactor\Filesystem\Domain\FilePath;
-use Phpactor\ProjectQuery\Model\Index;
-use Phpactor\ProjectQuery\Model\IndexQuery;
-use Phpactor\ProjectQuery\Model\IndexWriter;
+use Phpactor\WorkspaceQuery\Model\Index;
+use Phpactor\WorkspaceQuery\Model\IndexQuery;
+use Phpactor\WorkspaceQuery\Model\IndexWriter;
 
 class SerializedIndex implements Index
 {

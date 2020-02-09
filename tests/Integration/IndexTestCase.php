@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Tests\Integration;
+namespace Phpactor\WorkspaceQuery\Tests\Integration;
 
 use Phpactor\Name\FullyQualifiedName;
 use function Safe\file_get_contents;

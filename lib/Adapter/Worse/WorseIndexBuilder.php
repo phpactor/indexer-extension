@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Adapter\Worse;
+namespace Phpactor\WorkspaceQuery\Adapter\Worse;
 
 use DTL\Invoke\Invoke;
 use Generator;
@@ -8,9 +8,9 @@ use Phpactor\Filesystem\Domain\FileList;
 use Phpactor\Filesystem\Domain\FilePath;
 use Phpactor\Filesystem\Domain\Filesystem;
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\ProjectQuery\Model\Index;
-use Phpactor\ProjectQuery\Model\IndexBuilder;
-use Phpactor\ProjectQuery\Model\Record\ClassRecord;
+use Phpactor\WorkspaceQuery\Model\Index;
+use Phpactor\WorkspaceQuery\Model\IndexBuilder;
+use Phpactor\WorkspaceQuery\Model\Record\ClassRecord;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
 use Phpactor\WorseReflection\Core\Reflection\Collection\ReflectionClassCollection;

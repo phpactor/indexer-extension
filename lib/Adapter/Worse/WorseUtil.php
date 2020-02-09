@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Adapter\Worse;
+namespace Phpactor\WorkspaceQuery\Adapter\Worse;
 
 use Phpactor\WorseReflection\Core\Reflection\ReflectionClassLike;
 use RuntimeException;

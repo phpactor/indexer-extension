@@ -1,10 +1,10 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Tests\Integration;
+namespace Phpactor\WorkspaceQuery\Tests\Integration;
 
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\ProjectQuery\Adapter\Php\InMemory\InMemoryIndex;
-use Phpactor\ProjectQuery\Adapter\Php\InMemory\InMemoryRepository;
+use Phpactor\WorkspaceQuery\Adapter\Php\InMemory\InMemoryIndex;
+use Phpactor\WorkspaceQuery\Adapter\Php\InMemory\InMemoryRepository;
 use function Safe\file_get_contents;
 
 abstract class IndexBuilderIndexTestCase extends InMemoryTestCase

@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Model\Record;
+namespace Phpactor\WorkspaceQuery\Model\Record;
 
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\TextDocument\ByteOffset;

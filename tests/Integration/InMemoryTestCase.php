@@ -1,14 +1,14 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Tests\Integration;
+namespace Phpactor\WorkspaceQuery\Tests\Integration;
 
 use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
-use Phpactor\ProjectQuery\Adapter\Php\InMemory\InMemoryIndex;
-use Phpactor\ProjectQuery\Adapter\Php\InMemory\InMemoryRepository;
-use Phpactor\ProjectQuery\Model\Index;
-use Phpactor\ProjectQuery\Adapter\Worse\WorseIndexBuilder;
-use Phpactor\ProjectQuery\Model\IndexBuilder;
-use Phpactor\ProjectQuery\Tests\IntegrationTestCase;
+use Phpactor\WorkspaceQuery\Adapter\Php\InMemory\InMemoryIndex;
+use Phpactor\WorkspaceQuery\Adapter\Php\InMemory\InMemoryRepository;
+use Phpactor\WorkspaceQuery\Model\Index;
+use Phpactor\WorkspaceQuery\Adapter\Worse\WorseIndexBuilder;
+use Phpactor\WorkspaceQuery\Model\IndexBuilder;
+use Phpactor\WorkspaceQuery\Tests\IntegrationTestCase;
 use Phpactor\WorseReflection\Core\SourceCodeLocator\StubSourceLocator;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\WorseReflection\ReflectorBuilder;

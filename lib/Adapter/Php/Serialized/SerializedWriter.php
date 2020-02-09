@@ -1,9 +1,9 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Adapter\Php\Serialized;
+namespace Phpactor\WorkspaceQuery\Adapter\Php\Serialized;
 
-use Phpactor\ProjectQuery\Model\IndexWriter;
-use Phpactor\ProjectQuery\Model\Record\ClassRecord;
+use Phpactor\WorkspaceQuery\Model\IndexWriter;
+use Phpactor\WorkspaceQuery\Model\Record\ClassRecord;
 
 class SerializedWriter implements IndexWriter
 {

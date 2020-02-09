@@ -1,9 +1,9 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Model;
+namespace Phpactor\WorkspaceQuery\Model;
 
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\ProjectQuery\Model\Record\ClassRecord;
+use Phpactor\WorkspaceQuery\Model\Record\ClassRecord;
 
 interface IndexQuery
 {

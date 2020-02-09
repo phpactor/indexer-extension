@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Tests;
+namespace Phpactor\WorkspaceQuery\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Phpactor\TestUtils\Workspace;

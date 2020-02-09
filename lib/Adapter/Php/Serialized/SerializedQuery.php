@@ -1,10 +1,10 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Adapter\Php\Serialized;
+namespace Phpactor\WorkspaceQuery\Adapter\Php\Serialized;
 
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\ProjectQuery\Model\IndexQuery;
-use Phpactor\ProjectQuery\Model\Record\ClassRecord;
+use Phpactor\WorkspaceQuery\Model\IndexQuery;
+use Phpactor\WorkspaceQuery\Model\Record\ClassRecord;
 
 class SerializedQuery implements IndexQuery
 {

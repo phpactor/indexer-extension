@@ -1,15 +1,15 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Adapter\Symfony\Console;
+namespace Phpactor\WorkspaceQuery\Adapter\Symfony\Console;
 
-use Phpactor\ProjectQuery\Model\Index;
-use Phpactor\ProjectQuery\Model\IndexBuilder;
+use Phpactor\WorkspaceQuery\Model\Index;
+use Phpactor\WorkspaceQuery\Model\IndexBuilder;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Phpactor\ProjectQuery\Util\Cast;
+use Phpactor\WorkspaceQuery\Util\Cast;
 
 class IndexRefreshCommand extends Command
 {

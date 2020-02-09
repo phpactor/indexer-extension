@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Extension;
+namespace Phpactor\WorkspaceQuery\Extension;
 
 use Phpactor\Container\Container;
 use Phpactor\Container\ContainerBuilder;
@@ -12,19 +12,19 @@ use Phpactor\Extension\SourceCodeFilesystem\SourceCodeFilesystemExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
 use Phpactor\MapResolver\Resolver;
-use Phpactor\ProjectQuery\Adapter\Php\Serialized\FileRepository;
-use Phpactor\ProjectQuery\Adapter\Php\Serialized\SerializedIndex;
-use Phpactor\ProjectQuery\Adapter\ReferenceFinder\IndexedImplementationFinder;
-use Phpactor\ProjectQuery\Adapter\Symfony\Console\IndexQueryClassCommand;
-use Phpactor\ProjectQuery\Adapter\Symfony\Console\IndexRefreshCommand;
-use Phpactor\ProjectQuery\Adapter\Worse\WorseIndexBuilder;
-use Phpactor\ProjectQuery\Model\Index;
-use Phpactor\ProjectQuery\Model\IndexBuilder;
-use Phpactor\ProjectQuery\Model\IndexQuery;
+use Phpactor\WorkspaceQuery\Adapter\Php\Serialized\FileRepository;
+use Phpactor\WorkspaceQuery\Adapter\Php\Serialized\SerializedIndex;
+use Phpactor\WorkspaceQuery\Adapter\ReferenceFinder\IndexedImplementationFinder;
+use Phpactor\WorkspaceQuery\Adapter\Symfony\Console\IndexQueryClassCommand;
+use Phpactor\WorkspaceQuery\Adapter\Symfony\Console\IndexRefreshCommand;
+use Phpactor\WorkspaceQuery\Adapter\Worse\WorseIndexBuilder;
+use Phpactor\WorkspaceQuery\Model\Index;
+use Phpactor\WorkspaceQuery\Model\IndexBuilder;
+use Phpactor\WorkspaceQuery\Model\IndexQuery;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\WorseReflection\ReflectorBuilder;
 
-class ProjectQueryExtension implements Extension
+class WorkspaceQueryExtension implements Extension
 {
     const PARAM_INDEX_PATH = 'project_query.index_path';
 

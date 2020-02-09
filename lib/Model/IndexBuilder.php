@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Model;
+namespace Phpactor\WorkspaceQuery\Model;
 
 use Generator;
 

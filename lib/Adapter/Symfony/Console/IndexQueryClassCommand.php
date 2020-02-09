@@ -1,10 +1,10 @@
 <?php
 
-namespace Phpactor\ProjectQuery\Adapter\Symfony\Console;
+namespace Phpactor\WorkspaceQuery\Adapter\Symfony\Console;
 
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\ProjectQuery\Model\IndexQuery;
-use Phpactor\ProjectQuery\Util\Cast;
+use Phpactor\WorkspaceQuery\Model\IndexQuery;
+use Phpactor\WorkspaceQuery\Util\Cast;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
