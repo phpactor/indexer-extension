@@ -61,6 +61,36 @@ EOT
         self::assertCount(3, $references);
     }
 
+    public function testRemovesExistingReferences(): void
+    {
+        $repository = new InMemoryRepository();
+        $index = new InMemoryIndex($repository);
+        $indexBuilder = $this->createBuilder($index);
+        $indexBuilder->build();
+
+        $references = $foo = $index->query()->implementing(
+            FullyQualifiedName::fromString('AbstractClass')
+        );
+        self::assertCount(2, $references);
+
+        $this->workspace()->put(
+            'project/AbstractClassImplementation1.php',
+            <<<'EOT'
+<?php
+
+class AbstractClassImplementation1
+{
+}
+EOT
+        );
+
+        $indexBuilder->build();
+        $references = $foo = $index->query()->implementing(
+            FullyQualifiedName::fromString('AbstractClass')
+        );
+        self::assertCount(1, $references);
+    }
+
     protected function setUp(): void
     {
         $this->workspace()->reset();
