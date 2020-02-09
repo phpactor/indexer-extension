@@ -6,6 +6,7 @@ use Phpactor\Filesystem\Domain\FilePath;
 use Phpactor\WorkspaceQuery\Model\Index;
 use Phpactor\WorkspaceQuery\Model\IndexQuery;
 use Phpactor\WorkspaceQuery\Model\IndexWriter;
+use SplFileInfo;
 
 class InMemoryIndex implements Index
 {
@@ -40,7 +41,7 @@ class InMemoryIndex implements Index
         return new InMemoryWriter($this->repository);
     }
 
-    public function isFresh(FilePath $fileInfo): bool
+    public function isFresh(SplFileInfo $fileInfo): bool
     {
         return false;
     }

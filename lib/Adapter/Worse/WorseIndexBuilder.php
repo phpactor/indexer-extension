@@ -87,10 +87,6 @@ class WorseIndexBuilder implements IndexBuilder
     {
         $count = 0;
         foreach ($this->createFileIterator($subPath) as $fileInfo) {
-            if ($this->index->isFresh($fileInfo)) {
-                continue;
-            }
-
             assert($fileInfo instanceof FilePath);
 
             $this->logger->debug(sprintf('Indexing: %s', $fileInfo->path()));
@@ -126,7 +122,9 @@ class WorseIndexBuilder implements IndexBuilder
         if ($subPath) {
             $files = $files->within(FilePath::fromString($subPath));
         }
-        return $files;
+        return $files->filter(function (SplFileInfo $fileInfo) {
+            return false === $this->index->isFresh($fileInfo);
+        });
     }
 
     /**

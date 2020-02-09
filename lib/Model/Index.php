@@ -3,6 +3,7 @@
 namespace Phpactor\WorkspaceQuery\Model;
 
 use Phpactor\Filesystem\Domain\FilePath;
+use SplFileInfo;
 
 interface Index
 {
@@ -12,7 +13,7 @@ interface Index
 
     public function write(): IndexWriter;
 
-    public function isFresh(FilePath $fileInfo): bool;
+    public function isFresh(SplFileInfo $fileInfo): bool;
 
     public function reset(): void;
 

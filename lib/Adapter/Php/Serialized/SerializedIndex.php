@@ -6,6 +6,7 @@ use Phpactor\Filesystem\Domain\FilePath;
 use Phpactor\WorkspaceQuery\Model\Index;
 use Phpactor\WorkspaceQuery\Model\IndexQuery;
 use Phpactor\WorkspaceQuery\Model\IndexWriter;
+use SplFileInfo;
 
 class SerializedIndex implements Index
 {
@@ -34,9 +35,9 @@ class SerializedIndex implements Index
         return new SerializedWriter($this->repository);
     }
 
-    public function isFresh(FilePath $fileInfo): bool
+    public function isFresh(SplFileInfo $fileInfo): bool
     {
-        $mtime = filemtime($fileInfo->path());
+        $mtime = $fileInfo->getMTime();
 
         return $mtime < $this->lastUpdate();
     }

@@ -44,6 +44,7 @@ class IndexRefreshCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $subPath = Cast::toStringOrNull($input->getArgument(self::ARG_SUB_PATH));
+
         if ($input->getOption(self::OPT_RESET)) {
             $this->index->reset();
         }
@@ -56,23 +57,23 @@ class IndexRefreshCommand extends Command
         }
 
         $start = microtime(true);
-        $index = 0;
         $output->writeln('<info>Building index</info>');
         $output->write(PHP_EOL);
 
         $progress = new ProgressBar($output, $this->indexBuilder->size(), 0.001);
         foreach ($this->indexBuilder->buildGenerator($subPath) as $tick) {
-            if (!$output->isVerbose()) {
-                $progress->advance();
+            if ($output->isVerbose()) {
+                continue;
             }
+            $progress->advance();
         }
+
         $progress->finish();
         $output->write(PHP_EOL);
         $output->write(PHP_EOL);
 
         $output->writeln(sprintf(
-            '<bg=green;fg=black;option>Done (%s operations in %s seconds, %sb of memory)</>',
-            $index,
+            '<bg=green;fg=black;option>Done in %s seconds using %sb of memory</>',
             number_format(microtime(true) - $start, 2),
             number_format(memory_get_usage(true))
         ));
