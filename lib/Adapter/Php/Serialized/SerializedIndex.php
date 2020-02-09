@@ -45,4 +45,9 @@ class SerializedIndex implements Index
     {
         $this->repository->reset();
     }
+
+    public function exists(): bool
+    {
+        return $this->repository->lastUpdate() > 0;
+    }
 }

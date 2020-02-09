@@ -61,7 +61,7 @@ class IndexRefreshCommand extends Command
         $output->write(PHP_EOL);
 
         $progress = new ProgressBar($output, $this->indexBuilder->size(), 0.001);
-        foreach ($this->indexBuilder->build($subPath) as $tick) {
+        foreach ($this->indexBuilder->buildGenerator($subPath) as $tick) {
             if (!$output->isVerbose()) {
                 $progress->advance();
             }

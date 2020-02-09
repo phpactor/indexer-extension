@@ -11,6 +11,11 @@ class InMemoryRepository
      */
     private $classes = [];
 
+    /**
+     * @var int
+     */
+    public $lastUpdate = 0;
+
     public function putClass(ClassRecord $class): void
     {
         $this->classes[$class->fqn()->__toString()] = $class;

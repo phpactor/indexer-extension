@@ -42,7 +42,7 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
         $repository = new InMemoryRepository();
         $index = new InMemoryIndex($repository);
         $indexBuilder = $this->createBuilder($index);
-        iterator_to_array($indexBuilder->build());
+        iterator_to_array($indexBuilder->buildGenerator());
         return $index;
     }
 }

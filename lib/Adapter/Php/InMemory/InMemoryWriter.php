@@ -24,5 +24,6 @@ class InMemoryWriter implements IndexWriter
 
     public function timestamp(): void
     {
+        $this->repository->lastUpdate = time();
     }
 }

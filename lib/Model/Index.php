@@ -15,4 +15,6 @@ interface Index
     public function isFresh(FilePath $fileInfo): bool;
 
     public function reset(): void;
+
+    public function exists(): bool;
 }

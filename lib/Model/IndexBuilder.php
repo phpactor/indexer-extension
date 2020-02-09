@@ -9,7 +9,9 @@ interface IndexBuilder
     /**
      * @return Generator<string>
      */
-    public function build(?string $subPath = null): Generator;
+    public function buildGenerator(?string $subPath = null): Generator;
+
+    public function build(?string $subPath = null): void;
 
     public function size(): int;
 }

@@ -59,10 +59,15 @@ class WorseIndexBuilder implements IndexBuilder
         $this->logger = $logger;
     }
 
+    public function build(?string $subPath = null): void
+    {
+        iterator_to_array($this->buildGenerator($subPath));
+    }
+
     /**
      * @return Generator<string>
      */
-    public function build(?string $subPath = null): Generator
+    public function buildGenerator(?string $subPath = null): Generator
     {
         $this->logger->info(sprintf(
             'Last update: %s (%s)',

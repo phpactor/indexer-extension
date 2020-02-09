@@ -19,10 +19,10 @@ class IndexedImplementationFinderTest extends InMemoryTestCase
     public function testFinder()
     {
         $index = $this->createIndex();
-        $generator = $this->createBuilder($index)->build();
-        iterator_to_array($generator);
+        $builder = $this->createBuilder($index);
+        $builder->build();
 
-        $implementationFinder = new IndexedImplementationFinder($index, $this->createReflector());
+        $implementationFinder = new IndexedImplementationFinder($index, $builder, $this->createReflector());
         $locations = $implementationFinder->findImplementations(TextDocumentBuilder::create(
             <<<'EOT'
 <?php
@@ -41,6 +41,7 @@ EOT
         $index->reset();
         $implementationFinder = new IndexedImplementationFinder(
             $index,
+            $this->createBuilder($index),
             $this->createReflector()
         );
         $locations = $implementationFinder->findImplementations(TextDocumentBuilder::create(

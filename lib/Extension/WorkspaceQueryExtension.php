@@ -83,6 +83,7 @@ class WorkspaceQueryExtension implements Extension
         $container->register(IndexedImplementationFinder::class, function (Container $container) {
             return new IndexedImplementationFinder(
                 $container->get(Index::class),
+                $container->get(IndexBuilder::class),
                 $this->createReflector($container)
             );
         }, [ ReferenceFinderExtension::TAG_IMPLEMENTATION_FINDER => []]);

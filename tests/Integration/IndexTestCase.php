@@ -11,7 +11,7 @@ abstract class IndexTestCase extends InMemoryTestCase
     {
         $index = $this->createIndex();
         $builder = $this->createBuilder($index);
-        iterator_to_array($builder->build());
+        iterator_to_array($builder->buildGenerator());
         $references = $foo = $index->query()->implementing(
             FullyQualifiedName::fromString('Index')
         );
