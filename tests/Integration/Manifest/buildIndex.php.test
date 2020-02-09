@@ -1,3 +1,11 @@
+// File: composer.json
+{
+"autoload": {
+    "psr-4": {
+        "": "project"
+    }
+}
+}
 // File: project/Index.php
 <?php
 interface Index

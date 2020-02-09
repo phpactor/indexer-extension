@@ -31,6 +31,16 @@ class WorkspaceQueryExtension implements Extension
     /**
      * {@inheritDoc}
      */
+    public function configure(Resolver $schema)
+    {
+        $schema->setDefaults([
+            self::PARAM_INDEX_PATH => '%cache%/index/%project_id%',
+        ]);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function load(ContainerBuilder $container)
     {
         $container->register(IndexRefreshCommand::class, function (Container $container) {
@@ -76,16 +86,6 @@ class WorkspaceQueryExtension implements Extension
                 $this->createReflector($container)
             );
         }, [ ReferenceFinderExtension::TAG_IMPLEMENTATION_FINDER => []]);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function configure(Resolver $schema)
-    {
-        $schema->setDefaults([
-            self::PARAM_INDEX_PATH => '%cache%/index',
-        ]);
     }
 
     private function createReflector(Container $container): Reflector

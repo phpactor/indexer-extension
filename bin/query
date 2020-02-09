@@ -13,14 +13,14 @@ use Phpactor\Extension\Rpc\RpcExtension;
 use Phpactor\Extension\SourceCodeFilesystem\SourceCodeFilesystemExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
-use Phpactor\ProjectQuery\Extension\ProjectQueryExtension;
+use Phpactor\WorkspaceQuery\Extension\WorkspaceQueryExtension;
 use Symfony\Component\Console\Application;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $container = PhpactorContainer::fromExtensions([
     ConsoleExtension::class,
-    ProjectQueryExtension::class,
+    WorkspaceQueryExtension::class,
     FilePathResolverExtension::class,
     LoggingExtension::class,
     SourceCodeFilesystemExtension::class,
@@ -30,7 +30,7 @@ $container = PhpactorContainer::fromExtensions([
     ReferenceFinderExtension::class,
 ], [
     FilePathResolverExtension::PARAM_APPLICATION_ROOT => __DIR__ . '/../',
-    ProjectQueryExtension::PARAM_INDEX_PATH => __DIR__ . '/../cache',
+    WorkspaceQueryExtension::PARAM_INDEX_PATH => __DIR__ . '/../cache',
     LoggingExtension::PARAM_PATH => 'php://stderr',
     LoggingExtension::PARAM_ENABLED => true,
     LoggingExtension::PARAM_LEVEL => 'debug',
