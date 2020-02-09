@@ -10,7 +10,7 @@ use Phpactor\TextDocument\Location;
 use Phpactor\TextDocument\Locations;
 use Phpactor\TextDocument\TextDocument;
 use Phpactor\TextDocument\TextDocumentUri;
-use Phpactor\WorkspaceQuery\Model\IndexBuilder;
+use Phpactor\WorkspaceQuery\Model\IndexUpdater;
 use Phpactor\WorseReflection\Core\Reflector\SourceCodeReflector;
 use RuntimeException;
 
@@ -27,15 +27,15 @@ class IndexedImplementationFinder implements ClassImplementationFinder
     private $reflector;
 
     /**
-     * @var IndexBuilder
+     * @var IndexUpdater
      */
-    private $indexBuilder;
+    private $indexUpdater;
 
-    public function __construct(Index $index, IndexBuilder $indexBuilder, SourceCodeReflector $reflector)
+    public function __construct(Index $index, IndexUpdater $indexUpdater, SourceCodeReflector $reflector)
     {
         $this->index = $index;
         $this->reflector = $reflector;
-        $this->indexBuilder = $indexBuilder;
+        $this->indexUpdater = $indexUpdater;
     }
 
     /**
@@ -50,7 +50,7 @@ class IndexedImplementationFinder implements ClassImplementationFinder
             ));
         }
 
-        $this->indexBuilder->build();
+        $this->indexUpdater->build();
 
         $offset = $this->reflector->reflectOffset($document, $byteOffset->toInt());
 

@@ -20,13 +20,15 @@ use Phpactor\WorkspaceQuery\Adapter\Symfony\Console\IndexRefreshCommand;
 use Phpactor\WorkspaceQuery\Adapter\Worse\WorseIndexBuilder;
 use Phpactor\WorkspaceQuery\Model\Index;
 use Phpactor\WorkspaceQuery\Model\IndexBuilder;
+use Phpactor\WorkspaceQuery\Model\IndexBuilder\NullIndexUpdater;
 use Phpactor\WorkspaceQuery\Model\IndexQuery;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\WorseReflection\ReflectorBuilder;
 
 class WorkspaceQueryExtension implements Extension
 {
-    const PARAM_INDEX_PATH = 'project_query.index_path';
+    const PARAM_INDEX_PATH = 'workspace_query.index_path';
+    const PARAM_AUTO_REBUILD_INDEX = 'workspace_query.auto_rebuild_index';
 
     /**
      * {@inheritDoc}
@@ -35,6 +37,7 @@ class WorkspaceQueryExtension implements Extension
     {
         $schema->setDefaults([
             self::PARAM_INDEX_PATH => '%cache%/index/%project_id%',
+            self::PARAM_AUTO_REBUILD_INDEX => true,
         ]);
     }
 
@@ -63,6 +66,14 @@ class WorkspaceQueryExtension implements Extension
             );
         });
 
+        $container->register(IndexUpdater::class, function (Container $container) {
+            if ($container->getParameter(self::PARAM_AUTO_REBUILD_INDEX)) {
+                return $container->get(IndexBuilder::class);
+            }
+
+            return new NullIndexUpdater();
+        });
+
         $container->register(Index::class, function (Container $container) {
             $repository = new FileRepository(
                 $container->get(
@@ -83,7 +94,7 @@ class WorkspaceQueryExtension implements Extension
         $container->register(IndexedImplementationFinder::class, function (Container $container) {
             return new IndexedImplementationFinder(
                 $container->get(Index::class),
-                $container->get(IndexBuilder::class),
+                $container->get(IndexUpdater::class),
                 $this->createReflector($container)
             );
         }, [ ReferenceFinderExtension::TAG_IMPLEMENTATION_FINDER => []]);
