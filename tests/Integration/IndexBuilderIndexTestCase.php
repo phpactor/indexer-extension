@@ -31,6 +31,34 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
         self::assertCount(2, $references);
     }
 
+    public function testPicksUpNewFiles(): void
+    {
+        $repository = new InMemoryRepository();
+        $index = new InMemoryIndex($repository);
+        $indexBuilder = $this->createBuilder($index);
+        $indexBuilder->build();
+
+        $references = $foo = $index->query()->implementing(
+            FullyQualifiedName::fromString('AbstractClass')
+        );
+        self::assertCount(2, $references);
+
+        $this->workspace()->put('project/Foobar.php', <<<'EOT'
+<?php
+
+class Foobar extends AbstractClass
+{
+}
+EOT
+    );
+
+		$indexBuilder->build();
+        $references = $foo = $index->query()->implementing(
+            FullyQualifiedName::fromString('AbstractClass')
+        );
+        self::assertCount(3, $references);
+    }
+
     protected function setUp(): void
     {
         $this->workspace()->reset();
@@ -41,8 +69,7 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
     {
         $repository = new InMemoryRepository();
         $index = new InMemoryIndex($repository);
-        $indexBuilder = $this->createBuilder($index);
-        iterator_to_array($indexBuilder->buildGenerator());
+        $this->createBuilder($index)->build();
         return $index;
     }
 }
