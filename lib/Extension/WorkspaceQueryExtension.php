@@ -22,6 +22,7 @@ use Phpactor\WorkspaceQuery\Model\Index;
 use Phpactor\WorkspaceQuery\Model\IndexBuilder;
 use Phpactor\WorkspaceQuery\Model\IndexBuilder\NullIndexUpdater;
 use Phpactor\WorkspaceQuery\Model\IndexQuery;
+use Phpactor\WorkspaceQuery\Model\IndexUpdater;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\WorseReflection\ReflectorBuilder;
 
