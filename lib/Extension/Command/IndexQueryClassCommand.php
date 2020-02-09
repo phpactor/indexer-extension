@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Adapter\Symfony\Console;
+namespace Phpactor\WorkspaceQuery\Extension\Command;
 
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\WorkspaceQuery\Model\IndexQuery;

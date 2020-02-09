@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Adapter\Symfony\Console;
+namespace Phpactor\WorkspaceQuery\Extension\Command;
 
 use Phpactor\WorkspaceQuery\Model\Index;
 use Phpactor\WorkspaceQuery\Model\IndexBuilder;
