@@ -55,7 +55,7 @@ class WorkspaceQueryExtension implements Extension
 
         $container->register(IndexQueryClassCommand::class, function (Container $container) {
             return new IndexQueryClassCommand($container->get(IndexQuery::class));
-        }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:query:implementations']]);
+        }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:query:class']]);
 
         $container->register(IndexBuilder::class, function (Container $container) {
             return new WorseIndexBuilder(
