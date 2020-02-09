@@ -43,16 +43,18 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
         );
         self::assertCount(2, $references);
 
-        $this->workspace()->put('project/Foobar.php', <<<'EOT'
+        $this->workspace()->put(
+            'project/Foobar.php',
+            <<<'EOT'
 <?php
 
 class Foobar extends AbstractClass
 {
 }
 EOT
-    );
+        );
 
-		$indexBuilder->build();
+        $indexBuilder->build();
         $references = $foo = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );

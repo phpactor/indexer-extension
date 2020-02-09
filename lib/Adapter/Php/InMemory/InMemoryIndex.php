@@ -2,7 +2,6 @@
 
 namespace Phpactor\WorkspaceQuery\Adapter\Php\InMemory;
 
-use Phpactor\Filesystem\Domain\FilePath;
 use Phpactor\WorkspaceQuery\Model\Index;
 use Phpactor\WorkspaceQuery\Model\IndexQuery;
 use Phpactor\WorkspaceQuery\Model\IndexWriter;

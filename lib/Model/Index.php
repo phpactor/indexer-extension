@@ -2,7 +2,6 @@
 
 namespace Phpactor\WorkspaceQuery\Model;
 
-use Phpactor\Filesystem\Domain\FilePath;
 use SplFileInfo;
 
 interface Index
