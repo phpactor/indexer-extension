@@ -16,6 +16,7 @@ use Phpactor\WorkspaceQuery\Adapter\Filesystem\FilesystemFileListProvider;
 use Phpactor\WorkspaceQuery\Adapter\Php\Serialized\FileRepository;
 use Phpactor\WorkspaceQuery\Adapter\Php\Serialized\SerializedIndex;
 use Phpactor\WorkspaceQuery\Adapter\ReferenceFinder\IndexedImplementationFinder;
+use Phpactor\WorkspaceQuery\Adapter\Worse\WorkspaceQuerySourceLocator;
 use Phpactor\WorkspaceQuery\Extension\Command\IndexQueryClassCommand;
 use Phpactor\WorkspaceQuery\Extension\Command\IndexBuildCommand;
 use Phpactor\WorkspaceQuery\Adapter\Worse\WorseIndexBuilder;
@@ -48,61 +49,10 @@ class WorkspaceQueryExtension implements Extension
      */
     public function load(ContainerBuilder $container)
     {
-        $container->register(IndexBuildCommand::class, function (Container $container) {
-            return new IndexBuildCommand(
-                $container->get(Indexer::class)
-            );
-        }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:build']]);
-
-        $container->register(Indexer::class, function (Container $container) {
-            return new Indexer(
-                $container->get(IndexBuilder::class),
-                $container->get(Index::class),
-                $container->get(FileListProvider::class)
-            );
-        });
-        $container->register(IndexQueryClassCommand::class, function (Container $container) {
-            return new IndexQueryClassCommand($container->get(IndexQuery::class));
-        }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:query:class']]);
-
-        $container->register(IndexBuilder::class, function (Container $container) {
-            return new WorseIndexBuilder(
-                $container->get(Index::class),
-                $this->createReflector($container),
-                $container->get(LoggingExtension::SERVICE_LOGGER)
-            );
-        });
-
-        $container->register(FileListProvider::class, function (Container $container) {
-            return new FilesystemFileListProvider(
-                $container->get(SourceCodeFilesystemExtension::SERVICE_REGISTRY),
-                $container->getParameter(self::PARAM_DEFAULT_FILESYSTEM)
-            );
-        });
-
-        $container->register(Index::class, function (Container $container) {
-            $repository = new FileRepository(
-                $container->get(
-                    FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER
-                )->resolve(
-                    $container->getParameter(self::PARAM_INDEX_PATH)
-                )
-            );
-            return new SerializedIndex($repository);
-        });
-
-        $container->register(IndexQuery::class, function (Container $container) {
-            $index = $container->get(Index::class);
-            assert($index instanceof Index);
-            return $index->query();
-        });
-
-        $container->register(IndexedImplementationFinder::class, function (Container $container) {
-            return new IndexedImplementationFinder(
-                $container->get(Index::class),
-                $this->createReflector($container)
-            );
-        }, [ ReferenceFinderExtension::TAG_IMPLEMENTATION_FINDER => []]);
+        $this->registerCommands($container);
+        $this->registerModel($container);
+        $this->registerWorseAdapters($container);
+        $this->registerReferenceFinderAdapters($container);
     }
 
     private function createReflector(Container $container): Reflector
@@ -114,5 +64,80 @@ class WorkspaceQueryExtension implements Extension
         $builder->enableCache();
 
         return $builder->build();
+    }
+
+    private function registerWorseAdapters(ContainerBuilder $container): void
+    {
+        $container->register(IndexBuilder::class, function (Container $container) {
+            return new WorseIndexBuilder(
+                $container->get(Index::class),
+                $this->createReflector($container),
+                $container->get(LoggingExtension::SERVICE_LOGGER)
+            );
+        });
+        
+        $container->register(WorkspaceQuerySourceLocator::class, function (Container $container) {
+            return new WorkspaceQuerySourceLocator($container->get(Index::class));
+        }, [
+            WorseReflectionExtension::TAG_SOURCE_LOCATOR => []
+        ]);
+    }
+
+    private function registerCommands(ContainerBuilder $container)
+    {
+        $container->register(IndexBuildCommand::class, function (Container $container) {
+            return new IndexBuildCommand(
+                $container->get(Indexer::class)
+            );
+        }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:build']]);
+        
+        $container->register(IndexQueryClassCommand::class, function (Container $container) {
+            return new IndexQueryClassCommand($container->get(IndexQuery::class));
+        }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:query:class']]);
+    }
+
+    private function registerModel(ContainerBuilder $container): void
+    {
+        $container->register(Indexer::class, function (Container $container) {
+            return new Indexer(
+                $container->get(IndexBuilder::class),
+                $container->get(Index::class),
+                $container->get(FileListProvider::class)
+            );
+        });
+        
+        $container->register(FileListProvider::class, function (Container $container) {
+            return new FilesystemFileListProvider(
+                $container->get(SourceCodeFilesystemExtension::SERVICE_REGISTRY),
+                $container->getParameter(self::PARAM_DEFAULT_FILESYSTEM)
+            );
+        });
+        
+        $container->register(Index::class, function (Container $container) {
+            $repository = new FileRepository(
+                $container->get(
+                    FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER
+                )->resolve(
+                    $container->getParameter(self::PARAM_INDEX_PATH)
+                )
+            );
+            return new SerializedIndex($repository);
+        });
+        
+        $container->register(IndexQuery::class, function (Container $container) {
+            $index = $container->get(Index::class);
+            assert($index instanceof Index);
+            return $index->query();
+        });
+    }
+
+    private function registerReferenceFinderAdapters(ContainerBuilder $container): void
+    {
+        $container->register(IndexedImplementationFinder::class, function (Container $container) {
+            return new IndexedImplementationFinder(
+                $container->get(Index::class),
+                $this->createReflector($container)
+            );
+        }, [ ReferenceFinderExtension::TAG_IMPLEMENTATION_FINDER => []]);
     }
 }

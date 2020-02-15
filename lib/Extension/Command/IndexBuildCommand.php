@@ -76,9 +76,10 @@ class IndexBuildCommand extends Command
     {
         $start = microtime(true);
 
-        $output->writeln('<info>Building job</info>');
+        $output->write('<info>Building job</info>...');
         $job = $this->indexer->getJob($subPath);
-        $output->writeln('<info>Building index</info>');
+        $output->writeln('done');
+        $output->writeln('<info>Building index:</info>');
         $output->write(PHP_EOL);
         $progress = new ProgressBar($output, $job->size(), 0.001);
         foreach ($job->generator() as $filePath) {

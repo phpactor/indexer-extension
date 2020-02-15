@@ -15,6 +15,8 @@ use Phpactor\Extension\Console\ConsoleExtension;
 use Phpactor\Container\PhpactorContainer;
 use Phpactor\WorkspaceQuery\Model\Indexer;
 use Phpactor\WorkspaceQuery\Tests\IntegrationTestCase;
+use Phpactor\WorseReflection\Core\Reflection\ReflectionClass;
+use Phpactor\WorseReflection\Reflector;
 
 class WorkspaceQueryExtensionTest extends IntegrationTestCase
 {
@@ -31,6 +33,19 @@ class WorkspaceQueryExtensionTest extends IntegrationTestCase
         $indexer = $container->get(Indexer::class);
         $this->assertInstanceOf(Indexer::class, $indexer);
         $indexer->getJob()->run();
+    }
+
+    public function testSourceLocator()
+    {
+        $container = $this->createContainer();
+        $indexer = $container->get(Indexer::class);
+        assert($indexer instanceof Indexer);
+        $indexer->getJob()->run();
+        $reflector = $container->get(WorseReflectionExtension::SERVICE_REFLECTOR);
+        assert($reflector instanceof Reflector);
+        $class = $reflector->reflectClass('ClassWithWrongName');
+        self::assertInstanceOf(ReflectionClass::class, $class);
+
     }
 
     protected function setUp(): void
@@ -53,6 +68,7 @@ class WorkspaceQueryExtensionTest extends IntegrationTestCase
         ], [
             FilePathResolverExtension::PARAM_APPLICATION_ROOT => __DIR__ . '/../../..',
             FilePathResolverExtension::PARAM_PROJECT_ROOT => $this->workspace()->path(),
+            WorkspaceQueryExtension::PARAM_INDEX_PATH => __DIR__ . '/../../../cache',
             LoggingExtension::PARAM_PATH => 'php://stderr',
             LoggingExtension::PARAM_ENABLED => true,
             LoggingExtension::PARAM_LEVEL => 'debug',
