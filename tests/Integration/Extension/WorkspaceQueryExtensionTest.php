@@ -38,11 +38,7 @@ class WorkspaceQueryExtensionTest extends IntegrationTestCase
 
     protected function setUp(): void
     {
-        $this->workspace()->loadManifest(file_get_contents(__DIR__ . '/../Manifest/buildIndex.php.test'));
-        $process = new Process([
-            'composer', 'install'
-        ], $this->workspace()->path('/'));
-        $process->mustRun();
+        $this->initProject();
     }
 
     private function createContainer()
