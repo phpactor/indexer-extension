@@ -31,7 +31,7 @@ class WorkspaceQueryExtensionTest extends IntegrationTestCase
         $container = $this->createContainer();
         $builder = $container->get(IndexBuilder::class);
         $this->assertInstanceOf(IndexBuilder::class, $builder);
-        $index = $builder->buildGenerator();
+        $index = $builder->index();
         foreach ($index as $record) {
         }
     }

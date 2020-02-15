@@ -25,6 +25,7 @@ use Phpactor\WorkspaceQuery\Model\IndexBuilder;
 use Phpactor\WorkspaceQuery\Model\IndexBuilder\NullIndexUpdater;
 use Phpactor\WorkspaceQuery\Model\IndexQuery;
 use Phpactor\WorkspaceQuery\Model\IndexUpdater;
+use Phpactor\WorkspaceQuery\Model\Indexer;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\WorseReflection\ReflectorBuilder;
 
@@ -51,12 +52,17 @@ class WorkspaceQueryExtension implements Extension
     {
         $container->register(IndexBuildCommand::class, function (Container $container) {
             return new IndexBuildCommand(
+                $container->get(Indexer::class)
+            );
+        }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:build']]);
+
+        $container->register(Indexer::class, function (Container $container) {
+            return new Indexer(
                 $container->get(IndexBuilder::class),
                 $container->get(Index::class),
                 $container->get(FileListProvider::class)
             );
-        }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:build']]);
-
+        });
         $container->register(IndexQueryClassCommand::class, function (Container $container) {
             return new IndexQueryClassCommand($container->get(IndexQuery::class));
         }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:query:class']]);
