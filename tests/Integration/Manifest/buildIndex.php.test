@@ -36,3 +36,6 @@ class AbstractClassImplementation2 extends AbstractClass {}
 namespace Exception;
 use RuntimeException as BaseRuntimeException;
 class RuntimeException extends BaseRuntimeException {}
+// File: project/NameNotCorrespondToClass.php
+<?php
+class ClassWithWrongName {}

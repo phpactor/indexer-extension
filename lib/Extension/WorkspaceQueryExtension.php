@@ -83,7 +83,7 @@ class WorkspaceQueryExtension implements Extension
         ]);
     }
 
-    private function registerCommands(ContainerBuilder $container)
+    private function registerCommands(ContainerBuilder $container): void
     {
         $container->register(IndexBuildCommand::class, function (Container $container) {
             return new IndexBuildCommand(

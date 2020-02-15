@@ -37,15 +37,17 @@ class WorkspaceQueryExtensionTest extends IntegrationTestCase
 
     public function testSourceLocator()
     {
+        $this->initProject();
+
         $container = $this->createContainer();
         $indexer = $container->get(Indexer::class);
         assert($indexer instanceof Indexer);
+        $indexer->reset();
         $indexer->getJob()->run();
         $reflector = $container->get(WorseReflectionExtension::SERVICE_REFLECTOR);
         assert($reflector instanceof Reflector);
         $class = $reflector->reflectClass('ClassWithWrongName');
         self::assertInstanceOf(ReflectionClass::class, $class);
-
     }
 
     protected function setUp(): void
