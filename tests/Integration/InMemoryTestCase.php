@@ -3,6 +3,7 @@
 namespace Phpactor\WorkspaceQuery\Tests\Integration;
 
 use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
+use Phpactor\Filesystem\Domain\MappedFilesystemRegistry;
 use Phpactor\WorkspaceQuery\Adapter\Filesystem\FilesystemFileListProvider;
 use Phpactor\WorkspaceQuery\Adapter\Php\InMemory\InMemoryIndex;
 use Phpactor\WorkspaceQuery\Adapter\Php\InMemory\InMemoryRepository;
@@ -42,7 +43,9 @@ abstract class InMemoryTestCase extends IntegrationTestCase
 
     protected function fileList(Index $index): FileList
     {
-        $provider = new FilesystemFileListProvider(new SimpleFilesystem($this->workspace()->path('/project')));
+        $provider = new FilesystemFileListProvider(new MappedFilesystemRegistry([
+            'foobar' => new SimpleFilesystem($this->workspace()->path('/project')),
+        ]), 'foobar');
         return $provider->provideFileList($index);
     }
 

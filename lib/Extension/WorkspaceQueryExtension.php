@@ -30,6 +30,7 @@ use Phpactor\WorseReflection\ReflectorBuilder;
 class WorkspaceQueryExtension implements Extension
 {
     const PARAM_INDEX_PATH = 'workspace_query.index_path';
+    const PARAM_DEFAULT_FILESYSTEM = 'workspace_query.default_filesystem';
 
     /**
      * {@inheritDoc}
@@ -38,6 +39,7 @@ class WorkspaceQueryExtension implements Extension
     {
         $schema->setDefaults([
             self::PARAM_INDEX_PATH => '%cache%/index/%project_id%',
+            self::PARAM_DEFAULT_FILESYSTEM => SourceCodeFilesystemExtension::FILESYSTEM_COMPOSER,
         ]);
     }
 
@@ -73,7 +75,8 @@ class WorkspaceQueryExtension implements Extension
 
         $container->register(FileListProvider::class, function (Container $container) {
             return new FilesystemFileListProvider(
-                $container->get(SourceCodeFilesystemExtension::SERVICE_FILESYSTEM_COMPOSER),
+                $container->get(SourceCodeFilesystemExtension::SERVICE_REGISTRY),
+                $container->getParameter(self::PARAM_DEFAULT_FILESYSTEM)
             );
         });
 

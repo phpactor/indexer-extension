@@ -3,7 +3,7 @@
 namespace Phpactor\WorkspaceQuery\Adapter\Filesystem;
 
 use Phpactor\Filesystem\Domain\FilePath;
-use Phpactor\Filesystem\Domain\Filesystem;
+use Phpactor\Filesystem\Domain\FilesystemRegistry;
 use Phpactor\WorkspaceQuery\Model\FileList;
 use Phpactor\WorkspaceQuery\Model\FileListProvider;
 use SplFileInfo;
@@ -12,18 +12,26 @@ use Phpactor\WorkspaceQuery\Model\Index;
 class FilesystemFileListProvider implements FileListProvider
 {
     /**
-     * @var Filesystem
+     * @var FilesystemRegistry
      */
-    private $filesystem;
+    private $filesystemRegistry;
 
-    public function __construct(Filesystem $filesystem)
+    /**
+     * @var string
+     */
+    private $filesystemName;
+
+
+    public function __construct(FilesystemRegistry $filesystemRegistry, string $filesystemName)
     {
-        $this->filesystem = $filesystem;
+        $this->filesystemRegistry = $filesystemRegistry;
+        $this->filesystemName = $filesystemName;
     }
 
     public function provideFileList(Index $index, ?string $subPath = null): FileList
     {
-        $files = $this->filesystem->fileList()->phpFiles();
+        $filesystem = $this->filesystemRegistry->get($this->filesystemName);
+        $files = $filesystem->fileList()->phpFiles();
         if ($subPath) {
             $files = $files->within(FilePath::fromString($subPath));
         }
