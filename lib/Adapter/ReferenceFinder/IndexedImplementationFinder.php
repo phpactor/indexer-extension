@@ -11,6 +11,7 @@ use Phpactor\TextDocument\Locations;
 use Phpactor\TextDocument\TextDocument;
 use Phpactor\TextDocument\TextDocumentUri;
 use Phpactor\WorkspaceQuery\Model\IndexUpdater;
+use Phpactor\WorkspaceQuery\Model\Indexer;
 use Phpactor\WorseReflection\Core\Reflector\SourceCodeReflector;
 use RuntimeException;
 
@@ -26,16 +27,10 @@ class IndexedImplementationFinder implements ClassImplementationFinder
      */
     private $reflector;
 
-    /**
-     * @var IndexUpdater
-     */
-    private $indexUpdater;
-
-    public function __construct(Index $index, IndexUpdater $indexUpdater, SourceCodeReflector $reflector)
+    public function __construct(Index $index, SourceCodeReflector $reflector)
     {
         $this->index = $index;
         $this->reflector = $reflector;
-        $this->indexUpdater = $indexUpdater;
     }
 
     /**
@@ -43,15 +38,6 @@ class IndexedImplementationFinder implements ClassImplementationFinder
      */
     public function findImplementations(TextDocument $document, ByteOffset $byteOffset): Locations
     {
-        if (false === $this->index->exists()) {
-            throw new RuntimeException(sprintf(
-                'The index must be initialized. Run "%s index:refresh" on the CLI',
-                $_SERVER['SCRIPT_FILENAME']
-            ));
-        }
-
-        $this->indexUpdater->build();
-
         $offset = $this->reflector->reflectOffset($document, $byteOffset->toInt());
 
         $type = $offset->symbolContext()->type();

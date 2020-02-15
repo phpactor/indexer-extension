@@ -15,7 +15,6 @@ class WorseIndexMemoryBuilderTest extends IndexBuilderIndexTestCase
     {
         $indexBuilder = new WorseIndexBuilder(
             $index,
-            new SimpleFilesystem($this->workspace()->path('/project')),
             $this->createReflector(),
             new NullLogger()
         );

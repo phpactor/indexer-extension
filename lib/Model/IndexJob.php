@@ -32,6 +32,11 @@ class IndexJob
         }
     }
 
+    public function run(): void
+    {
+        iterator_to_array($this->generator());
+    }
+
     public function size(): int
     {
         return $this->fileList->count();

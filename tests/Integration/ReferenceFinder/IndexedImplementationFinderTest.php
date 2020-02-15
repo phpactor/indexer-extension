@@ -20,11 +20,11 @@ class IndexedImplementationFinderTest extends InMemoryTestCase
     {
         $index = $this->createIndex();
         $builder = $this->createBuilder($index);
-        $builder->build();
+        $fileList = $this->fileList($index);
+        $builder->build($fileList);
 
         $implementationFinder = new IndexedImplementationFinder(
             $index,
-            $builder,
             $this->createReflector()
         );
         $locations = $implementationFinder->findImplementations(TextDocumentBuilder::create(
@@ -33,27 +33,8 @@ class IndexedImplementationFinderTest extends InMemoryTestCase
 
 new Index();
 EOT
-        )->build(), ByteOffset::fromInt(8));
+        )->build($fileList), ByteOffset::fromInt(8));
 
         self::assertCount(2, $locations);
-    }
-
-    public function testThrowsExceptionIfIndexNotInitialized()
-    {
-        $this->expectException(RuntimeException::class);
-        $index = $this->createIndex();
-        $index->reset();
-        $implementationFinder = new IndexedImplementationFinder(
-            $index,
-            $this->createBuilder($index),
-            $this->createReflector()
-        );
-        $locations = $implementationFinder->findImplementations(TextDocumentBuilder::create(
-            <<<'EOT'
-<?php
-
-new Index();
-EOT
-        )->build(), ByteOffset::fromInt(8));
     }
 }

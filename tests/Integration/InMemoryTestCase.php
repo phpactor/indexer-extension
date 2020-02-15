@@ -3,8 +3,10 @@
 namespace Phpactor\WorkspaceQuery\Tests\Integration;
 
 use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
+use Phpactor\WorkspaceQuery\Adapter\Filesystem\FilesystemFileListProvider;
 use Phpactor\WorkspaceQuery\Adapter\Php\InMemory\InMemoryIndex;
 use Phpactor\WorkspaceQuery\Adapter\Php\InMemory\InMemoryRepository;
+use Phpactor\WorkspaceQuery\Model\FileList;
 use Phpactor\WorkspaceQuery\Model\Index;
 use Phpactor\WorkspaceQuery\Adapter\Worse\WorseIndexBuilder;
 use Phpactor\WorkspaceQuery\Model\IndexBuilder;
@@ -20,7 +22,6 @@ abstract class InMemoryTestCase extends IntegrationTestCase
     {
         $indexBuilder = new WorseIndexBuilder(
             $index,
-            new SimpleFilesystem($this->workspace()->path('/project')),
             ReflectorBuilder::create()->addLocator(
                 new StubSourceLocator(
                     ReflectorBuilder::create()->build(),
@@ -37,6 +38,12 @@ abstract class InMemoryTestCase extends IntegrationTestCase
     {
         $repository = new InMemoryRepository();
         return new InMemoryIndex($repository);
+    }
+
+    protected function fileList(Index $index): FileList
+    {
+        $provider = new FilesystemFileListProvider(new SimpleFilesystem($this->workspace()->path('/project')));
+        return $provider->provideFileList($index);
     }
 
     protected function createReflector(): Reflector

@@ -36,7 +36,8 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
         $repository = new InMemoryRepository();
         $index = new InMemoryIndex($repository);
         $indexBuilder = $this->createBuilder($index);
-        $indexBuilder->build();
+        $fileList = $this->fileList($index);
+        $indexBuilder->build($fileList);
 
         $references = $foo = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
@@ -54,7 +55,8 @@ class Foobar extends AbstractClass
 EOT
         );
 
-        $indexBuilder->build();
+        $fileList = $this->fileList($index);
+        $indexBuilder->build($fileList);
         $references = $foo = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
@@ -65,8 +67,9 @@ EOT
     {
         $repository = new InMemoryRepository();
         $index = new InMemoryIndex($repository);
+        $fileList = $this->fileList($index);
         $indexBuilder = $this->createBuilder($index);
-        $indexBuilder->build();
+        $indexBuilder->build($fileList);
 
         $references = $foo = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
@@ -84,7 +87,8 @@ class AbstractClassImplementation1
 EOT
         );
 
-        $indexBuilder->build();
+        $fileList = $this->fileList($index);
+        $indexBuilder->build($fileList);
         $references = $foo = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
@@ -101,7 +105,8 @@ EOT
     {
         $repository = new InMemoryRepository();
         $index = new InMemoryIndex($repository);
-        $this->createBuilder($index)->build();
+        $fileList = $this->fileList($index);
+        $this->createBuilder($index)->build($fileList);
         return $index;
     }
 }

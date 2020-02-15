@@ -14,6 +14,7 @@ use Phpactor\WorkspaceQuery\Extension\WorkspaceQueryExtension;
 use Phpactor\Extension\Console\ConsoleExtension;
 use Phpactor\Container\PhpactorContainer;
 use Phpactor\WorkspaceQuery\Model\IndexBuilder;
+use Phpactor\WorkspaceQuery\Model\Indexer;
 use Phpactor\WorkspaceQuery\Tests\IntegrationTestCase;
 use Symfony\Component\Process\Process;
 
@@ -29,11 +30,9 @@ class WorkspaceQueryExtensionTest extends IntegrationTestCase
     public function testBuildIndex()
     {
         $container = $this->createContainer();
-        $builder = $container->get(IndexBuilder::class);
-        $this->assertInstanceOf(IndexBuilder::class, $builder);
-        $index = $builder->index();
-        foreach ($index as $record) {
-        }
+        $indexer = $container->get(Indexer::class);
+        $this->assertInstanceOf(Indexer::class, $indexer);
+        $indexer->getJob()->run();
     }
 
     protected function setUp(): void
