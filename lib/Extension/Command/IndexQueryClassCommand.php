@@ -37,6 +37,10 @@ class IndexQueryClassCommand extends Command
             return 1;
         }
         $output->writeln('<info>Class:</>'.$class->fqn());
+        $output->writeln('<info>Implements</>:');
+        foreach ($class->implementedClasses() as $fqn) {
+            $output->writeln(' - ' . (string)$fqn);
+        }
         $output->writeln('<info>Implementations</>:');
         foreach ($class->implementations() as $fqn) {
             $output->writeln(' - ' . (string)$fqn);

@@ -134,14 +134,14 @@ class WorseIndexBuilder implements IndexBuilder
     {
         $mtime = $fileInfo->asSplFileInfo()->getMTime();
         foreach ($classes as $reflectionClass) {
-            $this->createClassIndex($reflectionClass, $mtime);
+            $this->createOrGetClassRecord($reflectionClass, $mtime);
             $this->updateClassRelations(
                 $reflectionClass
             );
         }
     }
 
-    private function createClassIndex(ReflectionClassLike $reflectionClass, int $mtime): ?ClassRecord
+    private function createOrGetClassRecord(ReflectionClassLike $reflectionClass, int $mtime): ?ClassRecord
     {
         assert($reflectionClass instanceof ReflectionClassLike);
         
@@ -172,6 +172,9 @@ class WorseIndexBuilder implements IndexBuilder
 
     private function updateClassRelations(ReflectionClassLike $classLike): void
     {
+        $classRecord = $this->index->query()->class(FullyQualifiedName::fromString($classLike->name()));
+        $this->removeExistingReferences($classRecord);
+
         if ($classLike instanceof ReflectionInterface) {
             $this->updateClassImplementations($classLike, iterator_to_array($classLike->parents()));
         }
@@ -187,25 +190,29 @@ class WorseIndexBuilder implements IndexBuilder
      * @param array<ReflectionClassLike> $implementedClasses
      */
     private function updateClassImplementations(
-        ReflectionClassLike $implementingClass,
+        ReflectionClassLike $classReflection,
         array $implementedClasses
     ): void {
+        $classRecord = $this->createOrGetClassRecord($classReflection, 0);
+
         foreach ($implementedClasses as $implementedClass) {
             $implementedFqn = FullyQualifiedName::fromString(
                 $implementedClass->name()->full()
             );
 
             $mtime = filemtime($implementedClass->sourceCode()->path());
+            $implementedRecord = $this->createOrGetClassRecord($implementedClass, $mtime ?: 0);
 
-            $record = $this->createClassIndex($implementedClass, $mtime ?: 0);
-
-            if (null === $record) {
+            if (null === $implementedRecord) {
                 continue;
             }
 
-            $record->addImplementation($implementingClass);
-            $this->index->write()->class($record);
+            $classRecord->addImplements($implementedClass);
+            $implementedRecord->addImplementation($classReflection);
+            $this->index->write()->class($implementedRecord);
         }
+
+        $this->index->write()->class($classRecord);
     }
 
     /**
@@ -237,5 +244,16 @@ class WorseIndexBuilder implements IndexBuilder
     public function size(): int
     {
         return count(iterator_to_array($this->createFileIterator()));
+    }
+
+    private function removeExistingReferences(ClassRecord $classRecord): void
+    {
+        foreach ($classRecord->implementedClasses() as $implementedClass) {
+            $implementedRecord = $this->index->query()->class(
+                FullyQualifiedName::fromString($implementedClass)
+            );
+            $implementedRecord->removeClass($classRecord->fqn());
+            $this->index->write()->class($implementedRecord);
+        }
     }
 }

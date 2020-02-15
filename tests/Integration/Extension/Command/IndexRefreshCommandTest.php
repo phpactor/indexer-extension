@@ -17,5 +17,6 @@ class IndexRefreshCommandTest extends IntegrationTestCase
             'index:refresh',
         ], $this->workspace()->path());
         $process->mustRun();
+        self::assertEquals(0, $process->getExitCode());
     }
 }

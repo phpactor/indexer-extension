@@ -2,6 +2,7 @@
 
 namespace Phpactor\WorkspaceQuery\Tests\Integration\ReferenceFinder;
 
+use Phpactor\Name\FullyQualifiedName;
 use Phpactor\WorkspaceQuery\Adapter\ReferenceFinder\IndexedImplementationFinder;
 use Phpactor\WorkspaceQuery\Tests\Integration\InMemoryTestCase;
 use Phpactor\TextDocument\ByteOffset;
@@ -12,8 +13,7 @@ class IndexedImplementationFinderTest extends InMemoryTestCase
 {
     protected function setUp(): void
     {
-        $this->workspace()->reset();
-        $this->workspace()->loadManifest(file_get_contents(__DIR__ . '/../Manifest/buildIndex.php.test'));
+        $this->initProject();
     }
 
     public function testFinder()
@@ -22,7 +22,11 @@ class IndexedImplementationFinderTest extends InMemoryTestCase
         $builder = $this->createBuilder($index);
         $builder->build();
 
-        $implementationFinder = new IndexedImplementationFinder($index, $builder, $this->createReflector());
+        $implementationFinder = new IndexedImplementationFinder(
+            $index,
+            $builder,
+            $this->createReflector()
+        );
         $locations = $implementationFinder->findImplementations(TextDocumentBuilder::create(
             <<<'EOT'
 <?php

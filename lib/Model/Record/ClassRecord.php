@@ -29,6 +29,11 @@ class ClassRecord
     private $implementations = [];
 
     /**
+     * @var array<string>
+     */
+    private $implemented = [];
+
+    /**
      * @var string
      */
     private $filePath;
@@ -57,6 +62,11 @@ class ClassRecord
         $this->implementations[$implementation->name()->full()] = $implementation->name()->full();
     }
 
+    public function addImplements(ReflectionClassLike $implementedClass): void
+    {
+        $this->implemented[$implementedClass->name()->full()] = $implementedClass->name()->full();
+    }
+
     public function fqn(): FullyQualifiedName
     {
         return $this->fqn;
@@ -68,6 +78,14 @@ class ClassRecord
     public function implementations(): array
     {
         return $this->implementations;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function implementedClasses(): array
+    {
+        return $this->implemented;
     }
 
     public function lastModified(): int
@@ -88,5 +106,16 @@ class ClassRecord
     public function start(): ByteOffset
     {
         return $this->start;
+    }
+
+    public function removeClass(FullyQualifiedName $implementedClass): void
+    {
+        foreach ($this->implementations as $key => $implementation) {
+            if ($implementation !== $implementedClass->__toString()) {
+                continue;
+            }
+
+            unset($this->implementations[$key]);
+        }
     }
 }
