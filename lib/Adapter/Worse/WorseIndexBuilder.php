@@ -72,7 +72,7 @@ class WorseIndexBuilder implements IndexBuilder
     }
 
     /**
-     * @return Generator<SplFileInfo>
+     * @return Generator<string>
      */
     private function doIndex(FileList $fileList): Generator
     {

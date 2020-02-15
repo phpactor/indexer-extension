@@ -75,8 +75,9 @@ class FileRepository
 
     public function putTimestamp(int $time = null): void
     {
+        $time = $time ?? time();
         $this->ensureDirectoryExists(dirname($this->timestampPath()));
-        file_put_contents($this->timestampPath(), $time ?? time());
+        file_put_contents($this->timestampPath(), $time);
         $this->lastUpdate = $time;
     }
 

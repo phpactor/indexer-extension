@@ -2,12 +2,10 @@
 
 namespace Phpactor\WorkspaceQuery\Tests\Integration\ReferenceFinder;
 
-use Phpactor\Name\FullyQualifiedName;
 use Phpactor\WorkspaceQuery\Adapter\ReferenceFinder\IndexedImplementationFinder;
 use Phpactor\WorkspaceQuery\Tests\Integration\InMemoryTestCase;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\TextDocumentBuilder;
-use RuntimeException;
 
 class IndexedImplementationFinderTest extends InMemoryTestCase
 {

@@ -10,10 +10,7 @@ use Phpactor\TextDocument\Location;
 use Phpactor\TextDocument\Locations;
 use Phpactor\TextDocument\TextDocument;
 use Phpactor\TextDocument\TextDocumentUri;
-use Phpactor\WorkspaceQuery\Model\IndexUpdater;
-use Phpactor\WorkspaceQuery\Model\Indexer;
 use Phpactor\WorseReflection\Core\Reflector\SourceCodeReflector;
-use RuntimeException;
 
 class IndexedImplementationFinder implements ClassImplementationFinder
 {

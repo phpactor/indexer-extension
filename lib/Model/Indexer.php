@@ -2,8 +2,6 @@
 
 namespace Phpactor\WorkspaceQuery\Model;
 
-use Generator;
-
 class Indexer
 {
     /**

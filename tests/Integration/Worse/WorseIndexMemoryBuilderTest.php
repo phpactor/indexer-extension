@@ -2,7 +2,6 @@
 
 namespace Phpactor\WorkspaceQuery\Tests\Integration\Worse;
 
-use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
 use Phpactor\WorkspaceQuery\Adapter\Worse\WorseIndexBuilder;
 use Phpactor\WorkspaceQuery\Model\Index;
 use Phpactor\WorkspaceQuery\Model\IndexBuilder;

@@ -22,9 +22,7 @@ use Phpactor\WorkspaceQuery\Adapter\Worse\WorseIndexBuilder;
 use Phpactor\WorkspaceQuery\Model\FileListProvider;
 use Phpactor\WorkspaceQuery\Model\Index;
 use Phpactor\WorkspaceQuery\Model\IndexBuilder;
-use Phpactor\WorkspaceQuery\Model\IndexBuilder\NullIndexUpdater;
 use Phpactor\WorkspaceQuery\Model\IndexQuery;
-use Phpactor\WorkspaceQuery\Model\IndexUpdater;
 use Phpactor\WorkspaceQuery\Model\Indexer;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\WorseReflection\ReflectorBuilder;
@@ -32,7 +30,6 @@ use Phpactor\WorseReflection\ReflectorBuilder;
 class WorkspaceQueryExtension implements Extension
 {
     const PARAM_INDEX_PATH = 'workspace_query.index_path';
-    const PARAM_AUTO_REBUILD_INDEX = 'workspace_query.auto_rebuild_index';
 
     /**
      * {@inheritDoc}
@@ -41,7 +38,6 @@ class WorkspaceQueryExtension implements Extension
     {
         $schema->setDefaults([
             self::PARAM_INDEX_PATH => '%cache%/index/%project_id%',
-            self::PARAM_AUTO_REBUILD_INDEX => true,
         ]);
     }
 
@@ -79,14 +75,6 @@ class WorkspaceQueryExtension implements Extension
             return new FilesystemFileListProvider(
                 $container->get(SourceCodeFilesystemExtension::SERVICE_FILESYSTEM_COMPOSER),
             );
-        });
-
-        $container->register(IndexUpdater::class, function (Container $container) {
-            if ($container->getParameter(self::PARAM_AUTO_REBUILD_INDEX)) {
-                return $container->get(IndexBuilder::class);
-            }
-
-            return new NullIndexUpdater();
         });
 
         $container->register(Index::class, function (Container $container) {

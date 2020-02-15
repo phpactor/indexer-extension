@@ -13,10 +13,8 @@ use Phpactor\WorkspaceQuery\Adapter\ReferenceFinder\IndexedImplementationFinder;
 use Phpactor\WorkspaceQuery\Extension\WorkspaceQueryExtension;
 use Phpactor\Extension\Console\ConsoleExtension;
 use Phpactor\Container\PhpactorContainer;
-use Phpactor\WorkspaceQuery\Model\IndexBuilder;
 use Phpactor\WorkspaceQuery\Model\Indexer;
 use Phpactor\WorkspaceQuery\Tests\IntegrationTestCase;
-use Symfony\Component\Process\Process;
 
 class WorkspaceQueryExtensionTest extends IntegrationTestCase
 {
