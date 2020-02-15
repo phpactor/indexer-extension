@@ -16,7 +16,7 @@ use Phpactor\WorkspaceQuery\Adapter\Php\Serialized\FileRepository;
 use Phpactor\WorkspaceQuery\Adapter\Php\Serialized\SerializedIndex;
 use Phpactor\WorkspaceQuery\Adapter\ReferenceFinder\IndexedImplementationFinder;
 use Phpactor\WorkspaceQuery\Extension\Command\IndexQueryClassCommand;
-use Phpactor\WorkspaceQuery\Extension\Command\IndexRefreshCommand;
+use Phpactor\WorkspaceQuery\Extension\Command\IndexBuildCommand;
 use Phpactor\WorkspaceQuery\Adapter\Worse\WorseIndexBuilder;
 use Phpactor\WorkspaceQuery\Model\Index;
 use Phpactor\WorkspaceQuery\Model\IndexBuilder;
@@ -47,12 +47,12 @@ class WorkspaceQueryExtension implements Extension
      */
     public function load(ContainerBuilder $container)
     {
-        $container->register(IndexRefreshCommand::class, function (Container $container) {
-            return new IndexRefreshCommand(
+        $container->register(IndexBuildCommand::class, function (Container $container) {
+            return new IndexBuildCommand(
                 $container->get(IndexBuilder::class),
                 $container->get(Index::class)
             );
-        }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:refresh']]);
+        }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:build']]);
 
         $container->register(IndexQueryClassCommand::class, function (Container $container) {
             return new IndexQueryClassCommand($container->get(IndexQuery::class));

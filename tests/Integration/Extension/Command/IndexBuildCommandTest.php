@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Phpactor\WorkspaceQuery\Tests\IntegrationTestCase;
 use Symfony\Component\Process\Process;
 
-class IndexRefreshCommandTest extends IntegrationTestCase
+class IndexBuildCommandTest extends IntegrationTestCase
 {
     public function testRefreshIndex(): void
     {
@@ -14,7 +14,7 @@ class IndexRefreshCommandTest extends IntegrationTestCase
 
         $process = new Process([
             __DIR__ . '/../../../../bin/query',
-            'index:refresh',
+            'index:build',
         ], $this->workspace()->path());
         $process->mustRun();
         self::assertEquals(0, $process->getExitCode());

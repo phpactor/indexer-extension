@@ -13,10 +13,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Phpactor\WorkspaceQuery\Util\Cast;
 use Webmozart\PathUtil\Path;
 
-class IndexRefreshCommand extends Command
+class IndexBuildCommand extends Command
 {
     const ARG_SUB_PATH = 'sub-path';
-    const OPT_RESET = 'rebuild';
+    const OPT_RESET = 'reset';
 
     /**
      * @var Index
