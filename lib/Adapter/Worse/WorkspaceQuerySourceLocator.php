@@ -1,0 +1,51 @@
+<?php
+
+namespace Phpactor\WorkspaceQuery\Adapter\Worse;
+
+use Phpactor\Name\FullyQualifiedName;
+use Phpactor\WorkspaceQuery\Model\Index;
+use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
+use Phpactor\WorseReflection\Core\Name;
+use Phpactor\WorseReflection\Core\SourceCode;
+use Phpactor\WorseReflection\Core\SourceCodeLocator;
+
+class WorkspaceQuerySourceLocator implements SourceCodeLocator
+{
+    /**
+     * @var Index
+     */
+    private $index;
+
+    public function __construct(Index $index)
+    {
+        $this->index = $index;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function locate(Name $name): SourceCode
+    {
+        $record = $this->index->query()->class(
+            FullyQualifiedName::fromString($name->__toString())
+        );
+
+        if (null === $record) {
+            throw new SourceNotFound(sprintf(
+                'Class "%s" not in index',
+                $name->full()
+            ));
+        }
+
+        $filePath = $record->filePath();
+        if (!file_exists($filePath)) {
+            throw new SourceNotFound(sprintf(
+                'Class "%s" is indexed, but it does not exist at path "%s"!',
+                $name->full(),
+                $filePath
+            ));
+        }
+
+        return SourceCode::fromPath($filePath);
+    }
+}
