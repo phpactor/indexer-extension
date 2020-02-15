@@ -32,7 +32,7 @@ Usage
 -----
 
 ```
-$ phpactor index:refresh
+$ phpactor index:build --watch
 $ phpactor index:query:class "My\\Class\\Name"
 ```
 
@@ -40,4 +40,3 @@ Note that this can take a _long_ time. Refreshing the index should generally
 take less than a second however.
 
 In VIM the index will automatically be used for the Goto Implementations feature.
-
