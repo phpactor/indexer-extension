@@ -4,10 +4,8 @@ namespace Phpactor\WorkspaceQuery\Adapter\Worse;
 
 use DTL\Invoke\Invoke;
 use Generator;
-use Phpactor\Filesystem\Domain\FileList;
-use Phpactor\Filesystem\Domain\FilePath;
-use Phpactor\Filesystem\Domain\Filesystem;
 use Phpactor\Name\FullyQualifiedName;
+use Phpactor\WorkspaceQuery\Model\FileList;
 use Phpactor\WorkspaceQuery\Model\Index;
 use Phpactor\WorkspaceQuery\Model\IndexBuilder;
 use Phpactor\WorkspaceQuery\Model\Record\ClassRecord;
@@ -33,11 +31,6 @@ class WorseIndexBuilder implements IndexBuilder
     private $index;
 
     /**
-     * @var Filesystem
-     */
-    private $filesystem;
-
-    /**
      * @var SourceCodeReflector
      */
     private $reflector;
@@ -49,25 +42,23 @@ class WorseIndexBuilder implements IndexBuilder
 
     public function __construct(
         Index $index,
-        Filesystem $filesystem,
         SourceCodeReflector $reflector,
         LoggerInterface $logger
     ) {
         $this->index = $index;
-        $this->filesystem = $filesystem;
         $this->reflector = $reflector;
         $this->logger = $logger;
     }
 
-    public function build(?string $subPath = null): void
+    public function build(FileList $fileList): void
     {
-        iterator_to_array($this->buildGenerator($subPath));
+        iterator_to_array($this->index($fileList));
     }
 
     /**
      * @return Generator<string>
      */
-    public function buildGenerator(?string $subPath = null): Generator
+    public function index(FileList $fileList): Generator
     {
         $this->logger->info(sprintf(
             'Last update: %s (%s)',
@@ -75,7 +66,7 @@ class WorseIndexBuilder implements IndexBuilder
             $this->formatTimestamp()
         ));
 
-        yield from $this->indexer($subPath);
+        yield from $this->doIndex($fileList);
 
         $this->index->write()->timestamp();
     }
@@ -83,21 +74,21 @@ class WorseIndexBuilder implements IndexBuilder
     /**
      * @return Generator<SplFileInfo>
      */
-    private function indexer(?string $subPath): Generator
+    private function doIndex(FileList $fileList): Generator
     {
         $count = 0;
-        foreach ($this->createFileIterator($subPath) as $fileInfo) {
-            assert($fileInfo instanceof FilePath);
+        foreach ($fileList as $fileInfo) {
+            assert($fileInfo instanceof SplFileInfo);
 
-            $this->logger->debug(sprintf('Indexing: %s', $fileInfo->path()));
+            $this->logger->debug(sprintf('Indexing: %s', $fileInfo->getPathname()));
 
             try {
                 $this->indexClasses(
                     $fileInfo,
                     $this->reflector->reflectClassesIn(
                         SourceCode::fromPathAndString(
-                            $fileInfo->path(),
-                            file_get_contents($fileInfo->path())
+                            $fileInfo->getPathname(),
+                            file_get_contents($fileInfo->getPathname())
                         )
                     )
                 );
@@ -105,7 +96,7 @@ class WorseIndexBuilder implements IndexBuilder
                 $this->logger->error($e->getMessage());
             }
 
-            yield $fileInfo->path();
+            yield $fileInfo->getPathname();
 
             $count++;
         }
@@ -114,25 +105,11 @@ class WorseIndexBuilder implements IndexBuilder
     }
 
     /**
-     * @return FileList<FilePath>
-     */
-    private function createFileIterator(?string $subPath = null): FileList
-    {
-        $files = $this->filesystem->fileList()->phpFiles();
-        if ($subPath) {
-            $files = $files->within(FilePath::fromString($subPath));
-        }
-        return $files->filter(function (SplFileInfo $fileInfo) {
-            return false === $this->index->isFresh($fileInfo);
-        });
-    }
-
-    /**
      * @param ReflectionClassCollection<ReflectionClassLike> $classes
      */
-    private function indexClasses(FilePath $fileInfo, ReflectionClassCollection $classes): void
+    private function indexClasses(SplFileInfo $fileInfo, ReflectionClassCollection $classes): void
     {
-        $mtime = $fileInfo->asSplFileInfo()->getMTime();
+        $mtime = $fileInfo->getMTime();
         foreach ($classes as $reflectionClass) {
             $this->createOrGetClassRecord($reflectionClass, $mtime);
             $this->updateClassRelations(
@@ -239,11 +216,6 @@ class WorseIndexBuilder implements IndexBuilder
             throw new RuntimeException('This never happens');
         }
         return $format;
-    }
-
-    public function size(): int
-    {
-        return count(iterator_to_array($this->createFileIterator()));
     }
 
     private function removeExistingReferences(ClassRecord $classRecord): void

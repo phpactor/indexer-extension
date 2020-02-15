@@ -67,6 +67,17 @@ class ClassRecord
         $this->implemented[$implementedClass->name()->full()] = $implementedClass->name()->full();
     }
 
+    public function removeClass(FullyQualifiedName $implementedClass): void
+    {
+        foreach ($this->implementations as $key => $implementation) {
+            if ($implementation !== $implementedClass->__toString()) {
+                continue;
+            }
+
+            unset($this->implementations[$key]);
+        }
+    }
+
     public function fqn(): FullyQualifiedName
     {
         return $this->fqn;
@@ -106,16 +117,5 @@ class ClassRecord
     public function start(): ByteOffset
     {
         return $this->start;
-    }
-
-    public function removeClass(FullyQualifiedName $implementedClass): void
-    {
-        foreach ($this->implementations as $key => $implementation) {
-            if ($implementation !== $implementedClass->__toString()) {
-                continue;
-            }
-
-            unset($this->implementations[$key]);
-        }
     }
 }

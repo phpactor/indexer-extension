@@ -12,12 +12,14 @@ use Phpactor\Extension\SourceCodeFilesystem\SourceCodeFilesystemExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
 use Phpactor\MapResolver\Resolver;
+use Phpactor\WorkspaceQuery\Adapter\Filesystem\FilesystemFileListProvider;
 use Phpactor\WorkspaceQuery\Adapter\Php\Serialized\FileRepository;
 use Phpactor\WorkspaceQuery\Adapter\Php\Serialized\SerializedIndex;
 use Phpactor\WorkspaceQuery\Adapter\ReferenceFinder\IndexedImplementationFinder;
 use Phpactor\WorkspaceQuery\Extension\Command\IndexQueryClassCommand;
 use Phpactor\WorkspaceQuery\Extension\Command\IndexBuildCommand;
 use Phpactor\WorkspaceQuery\Adapter\Worse\WorseIndexBuilder;
+use Phpactor\WorkspaceQuery\Model\FileListProvider;
 use Phpactor\WorkspaceQuery\Model\Index;
 use Phpactor\WorkspaceQuery\Model\IndexBuilder;
 use Phpactor\WorkspaceQuery\Model\IndexBuilder\NullIndexUpdater;
@@ -50,7 +52,8 @@ class WorkspaceQueryExtension implements Extension
         $container->register(IndexBuildCommand::class, function (Container $container) {
             return new IndexBuildCommand(
                 $container->get(IndexBuilder::class),
-                $container->get(Index::class)
+                $container->get(Index::class),
+                $container->get(FileListProvider::class)
             );
         }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:build']]);
 
@@ -61,9 +64,14 @@ class WorkspaceQueryExtension implements Extension
         $container->register(IndexBuilder::class, function (Container $container) {
             return new WorseIndexBuilder(
                 $container->get(Index::class),
-                $container->get(SourceCodeFilesystemExtension::SERVICE_FILESYSTEM_COMPOSER),
                 $this->createReflector($container),
                 $container->get(LoggingExtension::SERVICE_LOGGER)
+            );
+        });
+
+        $container->register(FileListProvider::class, function (Container $container) {
+            return new FilesystemFileListProvider(
+                $container->get(SourceCodeFilesystemExtension::SERVICE_FILESYSTEM_COMPOSER),
             );
         });
 
