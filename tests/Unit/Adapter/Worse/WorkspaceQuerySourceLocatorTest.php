@@ -30,7 +30,7 @@ class WorkspaceQuerySourceLocatorTest extends TestCase
             FullyQualifiedName::fromString('Foobar'),
             'class',
             ByteOffset::fromInt(0),
-            'nope.php',
+            'nope.php'
         );
         $index = new InMemoryIndex();
         $index->write()->class($record);
