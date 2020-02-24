@@ -8,6 +8,7 @@ use Phpactor\Container\Extension;
 use Phpactor\Extension\Console\ConsoleExtension;
 use Phpactor\Extension\Logger\LoggingExtension;
 use Phpactor\Extension\ReferenceFinder\ReferenceFinderExtension;
+use Phpactor\Extension\Rpc\RpcExtension;
 use Phpactor\Extension\SourceCodeFilesystem\SourceCodeFilesystemExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
@@ -20,6 +21,7 @@ use Phpactor\WorkspaceQuery\Adapter\Worse\WorkspaceQuerySourceLocator;
 use Phpactor\WorkspaceQuery\Extension\Command\IndexQueryClassCommand;
 use Phpactor\WorkspaceQuery\Extension\Command\IndexBuildCommand;
 use Phpactor\WorkspaceQuery\Adapter\Worse\WorseIndexBuilder;
+use Phpactor\WorkspaceQuery\Extension\Rpc\IndexHandler;
 use Phpactor\WorkspaceQuery\Model\FileListProvider;
 use Phpactor\WorkspaceQuery\Model\Index;
 use Phpactor\WorkspaceQuery\Model\IndexBuilder;
@@ -52,6 +54,7 @@ class WorkspaceQueryExtension implements Extension
         $this->registerCommands($container);
         $this->registerModel($container);
         $this->registerWorseAdapters($container);
+        $this->registerRpc($container);
         $this->registerReferenceFinderAdapters($container);
     }
 
@@ -139,5 +142,16 @@ class WorkspaceQueryExtension implements Extension
                 $this->createReflector($container)
             );
         }, [ ReferenceFinderExtension::TAG_IMPLEMENTATION_FINDER => []]);
+    }
+
+    private function registerRpc(ContainerBuilder $container): void
+    {
+        $container->register(IndexHandler::class, function (Container $container) {
+            return new IndexHandler($container->get(Indexer::class));
+        }, [
+            RpcExtension::TAG_RPC_HANDLER => [
+                'name' => IndexHandler::NAME,
+            ],
+        ]);
     }
 }
