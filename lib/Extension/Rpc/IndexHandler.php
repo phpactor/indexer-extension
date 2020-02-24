@@ -11,6 +11,9 @@ use Phpactor\WorkspaceQuery\Model\Indexer;
 class IndexHandler implements Handler
 {
     const NAME = 'index';
+    const PARAM_WATCH = 'watch';
+    const PARAM_INTERVAL = 'interval';
+
 
     /**
      * @var Indexer
@@ -24,6 +27,13 @@ class IndexHandler implements Handler
 
     public function configure(Resolver $resolver): void
     {
+        $resolver->setDefaults([
+            self::PARAM_WATCH => false,
+            self::PARAM_INTERVAL => 5
+        ]);
+        $resolver->setTypes([
+            self::PARAM_INTERVAL => 'integer'
+        ]);
     }
 
     /**
@@ -31,8 +41,16 @@ class IndexHandler implements Handler
      */
     public function handle(array $arguments): Response
     {
-        $job = $this->indexer->getJob();
-        $job->run();
+        while (true) {
+            $job = $this->indexer->getJob();
+            $job->run();
+
+            if ($arguments[self::PARAM_WATCH] === false) {
+                break;
+            }
+
+            sleep($arguments[self::PARAM_INTERVAL]);
+        }
 
         return EchoResponse::fromMessage(sprintf(
             'Indexed %s files',
