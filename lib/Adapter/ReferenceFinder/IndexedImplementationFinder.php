@@ -35,19 +35,19 @@ class IndexedImplementationFinder implements ClassImplementationFinder
      */
     public function findImplementations(TextDocument $document, ByteOffset $byteOffset): Locations
     {
-        $offset = $this->reflector->reflectOffset($document, $byteOffset->toInt());
-
-        $type = $offset->symbolContext()->type();
-        $implementations = $this->index->query()->implementing(
-            FullyQualifiedName::fromString($type->__toString())
-        );
-
         return new Locations(array_map(function (FullyQualifiedName $name) {
             $record = $this->index->query()->class($name);
             return new Location(
                 TextDocumentUri::fromString($record->filePath()),
                 $record->start()
             );
-        }, $implementations));
+        }, $this->index->query()->implementing(
+            FullyQualifiedName::fromString(
+                $this->reflector->reflectOffset(
+                    $document,
+                    $byteOffset->toInt()
+                )->symbolContext()->type()->__toString()
+            )
+        )));
     }
 }
