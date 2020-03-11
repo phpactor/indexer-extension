@@ -18,7 +18,7 @@
         "phpactor/name-specification": "^0.1",
         "thecodingmachine/safe": "^1.0",
         "dantleech/invoke": "^1.0",
-        "phpactor/reference-finder": "^0.2",
+        "phpactor/reference-finder": "^0.1.2",
         "phpactor/reference-finder-extension": "^0.1.3",
         "phpactor/text-document": "^1.1.3",
         "phpactor/rpc-extension": "^0.2.0@dev"
@@ -46,7 +46,7 @@
     "extra": {
         "phpactor.extension_class": "Phpactor\\WorkspaceQuery\\Extension\\WorkspaceQueryExtension",
         "branch-alias": {
-            "dev-master": "0.1.x-dev"
+            "dev-master": "0.2.x-dev"
         }
     },
     "scripts": {
