@@ -34,6 +34,11 @@ class FileList implements IteratorAggregate, Countable
         return new self($splFileInfos);
     }
 
+    public static function fromSingleFilePath(?string $subPath): self
+    {
+        return new self(new ArrayIterator([ new SplFileInfo($subPath) ]));
+    }
+
     /**
      * @return Iterator<SplFileInfo>
      */

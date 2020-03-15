@@ -31,7 +31,13 @@ class FilesystemFileListProvider implements FileListProvider
     public function provideFileList(Index $index, ?string $subPath = null): FileList
     {
         $filesystem = $this->filesystemRegistry->get($this->filesystemName);
+
+        if (null !== $subPath && $filesystem->exists($subPath) && is_file($subPath)) {
+            return FileList::fromSingleFilePath($subPath);
+        }
+
         $files = $filesystem->fileList()->phpFiles();
+
         if ($subPath) {
             $files = $files->within(FilePath::fromString($subPath));
         }
