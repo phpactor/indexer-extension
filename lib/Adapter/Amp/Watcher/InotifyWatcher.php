@@ -4,10 +4,10 @@ namespace Phpactor\WorkspaceQuery\Adapter\Amp\Watcher;
 
 use Amp\Process\Process;
 use Amp\Promise;
-use Generator;
 use Phpactor\WorkspaceQuery\Adapter\Amp\FileModification;
 use Phpactor\WorkspaceQuery\Adapter\Amp\Watcher;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 class InotifyWatcher implements Watcher
 {
@@ -51,7 +51,6 @@ class InotifyWatcher implements Watcher
             if (!$this->processStarted) {
                 $this->process = yield $this->startProcess();
                 $this->processStarted = true;
-
             }
 
             return \Amp\call(function () {
@@ -105,7 +104,8 @@ class InotifyWatcher implements Watcher
 
             if (!$process->isRunning()) {
                 throw new RuntimeException(sprintf(
-                    'Could not start process'
+                    'Could not start process: %s',
+                    $process->getCommand()
                 ));
             }
 

@@ -2,35 +2,13 @@
 
 namespace Phpactor\WorkspaceQuery\Extension\LanguageServer;
 
-use Amp\Deferred;
 use Amp\Delayed;
 use Amp\Promise;
 use Amp\Success;
-use Generator;
-use LanguageServerProtocol\CompletionItem;
-use LanguageServerProtocol\CompletionList;
-use LanguageServerProtocol\CompletionOptions;
 use LanguageServerProtocol\MessageType;
-use LanguageServerProtocol\Position;
-use LanguageServerProtocol\Range;
-use LanguageServerProtocol\ServerCapabilities;
-use LanguageServerProtocol\SignatureHelpOptions;
-use LanguageServerProtocol\TextDocumentItem;
-use LanguageServerProtocol\TextEdit;
-use LanguageServerProtocol\WorkDoneProgressBegin;
-use Phpactor\Completion\Core\Completor;
-use Phpactor\Completion\Core\Suggestion;
-use Phpactor\Completion\Core\TypedCompletorRegistry;
-use Phpactor\Extension\LanguageServerCompletion\Util\PhpactorToLspCompletionType;
-use Phpactor\Extension\LanguageServer\Helper\OffsetHelper;
-use Phpactor\LanguageServer\Core\Handler\CanRegisterCapabilities;
-use Phpactor\LanguageServer\Core\Handler\Handler;
 use Phpactor\LanguageServer\Core\Handler\ServiceProvider;
 use Phpactor\LanguageServer\Core\Rpc\NotificationMessage;
 use Phpactor\LanguageServer\Core\Server\Transmitter\MessageTransmitter;
-use Phpactor\LanguageServer\Core\Session\Workspace;
-use Phpactor\TextDocument\ByteOffset;
-use Phpactor\TextDocument\TextDocumentBuilder;
 use Phpactor\WorkspaceQuery\Adapter\Amp\FileModification;
 use Phpactor\WorkspaceQuery\Adapter\Amp\Watcher;
 use Phpactor\WorkspaceQuery\Model\Indexer;
@@ -55,6 +33,9 @@ class IndexerHandler implements ServiceProvider
         $this->watcher = $watcher;
     }
 
+    /**
+     * @return array<string>
+     */
     public function methods(): array
     {
         return [
@@ -62,7 +43,7 @@ class IndexerHandler implements ServiceProvider
     }
 
     /**
-     * {@inheritDoc}
+     * @return array<string>
      */
     public function services(): array
     {
@@ -101,7 +82,7 @@ class IndexerHandler implements ServiceProvider
         });
     }
 
-    private function showMessage(MessageTransmitter $transmitter, string $message)
+    private function showMessage(MessageTransmitter $transmitter, string $message): void
     {
         $transmitter->transmit(new NotificationMessage('window/showMessage', [
             'type' => MessageType::INFO,

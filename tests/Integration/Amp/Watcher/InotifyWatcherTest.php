@@ -28,6 +28,10 @@ class InotifyWatcherTest extends TestCase
             return yield $watcher->wait();
         });
 
+        // ensyure that the watcher is started by the time we put the file in
+        // place
+        usleep(5000);
+
         $this->workspace->put('foo', 'bar');
 
         $result = \Amp\Promise\wait($promise);
