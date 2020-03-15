@@ -13,7 +13,7 @@ use Phpactor\Extension\Logger\LoggingExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
 use Phpactor\Extension\Console\ConsoleExtension;
 use Phpactor\Container\PhpactorContainer;
-use Phpactor\Indexer\Extension\WorkspaceQueryExtension;
+use Phpactor\Indexer\Extension\IndexerExtension;
 use Phpactor\Container\Container;
 use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
 use Phpactor\Filesystem\Domain\MappedFilesystemRegistry;
@@ -98,7 +98,7 @@ class IntegrationTestCase extends TestCase
 
         $container = PhpactorContainer::fromExtensions([
             ConsoleExtension::class,
-            WorkspaceQueryExtension::class,
+            IndexerExtension::class,
             FilePathResolverExtension::class,
             LoggingExtension::class,
             SourceCodeFilesystemExtension::class,
@@ -110,7 +110,7 @@ class IntegrationTestCase extends TestCase
         ], [
             FilePathResolverExtension::PARAM_APPLICATION_ROOT => __DIR__ . '/../',
             FilePathResolverExtension::PARAM_PROJECT_ROOT => $this->workspace()->path(),
-            WorkspaceQueryExtension::PARAM_INDEX_PATH => $this->workspace()->path('/cache'),
+            IndexerExtension::PARAM_INDEX_PATH => $this->workspace()->path('/cache'),
             LoggingExtension::PARAM_ENABLED=> true,
             LoggingExtension::PARAM_PATH=> 'php://stderr',
             WorseReflectionExtension::PARAM_ENABLE_CACHE=> false,

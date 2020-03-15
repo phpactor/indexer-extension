@@ -9,7 +9,7 @@ use Phpactor\WorseReflection\Core\Name;
 use Phpactor\WorseReflection\Core\SourceCode;
 use Phpactor\WorseReflection\Core\SourceCodeLocator;
 
-class WorkspaceQuerySourceLocator implements SourceCodeLocator
+class IndexerSourceLocator implements SourceCodeLocator
 {
     /**
      * @var Index

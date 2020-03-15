@@ -14,7 +14,7 @@ use Phpactor\Extension\SourceCodeFilesystem\SourceCodeFilesystemExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
 use Phpactor\FilePathResolver\PathResolver;
-use Phpactor\Indexer\Adapter\Worse\WorkspaceQuerySourceLocator;
+use Phpactor\Indexer\Adapter\Worse\IndexerSourceLocator;
 use Phpactor\MapResolver\Resolver;
 use Phpactor\TextDocument\TextDocumentUri;
 use Phpactor\Indexer\Adapter\Amp\Watcher;
@@ -36,7 +36,7 @@ use Phpactor\Indexer\Model\Indexer;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\WorseReflection\ReflectorBuilder;
 
-class WorkspaceQueryExtension implements Extension
+class IndexerExtension implements Extension
 {
     const PARAM_INDEX_PATH = 'workspace_query.index_path';
     const PARAM_DEFAULT_FILESYSTEM = 'workspace_query.default_filesystem';
@@ -86,8 +86,8 @@ class WorkspaceQueryExtension implements Extension
             );
         });
         
-        $container->register(WorkspaceQuerySourceLocator::class, function (Container $container) {
-            return new WorkspaceQuerySourceLocator($container->get(Index::class));
+        $container->register(IndexerSourceLocator::class, function (Container $container) {
+            return new IndexerSourceLocator($container->get(Index::class));
         }, [
             WorseReflectionExtension::TAG_SOURCE_LOCATOR => []
         ]);

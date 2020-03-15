@@ -15,14 +15,13 @@ use Phpactor\Extension\SourceCodeFilesystem\SourceCodeFilesystemExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
 use Phpactor\Indexer\Extension\IndexerExtension;
-use Phpactor\Indexer\Extension\WorkspaceQueryExtension;
 use Symfony\Component\Console\Application;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $container = PhpactorContainer::fromExtensions([
     ConsoleExtension::class,
-    WorkspaceQueryExtension::class,
+    IndexerExtension::class,
     FilePathResolverExtension::class,
     LoggingExtension::class,
     SourceCodeFilesystemExtension::class,
@@ -33,7 +32,7 @@ $container = PhpactorContainer::fromExtensions([
     LanguageServerExtension::class,
 ], [
     FilePathResolverExtension::PARAM_APPLICATION_ROOT => __DIR__ . '/../',
-    WorkspaceQueryExtension::PARAM_INDEX_PATH => __DIR__ . '/../cache',
+    IndexerExtension::PARAM_INDEX_PATH => __DIR__ . '/../cache',
     //IndexerExtension::PARAM_DEFAULT_FILESYSTEM => 'simple',
     WorseReflectionExtension::PARAM_ENABLE_CACHE => true,
     LoggingExtension::PARAM_ENABLED => true,

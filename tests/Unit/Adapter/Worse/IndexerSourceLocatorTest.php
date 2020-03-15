@@ -6,18 +6,18 @@ use PHPUnit\Framework\TestCase;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryIndex;
-use Phpactor\Indexer\Adapter\Worse\WorkspaceQuerySourceLocator;
+use Phpactor\Indexer\Adapter\Worse\IndexerSourceLocator;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
 use Phpactor\WorseReflection\Core\Name;
 
-class WorkspaceQuerySourceLocatorTest extends TestCase
+class IndexerSourceLocatorTest extends TestCase
 {
     public function testThrowsExceptionIfClassNotInIndex(): void
     {
         $this->expectException(SourceNotFound::class);
         $index = new InMemoryIndex();
-        $locator = new WorkspaceQuerySourceLocator($index);
+        $locator = new IndexerSourceLocator($index);
         $locator->locate(Name::fromString('Foobar'));
     }
 
@@ -34,7 +34,7 @@ class WorkspaceQuerySourceLocatorTest extends TestCase
         );
         $index = new InMemoryIndex();
         $index->write()->class($record);
-        $locator = new WorkspaceQuerySourceLocator($index);
+        $locator = new IndexerSourceLocator($index);
         $locator->locate(Name::fromString('Foobar'));
     }
 
@@ -49,7 +49,7 @@ class WorkspaceQuerySourceLocatorTest extends TestCase
         );
         $index = new InMemoryIndex();
         $index->write()->class($record);
-        $locator = new WorkspaceQuerySourceLocator($index);
+        $locator = new IndexerSourceLocator($index);
         $sourceCode = $locator->locate(Name::fromString('Foobar'));
         $this->assertEquals(__FILE__, $sourceCode->path());
     }
