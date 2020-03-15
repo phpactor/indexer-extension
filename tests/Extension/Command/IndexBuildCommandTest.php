@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Tests\Integration\Extension\Command;
+namespace Phpactor\WorkspaceQuery\Tests\Extension\Command;
 
 use Phpactor\WorkspaceQuery\Tests\IntegrationTestCase;
 use Symfony\Component\Process\Process;

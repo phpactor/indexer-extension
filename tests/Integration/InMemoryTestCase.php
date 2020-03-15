@@ -19,44 +19,4 @@ use Psr\Log\NullLogger;
 
 abstract class InMemoryTestCase extends IntegrationTestCase
 {
-    protected function createBuilder(Index $index): IndexBuilder
-    {
-        $indexBuilder = new WorseIndexBuilder(
-            $index,
-            ReflectorBuilder::create()->addLocator(
-                new StubSourceLocator(
-                    ReflectorBuilder::create()->build(),
-                    $this->workspace()->path('/'),
-                    $this->workspace()->path('/')
-                )
-            )->build(),
-            new NullLogger()
-        );
-        return $indexBuilder;
-    }
-
-    protected function createIndex(): Index
-    {
-        $repository = new InMemoryRepository();
-        return new InMemoryIndex($repository);
-    }
-
-    protected function fileList(Index $index): FileList
-    {
-        $provider = new FilesystemFileListProvider(new MappedFilesystemRegistry([
-            'foobar' => new SimpleFilesystem($this->workspace()->path('/project')),
-        ]), 'foobar');
-        return $provider->provideFileList($index);
-    }
-
-    protected function createReflector(): Reflector
-    {
-        return ReflectorBuilder::create()->addLocator(
-            new StubSourceLocator(
-                ReflectorBuilder::create()->build(),
-                $this->workspace()->path('/'),
-                $this->workspace()->path('/')
-            )
-        )->build();
-    }
 }

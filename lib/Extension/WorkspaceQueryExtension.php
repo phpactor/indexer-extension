@@ -6,13 +6,18 @@ use Phpactor\Container\Container;
 use Phpactor\Container\ContainerBuilder;
 use Phpactor\Container\Extension;
 use Phpactor\Extension\Console\ConsoleExtension;
+use Phpactor\Extension\LanguageServer\LanguageServerExtension;
 use Phpactor\Extension\Logger\LoggingExtension;
 use Phpactor\Extension\ReferenceFinder\ReferenceFinderExtension;
 use Phpactor\Extension\Rpc\RpcExtension;
 use Phpactor\Extension\SourceCodeFilesystem\SourceCodeFilesystemExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
+use Phpactor\FilePathResolver\PathResolver;
 use Phpactor\MapResolver\Resolver;
+use Phpactor\TextDocument\TextDocumentUri;
+use Phpactor\WorkspaceQuery\Adapter\Amp\Watcher;
+use Phpactor\WorkspaceQuery\Adapter\Amp\Watcher\InotifyWatcher;
 use Phpactor\WorkspaceQuery\Adapter\Filesystem\FilesystemFileListProvider;
 use Phpactor\WorkspaceQuery\Adapter\Php\Serialized\FileRepository;
 use Phpactor\WorkspaceQuery\Adapter\Php\Serialized\SerializedIndex;
@@ -22,6 +27,7 @@ use Phpactor\WorkspaceQuery\Extension\Command\IndexQueryClassCommand;
 use Phpactor\WorkspaceQuery\Extension\Command\IndexBuildCommand;
 use Phpactor\WorkspaceQuery\Adapter\Worse\WorseIndexBuilder;
 use Phpactor\WorkspaceQuery\Extension\Rpc\IndexHandler;
+use Phpactor\WorkspaceQuery\Extension\LanguageServer\IndexerHandler as LsIndexerHandler;
 use Phpactor\WorkspaceQuery\Model\FileListProvider;
 use Phpactor\WorkspaceQuery\Model\Index;
 use Phpactor\WorkspaceQuery\Model\IndexBuilder;
@@ -56,6 +62,7 @@ class WorkspaceQueryExtension implements Extension
         $this->registerWorseAdapters($container);
         $this->registerRpc($container);
         $this->registerReferenceFinderAdapters($container);
+        $this->registerLanguageServer($container);
     }
 
     private function createReflector(Container $container): Reflector
@@ -153,5 +160,26 @@ class WorkspaceQueryExtension implements Extension
                 'name' => IndexHandler::NAME,
             ],
         ]);
+    }
+
+    private function registerLanguageServer(ContainerBuilder $container): void
+    {
+        $container->register(LsIndexerHandler::class, function (Container $container) {
+            return new LsIndexerHandler(
+                $container->get(Indexer::class),
+                $container->get(Watcher::class)
+            );
+        }, [
+            LanguageServerExtension::TAG_SESSION_HANDLER => []
+        ]);
+
+        $container->register(Watcher::class, function (Container $container) {
+            $resolver = $container->get(FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER);
+            assert($resolver instanceof PathResolver);
+            return new InotifyWatcher(
+                TextDocumentUri::fromString($resolver->resolve('%project_root%'))->path(),
+                $container->get(LoggingExtension::SERVICE_LOGGER)
+            );
+        });
     }
 }

@@ -7,6 +7,7 @@ use Phpactor\Extension\ClassToFile\ClassToFileExtension;
 use Phpactor\Extension\Completion\CompletionExtension;
 use Phpactor\Extension\ComposerAutoloader\ComposerAutoloaderExtension;
 use Phpactor\Extension\Console\ConsoleExtension;
+use Phpactor\Extension\LanguageServer\LanguageServerExtension;
 use Phpactor\Extension\Logger\LoggingExtension;
 use Phpactor\Extension\ReferenceFinder\ReferenceFinderExtension;
 use Phpactor\Extension\Rpc\RpcExtension;
@@ -28,6 +29,7 @@ $container = PhpactorContainer::fromExtensions([
     ClassToFileExtension::class,
     ComposerAutoloaderExtension::class,
     ReferenceFinderExtension::class,
+    LanguageServerExtension::class,
 ], [
     FilePathResolverExtension::PARAM_APPLICATION_ROOT => __DIR__ . '/../',
     WorkspaceQueryExtension::PARAM_INDEX_PATH => __DIR__ . '/../cache',
@@ -35,7 +37,8 @@ $container = PhpactorContainer::fromExtensions([
     WorseReflectionExtension::PARAM_ENABLE_CACHE => true,
     LoggingExtension::PARAM_ENABLED => true,
     LoggingExtension::PARAM_LEVEL => 'debug',
-    //LoggingExtension::PARAM_PATH=> 'php://stderr',
+    LanguageServerExtension::PARAM_WELCOME_MESSAGE => 'Indexer test server',
+    LoggingExtension::PARAM_PATH=> 'php://stderr',
 ]);
 
 $application = new Application();
