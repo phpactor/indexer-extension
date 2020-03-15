@@ -42,8 +42,12 @@ class FilesystemFileListProvider implements FileListProvider
             $files = $files->within(FilePath::fromString($subPath));
         }
 
-        return FileList::fromInfoIterator($files->filter(function (SplFileInfo $fileInfo) use ($index) {
-            return false === $index->isFresh($fileInfo);
-        })->getIterator());
+        if (!$subPath) {
+            $files = $files->filter(function (SplFileInfo $fileInfo) use ($index) {
+                return false === $index->isFresh($fileInfo);
+            });
+        }
+
+        return FileList::fromInfoIterator($files->getIterator());
     }
 }
