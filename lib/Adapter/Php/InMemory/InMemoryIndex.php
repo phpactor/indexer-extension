@@ -1,10 +1,10 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Adapter\Php\InMemory;
+namespace Phpactor\Indexer\Adapter\Php\InMemory;
 
-use Phpactor\WorkspaceQuery\Model\Index;
-use Phpactor\WorkspaceQuery\Model\IndexQuery;
-use Phpactor\WorkspaceQuery\Model\IndexWriter;
+use Phpactor\Indexer\Model\Index;
+use Phpactor\Indexer\Model\IndexQuery;
+use Phpactor\Indexer\Model\IndexWriter;
 use SplFileInfo;
 
 class InMemoryIndex implements Index

@@ -1,12 +1,12 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Extension\Rpc;
+namespace Phpactor\Indexer\Extension\Rpc;
 
 use Phpactor\Extension\Rpc\Handler;
 use Phpactor\Extension\Rpc\Response;
 use Phpactor\Extension\Rpc\Response\EchoResponse;
 use Phpactor\MapResolver\Resolver;
-use Phpactor\WorkspaceQuery\Model\Indexer;
+use Phpactor\Indexer\Model\Indexer;
 
 class IndexHandler implements Handler
 {

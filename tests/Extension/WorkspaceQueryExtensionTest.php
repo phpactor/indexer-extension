@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Tests\Extension;
+namespace Phpactor\Indexer\Tests\Extension;
 
 use Phpactor\Extension\ReferenceFinder\ReferenceFinderExtension;
 use Phpactor\Extension\ComposerAutoloader\ComposerAutoloaderExtension;
@@ -13,16 +13,16 @@ use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\Extension\SourceCodeFilesystem\SourceCodeFilesystemExtension;
 use Phpactor\Extension\Logger\LoggingExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
-use Phpactor\WorkspaceQuery\Adapter\ReferenceFinder\IndexedImplementationFinder;
-use Phpactor\WorkspaceQuery\Extension\WorkspaceQueryExtension;
+use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedImplementationFinder;
+use Phpactor\Indexer\Extension\IndexerExtension;
 use Phpactor\Extension\Console\ConsoleExtension;
 use Phpactor\Container\PhpactorContainer;
-use Phpactor\WorkspaceQuery\Model\Indexer;
-use Phpactor\WorkspaceQuery\Tests\IntegrationTestCase;
+use Phpactor\Indexer\Model\Indexer;
+use Phpactor\Indexer\Tests\IntegrationTestCase;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionClass;
 use Phpactor\WorseReflection\Reflector;
 
-class WorkspaceQueryExtensionTest extends IntegrationTestCase
+class IndexerExtensionTest extends IntegrationTestCase
 {
     protected function setUp(): void
     {

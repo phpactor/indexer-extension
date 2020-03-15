@@ -1,8 +1,8 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Adapter\Php\InMemory;
+namespace Phpactor\Indexer\Adapter\Php\InMemory;
 
-use Phpactor\WorkspaceQuery\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record\ClassRecord;
 
 class InMemoryRepository
 {

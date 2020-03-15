@@ -1,10 +1,10 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Adapter\Php\InMemory;
+namespace Phpactor\Indexer\Adapter\Php\InMemory;
 
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\WorkspaceQuery\Model\IndexQuery;
-use Phpactor\WorkspaceQuery\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\IndexQuery;
+use Phpactor\Indexer\Model\Record\ClassRecord;
 
 class InMemoryQuery implements IndexQuery
 {

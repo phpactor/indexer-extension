@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Adapter\Amp;
+namespace Phpactor\Indexer\Adapter\Amp;
 
 use Amp\Promise;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Extension\LanguageServer;
+namespace Phpactor\Indexer\Extension\LanguageServer;
 
 use Amp\Delayed;
 use Amp\Promise;
@@ -9,9 +9,9 @@ use LanguageServerProtocol\MessageType;
 use Phpactor\LanguageServer\Core\Handler\ServiceProvider;
 use Phpactor\LanguageServer\Core\Rpc\NotificationMessage;
 use Phpactor\LanguageServer\Core\Server\Transmitter\MessageTransmitter;
-use Phpactor\WorkspaceQuery\Adapter\Amp\FileModification;
-use Phpactor\WorkspaceQuery\Adapter\Amp\Watcher;
-use Phpactor\WorkspaceQuery\Model\Indexer;
+use Phpactor\Indexer\Adapter\Amp\FileModification;
+use Phpactor\Indexer\Adapter\Amp\Watcher;
+use Phpactor\Indexer\Model\Indexer;
 
 class IndexerHandler implements ServiceProvider
 {

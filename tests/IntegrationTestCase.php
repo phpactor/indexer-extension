@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Tests;
+namespace Phpactor\Indexer\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Phpactor\Extension\ReferenceFinder\ReferenceFinderExtension;
@@ -13,22 +13,22 @@ use Phpactor\Extension\Logger\LoggingExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
 use Phpactor\Extension\Console\ConsoleExtension;
 use Phpactor\Container\PhpactorContainer;
-use Phpactor\WorkspaceQuery\Extension\WorkspaceQueryExtension;
+use Phpactor\Indexer\Extension\WorkspaceQueryExtension;
 use Phpactor\Container\Container;
 use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
 use Phpactor\Filesystem\Domain\MappedFilesystemRegistry;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\TestUtils\Workspace;
-use Phpactor\WorkspaceQuery\Adapter\Filesystem\FilesystemFileListProvider;
-use Phpactor\WorkspaceQuery\Adapter\Php\InMemory\InMemoryIndex;
-use Phpactor\WorkspaceQuery\Model\FileList;
-use Phpactor\WorkspaceQuery\Adapter\Php\InMemory\InMemoryRepository;
-use Phpactor\WorkspaceQuery\Model\Index;
+use Phpactor\Indexer\Adapter\Filesystem\FilesystemFileListProvider;
+use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryIndex;
+use Phpactor\Indexer\Model\FileList;
+use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryRepository;
+use Phpactor\Indexer\Model\Index;
 use Psr\Log\NullLogger;
 use Phpactor\WorseReflection\Core\SourceCodeLocator\StubSourceLocator;
 use Phpactor\WorseReflection\ReflectorBuilder;
-use Phpactor\WorkspaceQuery\Adapter\Worse\WorseIndexBuilder;
-use Phpactor\WorkspaceQuery\Model\IndexBuilder;
+use Phpactor\Indexer\Adapter\Worse\WorseIndexBuilder;
+use Phpactor\Indexer\Model\IndexBuilder;
 use Symfony\Component\Process\Process;
 
 class IntegrationTestCase extends TestCase

@@ -1,9 +1,9 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Adapter\Worse;
+namespace Phpactor\Indexer\Adapter\Worse;
 
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\WorkspaceQuery\Model\Index;
+use Phpactor\Indexer\Model\Index;
 use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
 use Phpactor\WorseReflection\Core\Name;
 use Phpactor\WorseReflection\Core\SourceCode;

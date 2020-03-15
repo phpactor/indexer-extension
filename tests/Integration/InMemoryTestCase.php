@@ -1,8 +1,8 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Tests\Integration;
+namespace Phpactor\Indexer\Tests\Integration;
 
-use Phpactor\WorkspaceQuery\Tests\IntegrationTestCase;
+use Phpactor\Indexer\Tests\IntegrationTestCase;
 
 abstract class InMemoryTestCase extends IntegrationTestCase
 {

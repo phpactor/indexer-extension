@@ -1,8 +1,8 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Extension\Command;
+namespace Phpactor\Indexer\Extension\Command;
 
-use Phpactor\WorkspaceQuery\Model\Indexer;
+use Phpactor\Indexer\Model\Indexer;
 use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Phpactor\WorkspaceQuery\Util\Cast;
+use Phpactor\Indexer\Util\Cast;
 use Webmozart\PathUtil\Path;
 
 class IndexBuildCommand extends Command

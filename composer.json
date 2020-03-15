@@ -1,6 +1,6 @@
 {
-    "name": "phpactor/workspace-query",
-    "description": "Query a workspace",
+    "name": "phpactor/indexer",
+    "description": "Indexer and related integrations",
     "type": "phpactor-extension",
     "license": "MIT",
     "minimum-stability": "dev",
@@ -35,16 +35,16 @@
     },
     "autoload": {
         "psr-4": {
-            "Phpactor\\WorkspaceQuery\\": "lib/"
+            "Phpactor\\Indexer\\": "lib/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Phpactor\\WorkspaceQuery\\Tests\\": "tests/"
+            "Phpactor\\Indexer\\Tests\\": "tests/"
         }
     },
     "extra": {
-        "phpactor.extension_class": "Phpactor\\WorkspaceQuery\\Extension\\WorkspaceQueryExtension",
+        "phpactor.extension_class": "Phpactor\\Indexer\\Extension\\IndexerExtension",
         "branch-alias": {
             "dev-master": "0.1.x-dev"
         }

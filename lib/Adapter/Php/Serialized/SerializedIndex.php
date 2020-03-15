@@ -1,10 +1,10 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Adapter\Php\Serialized;
+namespace Phpactor\Indexer\Adapter\Php\Serialized;
 
-use Phpactor\WorkspaceQuery\Model\Index;
-use Phpactor\WorkspaceQuery\Model\IndexQuery;
-use Phpactor\WorkspaceQuery\Model\IndexWriter;
+use Phpactor\Indexer\Model\Index;
+use Phpactor\Indexer\Model\IndexQuery;
+use Phpactor\Indexer\Model\IndexWriter;
 use SplFileInfo;
 
 class SerializedIndex implements Index

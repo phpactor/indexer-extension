@@ -1,14 +1,14 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Adapter\Worse;
+namespace Phpactor\Indexer\Adapter\Worse;
 
 use DTL\Invoke\Invoke;
 use Generator;
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\WorkspaceQuery\Model\FileList;
-use Phpactor\WorkspaceQuery\Model\Index;
-use Phpactor\WorkspaceQuery\Model\IndexBuilder;
-use Phpactor\WorkspaceQuery\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\FileList;
+use Phpactor\Indexer\Model\Index;
+use Phpactor\Indexer\Model\IndexBuilder;
+use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
 use Phpactor\WorseReflection\Core\Reflection\Collection\ReflectionClassCollection;

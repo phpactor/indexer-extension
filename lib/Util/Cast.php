@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Util;
+namespace Phpactor\Indexer\Util;
 
 use RuntimeException;
 

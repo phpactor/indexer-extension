@@ -1,11 +1,11 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Adapter\Amp\Watcher;
+namespace Phpactor\Indexer\Adapter\Amp\Watcher;
 
 use Amp\Process\Process;
 use Amp\Promise;
-use Phpactor\WorkspaceQuery\Adapter\Amp\FileModification;
-use Phpactor\WorkspaceQuery\Adapter\Amp\Watcher;
+use Phpactor\Indexer\Adapter\Amp\FileModification;
+use Phpactor\Indexer\Adapter\Amp\Watcher;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 

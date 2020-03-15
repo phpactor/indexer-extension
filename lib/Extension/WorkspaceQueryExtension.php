@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Extension;
+namespace Phpactor\Indexer\Extension;
 
 use Phpactor\Container\Container;
 use Phpactor\Container\ContainerBuilder;
@@ -14,25 +14,25 @@ use Phpactor\Extension\SourceCodeFilesystem\SourceCodeFilesystemExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
 use Phpactor\FilePathResolver\PathResolver;
+use Phpactor\Indexer\Adapter\Worse\WorkspaceQuerySourceLocator;
 use Phpactor\MapResolver\Resolver;
 use Phpactor\TextDocument\TextDocumentUri;
-use Phpactor\WorkspaceQuery\Adapter\Amp\Watcher;
-use Phpactor\WorkspaceQuery\Adapter\Amp\Watcher\InotifyWatcher;
-use Phpactor\WorkspaceQuery\Adapter\Filesystem\FilesystemFileListProvider;
-use Phpactor\WorkspaceQuery\Adapter\Php\Serialized\FileRepository;
-use Phpactor\WorkspaceQuery\Adapter\Php\Serialized\SerializedIndex;
-use Phpactor\WorkspaceQuery\Adapter\ReferenceFinder\IndexedImplementationFinder;
-use Phpactor\WorkspaceQuery\Adapter\Worse\WorkspaceQuerySourceLocator;
-use Phpactor\WorkspaceQuery\Extension\Command\IndexQueryClassCommand;
-use Phpactor\WorkspaceQuery\Extension\Command\IndexBuildCommand;
-use Phpactor\WorkspaceQuery\Adapter\Worse\WorseIndexBuilder;
-use Phpactor\WorkspaceQuery\Extension\Rpc\IndexHandler;
-use Phpactor\WorkspaceQuery\Extension\LanguageServer\IndexerHandler as LsIndexerHandler;
-use Phpactor\WorkspaceQuery\Model\FileListProvider;
-use Phpactor\WorkspaceQuery\Model\Index;
-use Phpactor\WorkspaceQuery\Model\IndexBuilder;
-use Phpactor\WorkspaceQuery\Model\IndexQuery;
-use Phpactor\WorkspaceQuery\Model\Indexer;
+use Phpactor\Indexer\Adapter\Amp\Watcher;
+use Phpactor\Indexer\Adapter\Amp\Watcher\InotifyWatcher;
+use Phpactor\Indexer\Adapter\Filesystem\FilesystemFileListProvider;
+use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
+use Phpactor\Indexer\Adapter\Php\Serialized\SerializedIndex;
+use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedImplementationFinder;
+use Phpactor\Indexer\Extension\Command\IndexQueryClassCommand;
+use Phpactor\Indexer\Extension\Command\IndexBuildCommand;
+use Phpactor\Indexer\Adapter\Worse\WorseIndexBuilder;
+use Phpactor\Indexer\Extension\Rpc\IndexHandler;
+use Phpactor\Indexer\Extension\LanguageServer\IndexerHandler as LsIndexerHandler;
+use Phpactor\Indexer\Model\FileListProvider;
+use Phpactor\Indexer\Model\Index;
+use Phpactor\Indexer\Model\IndexBuilder;
+use Phpactor\Indexer\Model\IndexQuery;
+use Phpactor\Indexer\Model\Indexer;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\WorseReflection\ReflectorBuilder;
 

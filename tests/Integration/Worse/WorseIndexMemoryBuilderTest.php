@@ -1,11 +1,11 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Tests\Integration\Worse;
+namespace Phpactor\Indexer\Tests\Integration\Worse;
 
-use Phpactor\WorkspaceQuery\Adapter\Worse\WorseIndexBuilder;
-use Phpactor\WorkspaceQuery\Model\Index;
-use Phpactor\WorkspaceQuery\Model\IndexBuilder;
-use Phpactor\WorkspaceQuery\Tests\Integration\IndexBuilderIndexTestCase;
+use Phpactor\Indexer\Adapter\Worse\WorseIndexBuilder;
+use Phpactor\Indexer\Model\Index;
+use Phpactor\Indexer\Model\IndexBuilder;
+use Phpactor\Indexer\Tests\Integration\IndexBuilderIndexTestCase;
 use Psr\Log\NullLogger;
 
 class WorseIndexMemoryBuilderTest extends IndexBuilderIndexTestCase

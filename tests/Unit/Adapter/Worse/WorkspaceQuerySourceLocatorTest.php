@@ -1,13 +1,13 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Tests\Unit\Adapter\Worse;
+namespace Phpactor\Indexer\Tests\Unit\Adapter\Worse;
 
 use PHPUnit\Framework\TestCase;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\TextDocument\ByteOffset;
-use Phpactor\WorkspaceQuery\Adapter\Php\InMemory\InMemoryIndex;
-use Phpactor\WorkspaceQuery\Adapter\Worse\WorkspaceQuerySourceLocator;
-use Phpactor\WorkspaceQuery\Model\Record\ClassRecord;
+use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryIndex;
+use Phpactor\Indexer\Adapter\Worse\WorkspaceQuerySourceLocator;
+use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
 use Phpactor\WorseReflection\Core\Name;
 

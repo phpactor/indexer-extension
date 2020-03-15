@@ -1,9 +1,9 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Adapter\Php\Serialized;
+namespace Phpactor\Indexer\Adapter\Php\Serialized;
 
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\WorkspaceQuery\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record\ClassRecord;
 use RuntimeException;
 use function Safe\file_get_contents;
 use function Safe\file_put_contents;

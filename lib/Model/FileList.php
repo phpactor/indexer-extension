@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Model;
+namespace Phpactor\Indexer\Model;
 
 use ArrayIterator;
 use Countable;

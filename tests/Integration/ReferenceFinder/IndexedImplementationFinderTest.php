@@ -1,9 +1,9 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Tests\Integration\ReferenceFinder;
+namespace Phpactor\Indexer\Tests\Integration\ReferenceFinder;
 
-use Phpactor\WorkspaceQuery\Adapter\ReferenceFinder\IndexedImplementationFinder;
-use Phpactor\WorkspaceQuery\Tests\Integration\InMemoryTestCase;
+use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedImplementationFinder;
+use Phpactor\Indexer\Tests\Integration\InMemoryTestCase;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\TextDocumentBuilder;
 

@@ -1,29 +1,22 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Tests\Integration\Amp\Watcher;
+namespace Phpactor\Indexer\Tests\Integration\Amp\Watcher;
 
-use PHPUnit\Framework\TestCase;
-use Phpactor\TestUtils\Workspace;
-use Phpactor\WorkspaceQuery\Adapter\Amp\FileModification;
-use Phpactor\WorkspaceQuery\Adapter\Amp\Watcher\InotifyWatcher;
+use Phpactor\Indexer\Tests\IntegrationTestCase;
+use Phpactor\Indexer\Adapter\Amp\FileModification;
+use Phpactor\Indexer\Adapter\Amp\Watcher\InotifyWatcher;
 use Psr\Log\NullLogger;
 
-class InotifyWatcherTest extends TestCase
+class InotifyWatcherTest extends IntegrationTestCase
 {
-    /**
-     * @var Workspace
-     */
-    private $workspace;
-
     protected function setUp(): void
     {
-        $this->workspace = new Workspace(__DIR__ . '/../Workspace');
-        $this->workspace->reset();
+        $this->workspace()->reset();
     }
 
     public function testWatch(): void
     {
-        $watcher = new InotifyWatcher($this->workspace->path(), new NullLogger());
+        $watcher = new InotifyWatcher($this->workspace()->path(), new NullLogger());
         $promise = \Amp\call(function () use ($watcher) {
             return yield $watcher->wait();
         });
@@ -32,11 +25,11 @@ class InotifyWatcherTest extends TestCase
         // place
         usleep(5000);
 
-        $this->workspace->put('foo', 'bar');
+        $this->workspace()->put('foo', 'bar');
 
         $result = \Amp\Promise\wait($promise);
         $this->assertEquals(
-            new FileModification($this->workspace->path() . '/', 'CREATE', 'foo'),
+            new FileModification($this->workspace()->path() . '/', 'CREATE', 'foo'),
             $result
         );
     }

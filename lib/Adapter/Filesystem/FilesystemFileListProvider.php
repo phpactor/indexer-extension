@@ -1,13 +1,13 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Adapter\Filesystem;
+namespace Phpactor\Indexer\Adapter\Filesystem;
 
 use Phpactor\Filesystem\Domain\FilePath;
 use Phpactor\Filesystem\Domain\FilesystemRegistry;
-use Phpactor\WorkspaceQuery\Model\FileList;
-use Phpactor\WorkspaceQuery\Model\FileListProvider;
+use Phpactor\Indexer\Model\FileList;
+use Phpactor\Indexer\Model\FileListProvider;
 use SplFileInfo;
-use Phpactor\WorkspaceQuery\Model\Index;
+use Phpactor\Indexer\Model\Index;
 
 class FilesystemFileListProvider implements FileListProvider
 {

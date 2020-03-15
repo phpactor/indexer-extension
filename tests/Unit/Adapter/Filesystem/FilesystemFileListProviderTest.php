@@ -1,15 +1,15 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Tests\Unit\Adapter\Filesystem;
+namespace Phpactor\Indexer\Tests\Unit\Adapter\Filesystem;
 
 use PHPUnit\Framework\TestCase;
 use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
 use Phpactor\Filesystem\Domain\Filesystem;
 use Phpactor\Filesystem\Domain\FilesystemRegistry;
-use Phpactor\WorkspaceQuery\Adapter\Filesystem\FilesystemFileListProvider;
-use Phpactor\WorkspaceQuery\Adapter\Php\InMemory\InMemoryIndex;
-use Phpactor\WorkspaceQuery\Model\Index;
-use Phpactor\WorkspaceQuery\Tests\IntegrationTestCase;
+use Phpactor\Indexer\Adapter\Filesystem\FilesystemFileListProvider;
+use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryIndex;
+use Phpactor\Indexer\Model\Index;
+use Phpactor\Indexer\Tests\IntegrationTestCase;
 
 class FilesystemFileListProviderTest extends IntegrationTestCase
 {

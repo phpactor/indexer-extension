@@ -1,8 +1,8 @@
 <?php
 
-namespace Phpactor\WorkspaceQuery\Tests\Extension\Command;
+namespace Phpactor\Indexer\Tests\Extension\Command;
 
-use Phpactor\WorkspaceQuery\Tests\IntegrationTestCase;
+use Phpactor\Indexer\Tests\IntegrationTestCase;
 use Symfony\Component\Process\Process;
 
 class IndexBuildCommandTest extends IntegrationTestCase
