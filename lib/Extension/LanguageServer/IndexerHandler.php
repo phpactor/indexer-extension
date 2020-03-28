@@ -6,11 +6,12 @@ use Amp\Delayed;
 use Amp\Promise;
 use Amp\Success;
 use LanguageServerProtocol\MessageType;
+use Phpactor\AmpFsWatch\ModifiedFile;
+use Phpactor\AmpFsWatch\Watcher;
+use Phpactor\AmpFsWatch\WatcherProcess;
 use Phpactor\LanguageServer\Core\Handler\ServiceProvider;
 use Phpactor\LanguageServer\Core\Rpc\NotificationMessage;
 use Phpactor\LanguageServer\Core\Server\Transmitter\MessageTransmitter;
-use Phpactor\Indexer\Adapter\Amp\FileModification;
-use Phpactor\Indexer\Adapter\Amp\Watcher;
 use Phpactor\Indexer\Model\Indexer;
 
 class IndexerHandler implements ServiceProvider
@@ -65,13 +66,15 @@ class IndexerHandler implements ServiceProvider
 
             $this->showMessage($transmitter, 'Index initialized, watching.');
 
-            while ($modifiedFile = yield $this->watcher->wait()) {
-                assert($modifiedFile instanceof FileModification);
+            $process = yield $this->watcher->watch();
 
-                $job = $this->indexer->getJob(rtrim(
-                    $modifiedFile->watchedFilename(),
-                    '/'
-                ) .'/'. $modifiedFile->eventFilename());
+            while (null !== $file = yield $process->wait()) {
+                assert($file instanceof ModifiedFile);
+                if (!preg_match('{.*php$}', $file->path())) {
+                    continue;
+                }
+
+                $job = $this->indexer->getJob($file->path());
 
                 foreach ($job->generator() as $file) {
                     yield new Delayed(1);
@@ -88,5 +91,9 @@ class IndexerHandler implements ServiceProvider
             'type' => MessageType::INFO,
             'message' => $message
         ]));
+    }
+
+    private function index(ModifiedFile $file): void
+    {
     }
 }

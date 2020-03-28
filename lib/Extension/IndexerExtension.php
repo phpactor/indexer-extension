@@ -2,6 +2,12 @@
 
 namespace Phpactor\Indexer\Extension;
 
+use Phpactor\AmpFsWatch\Watcher;
+use Phpactor\AmpFsWatch\WatcherConfig;
+use Phpactor\AmpFsWatch\Watcher\Fallback\FallbackWatcher;
+use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
+use Phpactor\AmpFsWatch\Watcher\FsWatch\FsWatchWatcher;
+use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
 use Phpactor\Container\Container;
 use Phpactor\Container\ContainerBuilder;
 use Phpactor\Container\Extension;
@@ -16,9 +22,6 @@ use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
 use Phpactor\FilePathResolver\PathResolver;
 use Phpactor\Indexer\Adapter\Worse\IndexerSourceLocator;
 use Phpactor\MapResolver\Resolver;
-use Phpactor\TextDocument\TextDocumentUri;
-use Phpactor\Indexer\Adapter\Amp\Watcher;
-use Phpactor\Indexer\Adapter\Amp\Watcher\InotifyWatcher;
 use Phpactor\Indexer\Adapter\Filesystem\FilesystemFileListProvider;
 use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
 use Phpactor\Indexer\Adapter\Php\Serialized\SerializedIndex;
@@ -33,6 +36,7 @@ use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexBuilder;
 use Phpactor\Indexer\Model\IndexQuery;
 use Phpactor\Indexer\Model\Indexer;
+use Phpactor\TextDocument\TextDocumentUri;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\WorseReflection\ReflectorBuilder;
 
@@ -97,7 +101,8 @@ class IndexerExtension implements Extension
     {
         $container->register(IndexBuildCommand::class, function (Container $container) {
             return new IndexBuildCommand(
-                $container->get(Indexer::class)
+                $container->get(Indexer::class),
+                $container->get(Watcher::class)
             );
         }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:build']]);
         
@@ -154,7 +159,10 @@ class IndexerExtension implements Extension
     private function registerRpc(ContainerBuilder $container): void
     {
         $container->register(IndexHandler::class, function (Container $container) {
-            return new IndexHandler($container->get(Indexer::class));
+            return new IndexHandler(
+                $container->get(Indexer::class),
+                $container->get(Watcher::class)
+            );
         }, [
             RpcExtension::TAG_RPC_HANDLER => [
                 'name' => IndexHandler::NAME,
@@ -176,10 +184,19 @@ class IndexerExtension implements Extension
         $container->register(Watcher::class, function (Container $container) {
             $resolver = $container->get(FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER);
             assert($resolver instanceof PathResolver);
-            return new InotifyWatcher(
-                TextDocumentUri::fromString($resolver->resolve('%project_root%'))->path(),
-                $container->get(LoggingExtension::SERVICE_LOGGER)
-            );
+
+            // TODO The language server should not set the project root with
+            // the scheme?
+            $path = TextDocumentUri::fromString($resolver->resolve('%project_root%'));
+
+            // TODO: Move the poll time to the config? and create a builder
+            $config = new WatcherConfig([$path->path()]);
+
+            return new FallbackWatcher([
+                new InotifyWatcher($config, $container->get(LoggingExtension::SERVICE_LOGGER)),
+                new FsWatchWatcher($config, $container->get(LoggingExtension::SERVICE_LOGGER)),
+                new FindWatcher($config, 5000, $container->get(LoggingExtension::SERVICE_LOGGER)),
+            ], $container->get(LoggingExtension::SERVICE_LOGGER));
         });
     }
 }
