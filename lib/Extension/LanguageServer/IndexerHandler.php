@@ -72,10 +72,6 @@ class IndexerHandler implements ServiceProvider
 
             while (null !== $file = yield $process->wait()) {
                 assert($file instanceof ModifiedFile);
-                if (!preg_match('{.*php$}', $file->path())) {
-                    continue;
-                }
-
                 $job = $this->indexer->getJob($file->path());
 
                 foreach ($job->generator() as $file) {
@@ -93,9 +89,5 @@ class IndexerHandler implements ServiceProvider
             'type' => MessageType::INFO,
             'message' => $message
         ]));
-    }
-
-    private function index(ModifiedFile $file): void
-    {
     }
 }
