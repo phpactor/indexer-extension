@@ -8,7 +8,6 @@ use Amp\Success;
 use LanguageServerProtocol\MessageType;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\Watcher;
-use Phpactor\AmpFsWatch\WatcherProcess;
 use Phpactor\LanguageServer\Core\Handler\ServiceProvider;
 use Phpactor\LanguageServer\Core\Rpc\NotificationMessage;
 use Phpactor\LanguageServer\Core\Server\Transmitter\MessageTransmitter;
@@ -53,6 +52,9 @@ class IndexerHandler implements ServiceProvider
         ];
     }
 
+    /**
+     * @return Promise<mixed>
+     */
     public function indexerService(MessageTransmitter $transmitter): Promise
     {
         return \Amp\call(function () use ($transmitter) {

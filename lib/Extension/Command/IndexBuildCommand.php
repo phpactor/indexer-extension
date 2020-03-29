@@ -3,9 +3,7 @@
 namespace Phpactor\Indexer\Extension\Command;
 
 use Amp\Loop;
-use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\Watcher;
-use Phpactor\AmpFsWatch\WatcherProcess;
 use Phpactor\Indexer\Model\Indexer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -28,11 +26,11 @@ class IndexBuildCommand extends Command
     private $indexer;
 
     /**
-     * @var WatcherProcess
+     * @var Watcher
      */
     private $watcher;
 
-    public function __construct(Indexer $indexer, WatcherProcess $watcher)
+    public function __construct(Indexer $indexer, Watcher $watcher)
     {
         parent::__construct();
         $this->indexer = $indexer;
@@ -102,15 +100,16 @@ class IndexBuildCommand extends Command
     private function watch(OutputInterface $output): void
     {
         Loop::run(function () use ($output) {
+            $process = yield $this->watcher->watch();
 
-            Loop::onSignal(SIGINT, function () use ($output) {
+            Loop::onSignal(SIGINT, function () use ($output, $process) {
                 $output->write('Shutting down watchers...');
-                $this->watcher->stop();
+                $process->stop();
                 $output->writeln('done');
                 Loop::stop();
             });
 
-            while (null !== $file = yield $this->watcher->wait()) {
+            while (null !== $file = yield $process->wait()) {
                 if (!preg_match('{.*php$}', $file->path())) {
                     continue;
                 }
@@ -121,5 +120,4 @@ class IndexBuildCommand extends Command
             }
         });
     }
-
 }

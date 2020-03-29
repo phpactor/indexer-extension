@@ -5,13 +5,12 @@ namespace Phpactor\Indexer\Extension\Rpc;
 use Amp\Delayed;
 use Amp\Loop;
 use Phpactor\AmpFsWatch\ModifiedFile;
-use Phpactor\AmpFsWatch\WatcherProcess;
+use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\Extension\Rpc\Handler;
 use Phpactor\Extension\Rpc\Response;
 use Phpactor\Extension\Rpc\Response\EchoResponse;
 use Phpactor\MapResolver\Resolver;
 use Phpactor\Indexer\Model\Indexer;
-use phpDocumentor\Reflection\DocBlock\Description;
 
 class IndexHandler implements Handler
 {
@@ -25,11 +24,12 @@ class IndexHandler implements Handler
     private $indexer;
 
     /**
-     * @var WatcherProcess
+     * @var Watcher
      */
     private $watcher;
 
-    public function __construct(Indexer $indexer, WatcherProcess $watcher)
+
+    public function __construct(Indexer $indexer, Watcher $watcher)
     {
         $this->indexer = $indexer;
         $this->watcher = $watcher;
@@ -56,7 +56,9 @@ class IndexHandler implements Handler
 
         if ($arguments[self::PARAM_WATCH] === true) {
             Loop::run(function () use ($arguments) {
-                while (null !== $file = $this->watcher->wait()) {
+                $process = yield $this->watcher->watch();
+
+                while (null !== $file = yield $process->wait()) {
                     assert($file instanceof ModifiedFile);
                     $job = $this->indexer->getJob($file->path());
                     $job->run();
