@@ -1,7 +1,7 @@
 Project Query
 =============
 
-[![Build Status](https://travis-ci.org/phpactor/workspace-query.svg?branch=master)](https://travis-ci.org/phpactor/workspace-query)
+[![Build Status](https://travis-ci.org/phpactor/indexer.svg?branch=master)](https://travis-ci.org/phpactor/indexer)
 
 [Phpactor](https://github.com/phpactor/phpactor) extension for indexing querying a project's workspace.
 
@@ -20,13 +20,13 @@ From the CLI:
 
 ```
 $ phpactor extension:install 
-$ phpactor extension:install "phpactor/workspace-query"
+$ phpactor extension:install "phpactor/indexer"
 ```
 
 From VIM:
 
 ```
-:call phpactor#ExtensionInstall('phpactor/workspace-query')
+:call phpactor#ExtensionInstall('phpactor/indexer')
 ```
 
 Usage
