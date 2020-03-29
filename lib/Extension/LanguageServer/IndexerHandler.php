@@ -12,6 +12,7 @@ use Phpactor\LanguageServer\Core\Handler\ServiceProvider;
 use Phpactor\LanguageServer\Core\Rpc\NotificationMessage;
 use Phpactor\LanguageServer\Core\Server\Transmitter\MessageTransmitter;
 use Phpactor\Indexer\Model\Indexer;
+use Psr\Log\LoggerInterface;
 
 class IndexerHandler implements ServiceProvider
 {
@@ -25,12 +26,19 @@ class IndexerHandler implements ServiceProvider
      */
     private $watcher;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
         Indexer $indexer,
-        Watcher $watcher
+        Watcher $watcher,
+        LoggerInterface $logger
     ) {
         $this->indexer = $indexer;
         $this->watcher = $watcher;
+        $this->logger = $logger;
     }
 
     /**
@@ -75,6 +83,7 @@ class IndexerHandler implements ServiceProvider
                 $job = $this->indexer->getJob($file->path());
 
                 foreach ($job->generator() as $file) {
+                    $this->logger->debug(sprintf('Indexed file: %s', $file));
                     yield new Delayed(1);
                 }
             }

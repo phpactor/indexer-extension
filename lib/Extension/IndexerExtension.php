@@ -178,7 +178,8 @@ class IndexerExtension implements Extension
         $container->register(LsIndexerHandler::class, function (Container $container) {
             return new LsIndexerHandler(
                 $container->get(Indexer::class),
-                $container->get(Watcher::class)
+                $container->get(Watcher::class),
+                $container->get(LoggingExtension::SERVICE_LOGGER)
             );
         }, [
             LanguageServerExtension::TAG_SESSION_HANDLER => []
