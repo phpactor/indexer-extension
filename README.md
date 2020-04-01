@@ -1,5 +1,5 @@
-Project Query
-=============
+Project Indexer
+===============
 
 [![Build Status](https://travis-ci.org/phpactor/indexer.svg?branch=master)](https://travis-ci.org/phpactor/indexer)
 
