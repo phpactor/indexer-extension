@@ -54,7 +54,7 @@ class IndexerExtension implements Extension
     {
         $schema->setDefaults([
             self::PARAM_INDEX_PATH => '%cache%/index/%project_id%',
-            self::PARAM_DEFAULT_FILESYSTEM => SourceCodeFilesystemExtension::FILESYSTEM_COMPOSER,
+            self::PARAM_DEFAULT_FILESYSTEM => SourceCodeFilesystemExtension::FILESYSTEM_SIMPLE,
             self::PARAM_INDEX_PATTERNS => [ '*.php' ],
         ]);
     }
@@ -76,7 +76,7 @@ class IndexerExtension implements Extension
     {
         $builder = ReflectorBuilder::create();
         foreach (array_keys($container->getServiceIdsForTag(WorseReflectionExtension::TAG_SOURCE_LOCATOR)) as $serviceId) {
-            $builder->addLocator($container->get($serviceId));
+            $builder->addLocator($container->get($serviceId), 128);
         }
         $builder->enableCache();
 

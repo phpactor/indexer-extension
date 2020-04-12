@@ -111,7 +111,12 @@ class WorseIndexBuilder implements IndexBuilder
     {
         $mtime = $fileInfo->getMTime();
         foreach ($classes as $reflectionClass) {
-            $this->createOrGetClassRecord($reflectionClass, $mtime);
+            $record = $this->createOrGetClassRecord($reflectionClass, $mtime);
+
+            if (null === $record) {
+                continue;
+            }
+
             $this->updateClassRelations(
                 $reflectionClass
             );
