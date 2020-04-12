@@ -55,7 +55,7 @@ class IndexerExtension implements Extension
         $schema->setDefaults([
             self::PARAM_INDEX_PATH => '%cache%/index/%project_id%',
             self::PARAM_DEFAULT_FILESYSTEM => SourceCodeFilesystemExtension::FILESYSTEM_SIMPLE,
-            self::PARAM_INDEX_PATTERNS => [ '*.php' ],
+            self::PARAM_INDEX_PATTERNS => [ '*.php$' ],
         ]);
     }
 
