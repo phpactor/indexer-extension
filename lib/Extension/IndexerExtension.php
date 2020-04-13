@@ -47,8 +47,8 @@ class IndexerExtension implements Extension
     const PARAM_INDEX_PATH = 'indexer.index_path';
     const PARAM_DEFAULT_FILESYSTEM = 'indexer.default_filesystem';
     const PARAM_INDEX_PATTERNS = 'indexer.index_patterns';
-    const PARAM_DISABLED_WATCHERS = 'indexer.disabled_watchers';
     const PARAM_INDEXER_POLL_TIME = 'indexer.poll_time';
+    const PARAM_ENABLED_WATCHERS = 'indexer.enabled_watchers';
 
     const TAG_WATCHER = 'indexer.watcher';
 
@@ -58,10 +58,10 @@ class IndexerExtension implements Extension
     public function configure(Resolver $schema)
     {
         $schema->setDefaults([
+            self::PARAM_ENABLED_WATCHERS => ['inotify', 'find', 'php'],
             self::PARAM_INDEX_PATH => '%cache%/index/%project_id%',
             self::PARAM_DEFAULT_FILESYSTEM => SourceCodeFilesystemExtension::FILESYSTEM_SIMPLE,
             self::PARAM_INDEX_PATTERNS => [ '*.php' ],
-            self::PARAM_DISABLED_WATCHERS => ['fswatch'],
             self::PARAM_INDEXER_POLL_TIME => 5000,
         ]);
     }
@@ -186,26 +186,41 @@ class IndexerExtension implements Extension
 
             $watchers = [];
 
-            $disabledWatchers = $container->getParameter(self::PARAM_DISABLED_WATCHERS);
+            $enabledWatchers = $container->getParameter(self::PARAM_ENABLED_WATCHERS);
+
             foreach ($container->getServiceIdsForTag(self::TAG_WATCHER) as $serviceId => $attrs) {
+
                 if (!isset($attrs['name'])) {
                     throw new RuntimeException(sprintf(
                         'Watcher "%s" must provide the `name` attribute',
                         $serviceId
                     ));
                 }
-                if (in_array($attrs['name'], $disabledWatchers)) {
-                    unset($disabledWatchers[(int)array_search($attrs['name'], $disabledWatchers)]);
-                    continue;
-                }
-                $watchers[$attrs['name']] = $container->get($serviceId);
+
+                $watchers[$attrs['name']] = $serviceId;
             }
 
-            if (!empty($disabledWatchers)) {
+            if ($diff = array_diff($enabledWatchers, array_keys($watchers))) {
                 throw new RuntimeException(sprintf(
-                    'Watcher(s) "%s" do not exist and cannot be disabled',
-                    implode('", "', $disabledWatchers)
+                    'Unknown watchers "%s" specified, available watchers: "%s"',
+                    implode('", "', $diff), implode('", "', array_keys($watchers))
                 ));
+            }
+
+            $watchers = array_filter(array_map(
+                function (string $name, string $serviceId) use ($container, $enabledWatchers) {
+                    if (!in_array($name, $enabledWatchers)) {
+                        return null;
+                    }
+                    
+                    return $container->get($serviceId);
+                },
+                array_keys($watchers),
+                array_values($watchers)
+            ));
+
+            if ($watchers === []) {
+                return new NullWatcher();
             }
 
             return new PatternMatchingWatcher(

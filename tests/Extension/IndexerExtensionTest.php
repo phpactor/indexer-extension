@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Tests\Extension;
 
 use Phpactor\AmpFsWatch\Watcher;
+use Phpactor\AmpFsWatch\Watcher\Null\NullWatcher;
 use Phpactor\Extension\ReferenceFinder\ReferenceFinderExtension;
 use Phpactor\Extension\ComposerAutoloader\ComposerAutoloaderExtension;
 use Phpactor\Extension\ClassToFile\ClassToFileExtension;
@@ -57,13 +58,22 @@ class IndexerExtensionTest extends IntegrationTestCase
         self::assertRegExp('{Indexed [0-9]+ files}', $response->message());
     }
 
-    public function testThrowsExceptionIfDisabledWatcherDoesntExist()
+    public function testThrowsExceptionIfEnabledWatcherDoesntExist()
     {
         $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Unknown watchers "foobar" specified, available watchers: ');
         $container = $this->container([
-            IndexerExtension::PARAM_DISABLED_WATCHERS => ['foobar'],
+            IndexerExtension::PARAM_ENABLED_WATCHERS => ['foobar'],
         ]);
         $container->get(Watcher::class);
+    }
+
+    public function testUseNullWatcherIfEnabledWatchersIsEmpty()
+    {
+        $container = $this->container([
+            IndexerExtension::PARAM_ENABLED_WATCHERS => [],
+        ]);
+        self::assertInstanceOf(NullWatcher::class, $container->get(Watcher::class));
     }
 
     public function testSourceLocator()
