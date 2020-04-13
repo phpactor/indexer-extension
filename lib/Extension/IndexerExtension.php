@@ -183,13 +183,11 @@ class IndexerExtension implements Extension
     private function registerWatcher(ContainerBuilder $container): void
     {
         $container->register(Watcher::class, function (Container $container) {
-
             $watchers = [];
 
             $enabledWatchers = $container->getParameter(self::PARAM_ENABLED_WATCHERS);
 
             foreach ($container->getServiceIdsForTag(self::TAG_WATCHER) as $serviceId => $attrs) {
-
                 if (!isset($attrs['name'])) {
                     throw new RuntimeException(sprintf(
                         'Watcher "%s" must provide the `name` attribute',
@@ -203,7 +201,8 @@ class IndexerExtension implements Extension
             if ($diff = array_diff($enabledWatchers, array_keys($watchers))) {
                 throw new RuntimeException(sprintf(
                     'Unknown watchers "%s" specified, available watchers: "%s"',
-                    implode('", "', $diff), implode('", "', array_keys($watchers))
+                    implode('", "', $diff),
+                    implode('", "', array_keys($watchers))
                 ));
             }
 
@@ -229,7 +228,6 @@ class IndexerExtension implements Extension
             );
         });
         $container->register(WatcherConfig::class, function (Container $container) {
-
             $resolver = $container->get(FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER);
             assert($resolver instanceof PathResolver);
 
