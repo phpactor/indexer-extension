@@ -196,8 +196,6 @@ class IndexerExtension implements Extension
             $config = new WatcherConfig([$path->path()], 5000);
 
             return new PatternMatchingWatcher(new FallbackWatcher([
-                new InotifyWatcher($config, $container->get(LoggingExtension::SERVICE_LOGGER)),
-                new FsWatchWatcher($config, $container->get(LoggingExtension::SERVICE_LOGGER)),
                 new FindWatcher($config, $container->get(LoggingExtension::SERVICE_LOGGER)),
             ], $container->get(LoggingExtension::SERVICE_LOGGER)), $container->getParameter(self::PARAM_INDEX_PATTERNS));
         });
