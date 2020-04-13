@@ -40,7 +40,7 @@ use Phpactor\Indexer\Model\Indexer;
 use Phpactor\TextDocument\TextDocumentUri;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\WorseReflection\ReflectorBuilder;
-use Symfony\Component\String\Exception\RuntimeException;
+use RuntimeException;
 
 class IndexerExtension implements Extension
 {
