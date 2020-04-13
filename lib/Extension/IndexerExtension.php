@@ -207,10 +207,6 @@ class IndexerExtension implements Extension
                 ));
             }
 
-            if (empty($watchers)) {
-                return new NullWatcher();
-            }
-
             return new PatternMatchingWatcher(
                 new FallbackWatcher($watchers, $container->get(LoggingExtension::SERVICE_LOGGER)),
                 $container->getParameter(self::PARAM_INDEX_PATTERNS)
