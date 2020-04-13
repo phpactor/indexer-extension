@@ -2,6 +2,7 @@
 
 namespace Phpactor\Indexer\Tests\Extension;
 
+use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\Extension\ReferenceFinder\ReferenceFinderExtension;
 use Phpactor\Extension\ComposerAutoloader\ComposerAutoloaderExtension;
 use Phpactor\Extension\ClassToFile\ClassToFileExtension;
@@ -21,6 +22,7 @@ use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionClass;
 use Phpactor\WorseReflection\Reflector;
+use RuntimeException;
 
 class IndexerExtensionTest extends IntegrationTestCase
 {
@@ -53,6 +55,15 @@ class IndexerExtensionTest extends IntegrationTestCase
         $response = $handler->handle($request);
         self::assertInstanceOf(EchoResponse::class, $response);
         self::assertRegExp('{Indexed [0-9]+ files}', $response->message());
+    }
+
+    public function testThrowsExceptionIfDisabledWatcherDoesntExist()
+    {
+        $this->expectException(RuntimeException::class);
+        $container = $this->container([
+            IndexerExtension::PARAM_DISABLED_WATCHERS => ['foobar'],
+        ]);
+        $container->get(Watcher::class);
     }
 
     public function testSourceLocator()

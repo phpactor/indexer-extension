@@ -88,15 +88,16 @@ class IntegrationTestCase extends TestCase
         )->build();
     }
 
-    protected function container(): Container
+    protected function container(array $config = []): Container
     {
-        static $container = null;
+        $key = serialize($config);
+        static $container = [];
         
-        if ($container) {
-            return $container;
+        if (isset($container[$key])) {
+            return $container[$key];
         }
 
-        $container = PhpactorContainer::fromExtensions([
+        $container[$key] = PhpactorContainer::fromExtensions([
             ConsoleExtension::class,
             IndexerExtension::class,
             FilePathResolverExtension::class,
@@ -107,15 +108,17 @@ class IntegrationTestCase extends TestCase
             RpcExtension::class,
             ComposerAutoloaderExtension::class,
             ReferenceFinderExtension::class,
-        ], [
-            FilePathResolverExtension::PARAM_APPLICATION_ROOT => __DIR__ . '/../',
-            FilePathResolverExtension::PARAM_PROJECT_ROOT => $this->workspace()->path(),
-            IndexerExtension::PARAM_INDEX_PATH => $this->workspace()->path('/cache'),
-            LoggingExtension::PARAM_ENABLED=> true,
-            LoggingExtension::PARAM_PATH=> 'php://stderr',
-            WorseReflectionExtension::PARAM_ENABLE_CACHE=> false,
-        ]);
+        ], 
+            array_merge([
+                FilePathResolverExtension::PARAM_APPLICATION_ROOT => __DIR__ . '/../',
+                FilePathResolverExtension::PARAM_PROJECT_ROOT => $this->workspace()->path(),
+                IndexerExtension::PARAM_INDEX_PATH => $this->workspace()->path('/cache'),
+                LoggingExtension::PARAM_ENABLED=> true,
+                LoggingExtension::PARAM_PATH=> 'php://stderr',
+                WorseReflectionExtension::PARAM_ENABLE_CACHE=> false,
+            ], $config)
+        );
 
-        return $container;
+        return $container[$key];
     }
 }

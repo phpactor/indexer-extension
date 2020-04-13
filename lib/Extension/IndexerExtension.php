@@ -8,6 +8,7 @@ use Phpactor\AmpFsWatch\Watcher\Fallback\FallbackWatcher;
 use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
 use Phpactor\AmpFsWatch\Watcher\FsWatch\FsWatchWatcher;
 use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
+use Phpactor\AmpFsWatch\Watcher\Null\NullWatcher;
 use Phpactor\AmpFsWatch\Watcher\PatternMatching\PatternMatchingWatcher;
 use Phpactor\Container\Container;
 use Phpactor\Container\ContainerBuilder;
@@ -38,12 +39,17 @@ use Phpactor\Indexer\Model\Indexer;
 use Phpactor\TextDocument\TextDocumentUri;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\WorseReflection\ReflectorBuilder;
+use Symfony\Component\String\Exception\RuntimeException;
 
 class IndexerExtension implements Extension
 {
     const PARAM_INDEX_PATH = 'indexer.index_path';
     const PARAM_DEFAULT_FILESYSTEM = 'indexer.default_filesystem';
     const PARAM_INDEX_PATTERNS = 'indexer.index_patterns';
+    const PARAM_DISABLED_WATCHERS = 'indexer.disabled_watchers';
+    const PARAM_INDEXER_POLL_TIME = 'indexer.poll_time';
+
+    const TAG_WATCHER = 'indexer.watcher';
 
     /**
      * {@inheritDoc}
@@ -54,6 +60,8 @@ class IndexerExtension implements Extension
             self::PARAM_INDEX_PATH => '%cache%/index/%project_id%',
             self::PARAM_DEFAULT_FILESYSTEM => SourceCodeFilesystemExtension::FILESYSTEM_SIMPLE,
             self::PARAM_INDEX_PATTERNS => [ '*.php$' ],
+            self::PARAM_DISABLED_WATCHERS => ['fswatch'],
+            self::PARAM_INDEXER_POLL_TIME => 5000,
         ]);
     }
 
@@ -174,6 +182,42 @@ class IndexerExtension implements Extension
     private function registerWatcher(ContainerBuilder $container): void
     {
         $container->register(Watcher::class, function (Container $container) {
+
+            $watchers = [];
+
+            $disabledWatchers = $container->getParameter(self::PARAM_DISABLED_WATCHERS);
+            foreach ($container->getServiceIdsForTag(self::TAG_WATCHER) as $serviceId => $attrs) {
+                if (!isset($attrs['name'])) {
+                    throw new RuntimeException(sprintf(
+                        'Watcher "%s" must provide the `name` attribute',
+                        $serviceId
+                    ));
+                }
+                if (in_array($attrs['name'], $disabledWatchers)) {
+                    unset($disabledWatchers[(int)array_search($attrs['name'], $disabledWatchers)]);
+                    continue;
+                }
+                $watchers[$attrs['name']] = $container->get($serviceId);
+            }
+
+            if (!empty($disabledWatchers)) {
+                throw new RuntimeException(sprintf(
+                    'Watcher(s) "%s" do not exist and cannot be disabled',
+                    implode('", "', $disabledWatchers)
+                ));
+            }
+
+            if (empty($watchers)) {
+                return new NullWatcher();
+            }
+
+            return new PatternMatchingWatcher(
+                new FallbackWatcher($watchers, $container->get(LoggingExtension::SERVICE_LOGGER)),
+                $container->getParameter(self::PARAM_INDEX_PATTERNS)
+            );
+        });
+        $container->register(WatcherConfig::class, function (Container $container) {
+
             $resolver = $container->get(FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER);
             assert($resolver instanceof PathResolver);
 
@@ -181,13 +225,33 @@ class IndexerExtension implements Extension
             // about this, so we parse it using the text document URI
             $path = TextDocumentUri::fromString($resolver->resolve('%project_root%'));
 
-            $config = new WatcherConfig([$path->path()], 5000);
-
-            return new PatternMatchingWatcher(new FallbackWatcher([
-                new InotifyWatcher($config, $container->get(LoggingExtension::SERVICE_LOGGER)),
-                new FsWatchWatcher($config, $container->get(LoggingExtension::SERVICE_LOGGER)),
-                new FindWatcher($config, $container->get(LoggingExtension::SERVICE_LOGGER)),
-            ], $container->get(LoggingExtension::SERVICE_LOGGER)), $container->getParameter(self::PARAM_INDEX_PATTERNS));
+            return new WatcherConfig([
+                $path->path()
+            ], $container->getParameter(self::PARAM_INDEXER_POLL_TIME));
         });
+
+        $container->register(InotifyWatcher::class, function (Container $container) {
+            return new InotifyWatcher($container->get(WatcherConfig::class), $container->get(LoggingExtension::SERVICE_LOGGER));
+        }, [
+            self::TAG_WATCHER => [
+                'name' => 'inotify',
+            ]
+        ]);
+
+        $container->register(FsWatchWatcher::class, function (Container $container) {
+            return new FsWatchWatcher($container->get(WatcherConfig::class), $container->get(LoggingExtension::SERVICE_LOGGER));
+        }, [
+            self::TAG_WATCHER => [
+                'name' => 'fswatch',
+            ]
+        ]);
+
+        $container->register(FindWatcher::class, function (Container $container) {
+            return new FindWatcher($container->get(WatcherConfig::class), $container->get(LoggingExtension::SERVICE_LOGGER));
+        }, [
+            self::TAG_WATCHER => [
+                'name' => 'find',
+            ]
+        ]);
     }
 }
