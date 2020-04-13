@@ -1,5 +1,5 @@
 {
-    "name": "phpactor/indexer",
+    "name": "phpactor/indexer-extension",
     "description": "Indexer and related integrations",
     "type": "phpactor-extension",
     "license": "MIT",
