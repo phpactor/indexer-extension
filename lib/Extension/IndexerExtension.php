@@ -227,16 +227,14 @@ class IndexerExtension implements Extension
             ], $container->getParameter(self::PARAM_INDEXER_POLL_TIME));
         });
 
-        $container->register(PhpPollWatcher::class, function (Container $container) {
-            return new PhpPollWatcher($container->get(WatcherConfig::class), $container->get(LoggingExtension::SERVICE_LOGGER));
-        }, [
-            self::TAG_WATCHER => [
-                'name' => 'php',
-            ]
-        ]);
+        // register watchers - order of registration currently determines
+        // priority
 
         $container->register(InotifyWatcher::class, function (Container $container) {
-            return new InotifyWatcher($container->get(WatcherConfig::class), $container->get(LoggingExtension::SERVICE_LOGGER));
+            return new InotifyWatcher(
+                $container->get(WatcherConfig::class),
+                $container->get(LoggingExtension::SERVICE_LOGGER)
+            );
         }, [
             self::TAG_WATCHER => [
                 'name' => 'inotify',
@@ -244,7 +242,10 @@ class IndexerExtension implements Extension
         ]);
 
         $container->register(FsWatchWatcher::class, function (Container $container) {
-            return new FsWatchWatcher($container->get(WatcherConfig::class), $container->get(LoggingExtension::SERVICE_LOGGER));
+            return new FsWatchWatcher(
+                $container->get(WatcherConfig::class),
+                $container->get(LoggingExtension::SERVICE_LOGGER)
+            );
         }, [
             self::TAG_WATCHER => [
                 'name' => 'fswatch',
@@ -252,10 +253,24 @@ class IndexerExtension implements Extension
         ]);
 
         $container->register(FindWatcher::class, function (Container $container) {
-            return new FindWatcher($container->get(WatcherConfig::class), $container->get(LoggingExtension::SERVICE_LOGGER));
+            return new FindWatcher(
+                $container->get(WatcherConfig::class),
+                $container->get(LoggingExtension::SERVICE_LOGGER)
+            );
         }, [
             self::TAG_WATCHER => [
                 'name' => 'find',
+            ]
+        ]);
+
+        $container->register(PhpPollWatcher::class, function (Container $container) {
+            return new PhpPollWatcher(
+                $container->get(WatcherConfig::class),
+                $container->get(LoggingExtension::SERVICE_LOGGER)
+            );
+        }, [
+            self::TAG_WATCHER => [
+                'name' => 'php',
             ]
         ]);
     }
