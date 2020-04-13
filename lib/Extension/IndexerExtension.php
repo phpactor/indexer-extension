@@ -10,6 +10,7 @@ use Phpactor\AmpFsWatch\Watcher\FsWatch\FsWatchWatcher;
 use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
 use Phpactor\AmpFsWatch\Watcher\Null\NullWatcher;
 use Phpactor\AmpFsWatch\Watcher\PatternMatching\PatternMatchingWatcher;
+use Phpactor\AmpFsWatch\Watcher\PhpPollWatcher\PhpPollWatcher;
 use Phpactor\Container\Container;
 use Phpactor\Container\ContainerBuilder;
 use Phpactor\Container\Extension;
@@ -59,7 +60,7 @@ class IndexerExtension implements Extension
         $schema->setDefaults([
             self::PARAM_INDEX_PATH => '%cache%/index/%project_id%',
             self::PARAM_DEFAULT_FILESYSTEM => SourceCodeFilesystemExtension::FILESYSTEM_SIMPLE,
-            self::PARAM_INDEX_PATTERNS => [ '*.php$' ],
+            self::PARAM_INDEX_PATTERNS => [ '*.php' ],
             self::PARAM_DISABLED_WATCHERS => ['fswatch'],
             self::PARAM_INDEXER_POLL_TIME => 5000,
         ]);
@@ -225,6 +226,14 @@ class IndexerExtension implements Extension
                 $path->path()
             ], $container->getParameter(self::PARAM_INDEXER_POLL_TIME));
         });
+
+        $container->register(PhpPollWatcher::class, function (Container $container) {
+            return new PhpPollWatcher($container->get(WatcherConfig::class), $container->get(LoggingExtension::SERVICE_LOGGER));
+        }, [
+            self::TAG_WATCHER => [
+                'name' => 'php',
+            ]
+        ]);
 
         $container->register(InotifyWatcher::class, function (Container $container) {
             return new InotifyWatcher($container->get(WatcherConfig::class), $container->get(LoggingExtension::SERVICE_LOGGER));

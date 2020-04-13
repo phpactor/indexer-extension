@@ -110,9 +110,6 @@ class IndexBuildCommand extends Command
             });
 
             while (null !== $file = yield $process->wait()) {
-                if (!preg_match('{.*php$}', $file->path())) {
-                    continue;
-                }
                 $job = $this->indexer->getJob($file->path());
                 foreach ($job->generator() as $filePath) {
                     $output->writeln(sprintf('Updating %s', $filePath));
