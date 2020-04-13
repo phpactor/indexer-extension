@@ -52,7 +52,7 @@ class IndexerExtensionTest extends IntegrationTestCase
         $request = Request::fromNameAndParameters('index', []);
         $response = $handler->handle($request);
         self::assertInstanceOf(EchoResponse::class, $response);
-        self::assertEquals('Indexed 6 files', $response->message());
+        self::assertRegExp('{Indexed [0-9]+ files}', $response->message());
     }
 
     public function testSourceLocator()

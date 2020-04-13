@@ -1,9 +1,6 @@
 parameters:
     level: 7
     inferPrivatePropertyTypeFromConstructor: true
-    ignoreErrors:
-        - '{.*template type.*in call to function.*}'
-        
     paths:
         - lib
 

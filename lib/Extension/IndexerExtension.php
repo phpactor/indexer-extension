@@ -6,14 +6,11 @@ use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\WatcherConfig;
 use Phpactor\AmpFsWatch\Watcher\Fallback\FallbackWatcher;
 use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
-use Phpactor\AmpFsWatch\Watcher\FsWatch\FsWatchWatcher;
-use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
 use Phpactor\AmpFsWatch\Watcher\PatternMatching\PatternMatchingWatcher;
 use Phpactor\Container\Container;
 use Phpactor\Container\ContainerBuilder;
 use Phpactor\Container\Extension;
 use Phpactor\Extension\Console\ConsoleExtension;
-use Phpactor\Extension\LanguageServer\LanguageServerExtension;
 use Phpactor\Extension\Logger\LoggingExtension;
 use Phpactor\Extension\ReferenceFinder\ReferenceFinderExtension;
 use Phpactor\Extension\Rpc\RpcExtension;
@@ -31,7 +28,6 @@ use Phpactor\Indexer\Extension\Command\IndexQueryClassCommand;
 use Phpactor\Indexer\Extension\Command\IndexBuildCommand;
 use Phpactor\Indexer\Adapter\Worse\WorseIndexBuilder;
 use Phpactor\Indexer\Extension\Rpc\IndexHandler;
-use Phpactor\Indexer\Extension\LanguageServer\IndexerHandler as LsIndexerHandler;
 use Phpactor\Indexer\Model\FileListProvider;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexBuilder;
@@ -69,7 +65,7 @@ class IndexerExtension implements Extension
         $this->registerWorseAdapters($container);
         $this->registerRpc($container);
         $this->registerReferenceFinderAdapters($container);
-        $this->registerLanguageServer($container);
+        $this->registerWatcher($container);
     }
 
     private function createReflector(Container $container): Reflector
@@ -173,18 +169,8 @@ class IndexerExtension implements Extension
         ]);
     }
 
-    private function registerLanguageServer(ContainerBuilder $container): void
+    private function registerWatcher(ContainerBuilder $container): void
     {
-        $container->register(LsIndexerHandler::class, function (Container $container) {
-            return new LsIndexerHandler(
-                $container->get(Indexer::class),
-                $container->get(Watcher::class),
-                $container->get(LoggingExtension::SERVICE_LOGGER)
-            );
-        }, [
-            LanguageServerExtension::TAG_SESSION_HANDLER => []
-        ]);
-
         $container->register(Watcher::class, function (Container $container) {
             $resolver = $container->get(FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER);
             assert($resolver instanceof PathResolver);
