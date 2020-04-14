@@ -36,7 +36,7 @@ class SerializedIndex implements Index
 
     public function isFresh(SplFileInfo $fileInfo): bool
     {
-        $mtime = $fileInfo->getMTime();
+        $mtime = $fileInfo->getCTime();
 
         return $mtime < $this->lastUpdate();
     }
