@@ -23,8 +23,7 @@
         "phpactor/text-document": "^1.1.3",
         "phpactor/worse-reflection-extension": "^0.2.0",
         "phpactor/source-code-filesystem-extension": "^0.1.3",
-        "phpactor/amp-fswatch": "^0.1.0@dev",
-        "phpactor/language-server-extension": "~0.3"
+        "phpactor/amp-fswatch": "^0.1.0@dev"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.0",
