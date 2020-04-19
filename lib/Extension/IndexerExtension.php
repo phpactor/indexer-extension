@@ -4,6 +4,7 @@ namespace Phpactor\Indexer\Extension;
 
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\WatcherConfig;
+use Phpactor\AmpFsWatch\Watcher\BufferedWatcher\BufferedWatcher;
 use Phpactor\AmpFsWatch\Watcher\Fallback\FallbackWatcher;
 use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
 use Phpactor\AmpFsWatch\Watcher\FsWatch\FsWatchWatcher;
@@ -53,6 +54,8 @@ class IndexerExtension implements Extension
     const PARAM_ENABLED_WATCHERS = 'indexer.enabled_watchers';
     const PARAM_INCLUDE_PATTERNS = 'indexer.include_patterns';
     const PARAM_EXCLUDE_PATTERNS = 'indexer.exclude_patterns';
+    const PARAM_INDEXER_BUFFER_TIME = 'indexer.buffer_time';
+
     const TAG_WATCHER = 'indexer.watcher';
 
     private const SERVICE_INDEXER_EXCLUDE_PATTERNS = 'indexer.exclude_patterns';
@@ -67,13 +70,23 @@ class IndexerExtension implements Extension
             self::PARAM_ENABLED_WATCHERS => ['inotify', 'find', 'php'],
             self::PARAM_INDEX_PATH => '%cache%/index/%project_id%',
             self::PARAM_DEFAULT_FILESYSTEM => SourceCodeFilesystemExtension::FILESYSTEM_SIMPLE,
+
+            // glob patterns to ignore (it filters by *.php unconditionally)
             self::PARAM_INCLUDE_PATTERNS => [],
+
+            // glob patterns to exclude
             self::PARAM_EXCLUDE_PATTERNS => [
                 '/vendor/**/Tests/**/*',
                 '/vendor/**/tests/**/*',
                 '/vendor/composer/**/*',
             ],
+
+            // for polling watchers, scan the filesystem every x milliseconds
             self::PARAM_INDEXER_POLL_TIME => 5000,
+
+            // for "realtime" watchers, e.g. inotify, buffer for given time in
+            // milliseconds
+            self::PARAM_INDEXER_BUFFER_TIME => 500,
         ]);
     }
 
@@ -282,10 +295,10 @@ class IndexerExtension implements Extension
         // priority
 
         $container->register(InotifyWatcher::class, function (Container $container) {
-            return new InotifyWatcher(
+            return new BufferedWatcher(new InotifyWatcher(
                 $container->get(WatcherConfig::class),
                 $container->get(LoggingExtension::SERVICE_LOGGER)
-            );
+            ), $container->getParameter(self::PARAM_INDEXER_BUFFER_TIME));
         }, [
             self::TAG_WATCHER => [
                 'name' => 'inotify',
