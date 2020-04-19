@@ -71,10 +71,12 @@ class IndexerExtension implements Extension
             self::PARAM_INDEX_PATH => '%cache%/index/%project_id%',
             self::PARAM_DEFAULT_FILESYSTEM => SourceCodeFilesystemExtension::FILESYSTEM_SIMPLE,
 
-            // glob patterns to ignore (it filters by *.php unconditionally)
-            self::PARAM_INCLUDE_PATTERNS => [],
+            // glob patterns to include for watcher and job builder
+            self::PARAM_INCLUDE_PATTERNS => [
+                '/**/*.php',
+            ],
 
-            // glob patterns to exclude
+            // glob patterns to exclude for watcher and job builder
             self::PARAM_EXCLUDE_PATTERNS => [
                 '/vendor/**/Tests/**/*',
                 '/vendor/**/tests/**/*',
