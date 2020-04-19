@@ -31,11 +31,11 @@ $container = PhpactorContainer::fromExtensions([
 ], [
     FilePathResolverExtension::PARAM_APPLICATION_ROOT => __DIR__ . '/../',
     IndexerExtension::PARAM_INDEX_PATH => __DIR__ . '/../cache',
-    IndexerExtension::PARAM_DEFAULT_FILESYSTEM => 'git',
+    IndexerExtension::PARAM_DEFAULT_FILESYSTEM => 'composer',
     WorseReflectionExtension::PARAM_ENABLE_CACHE => true,
-    LoggingExtension::PARAM_ENABLED => true,
+    LoggingExtension::PARAM_ENABLED => false,
     LoggingExtension::PARAM_LEVEL => 'debug',
-    LoggingExtension::PARAM_PATH=> 'php://stderr',
+    LoggingExtension::PARAM_PATH=> 'php://stdout',
 ]);
 
 $application = new Application();

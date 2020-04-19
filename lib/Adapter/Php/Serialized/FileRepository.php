@@ -2,6 +2,7 @@
 
 namespace Phpactor\Indexer\Adapter\Php\Serialized;
 
+use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use RuntimeException;
@@ -11,6 +12,9 @@ use function Safe\mkdir;
 
 class FileRepository
 {
+    private const FUNC_PREFIX = '__func__';
+    private const CLASS_PREFIX = '__class__';
+
     /**
      * @var string
      */
@@ -29,14 +33,14 @@ class FileRepository
 
     public function putClass(ClassRecord $class): void
     {
-        $path = $this->pathFor($class->fqn());
+        $path = $this->pathFor(self::CLASS_PREFIX, $class->fqn());
         $this->ensureDirectoryExists(dirname($path));
         file_put_contents($path, serialize($class));
     }
 
     public function getClass(FullyQualifiedName $name): ?ClassRecord
     {
-        $path = $this->pathFor($name);
+        $path = $this->pathFor(self::CLASS_PREFIX, $name);
 
         if (!file_exists($path)) {
             return null;
@@ -46,17 +50,23 @@ class FileRepository
         $deserialized = unserialize($contents);
 
         if (!$deserialized) {
-            throw new RuntimeException(sprintf('Could not deserialize file "%s"', $path));
+            return null;
+        }
+
+        // handle invalid entries (e.g. old data structures)
+        if (!$deserialized instanceof ClassRecord) {
+            return null;
         }
 
         return $deserialized;
     }
 
-    private function pathFor(FullyQualifiedName $class): string
+    private function pathFor(string $namespace, FullyQualifiedName $class): string
     {
         $hash = md5($class->__toString());
         return sprintf(
-            '%s/%s/%s/%s.cache',
+            '%s/%s/%s/%s/%s.cache',
+            $namespace,
             $this->path,
             substr($hash, 0, 1),
             substr($hash, 1, 1),
@@ -102,5 +112,35 @@ class FileRepository
     public function reset(): void
     {
         $this->putTimestamp(0);
+    }
+
+    public function putFunction(FunctionRecord $function): void
+    {
+        $path = $this->pathFor(self::FUNC_PREFIX, $function->fqn());
+        $this->ensureDirectoryExists(dirname($path));
+        file_put_contents($path, serialize($function));
+    }
+
+    public function getFunction(FullyQualifiedName $name): ?FunctionRecord
+    {
+        $path = $this->pathFor(self::FUNC_PREFIX, $name);
+
+        if (!file_exists($path)) {
+            return null;
+        }
+
+        $contents = file_get_contents($path);
+        $deserialized = unserialize($contents);
+
+        if (!$deserialized) {
+            throw new RuntimeException(sprintf('Could not deserialize file "%s"', $path));
+        }
+
+        // handle invalid entries (e.g. old data structures)
+        if (!$deserialized instanceof FunctionRecord) {
+            return null;
+        }
+
+        return $deserialized;
     }
 }

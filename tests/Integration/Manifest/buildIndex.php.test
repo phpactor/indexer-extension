@@ -39,3 +39,10 @@ class RuntimeException extends BaseRuntimeException {}
 // File: project/NameNotCorrespondToClass.php
 <?php
 class ClassWithWrongName {}
+// File: project/functions.php
+<?php
+namespace Hello;
+function world(): string
+{
+    return 'hello';
+}

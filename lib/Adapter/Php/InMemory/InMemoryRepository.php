@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Adapter\Php\InMemory;
 
 use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record\FunctionRecord;
 
 class InMemoryRepository
 {
@@ -12,6 +13,11 @@ class InMemoryRepository
     private $classes = [];
 
     /**
+     * @var array<FunctionRecord>
+     */
+    private $functions = [];
+
+    /**
      * @var int
      */
     public $lastUpdate = 0;
@@ -19,6 +25,11 @@ class InMemoryRepository
     public function putClass(ClassRecord $class): void
     {
         $this->classes[$class->fqn()->__toString()] = $class;
+    }
+
+    public function putFunction(FunctionRecord $function): void
+    {
+        $this->functions[$function->fqn()->__toString()] = $function;
     }
 
     public function getClass(string $fqn): ?ClassRecord
@@ -33,5 +44,15 @@ class InMemoryRepository
     public function reset(): void
     {
         $this->classes = [];
+        $this->functions = [];
+    }
+
+    public function getFunction(string $fqn): ?FunctionRecord
+    {
+        if (!isset($this->functions[$fqn])) {
+            return null;
+        }
+
+        return $this->functions[$fqn];
     }
 }
