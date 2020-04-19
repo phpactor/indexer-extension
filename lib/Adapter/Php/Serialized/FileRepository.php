@@ -65,9 +65,9 @@ class FileRepository
     {
         $hash = md5($class->__toString());
         return sprintf(
-            '%s/%s/%s/%s/%s.cache',
-            $namespace,
+            '%s/%s_%s/%s/%s.cache',
             $this->path,
+            $namespace,
             substr($hash, 0, 1),
             substr($hash, 1, 1),
             $hash
