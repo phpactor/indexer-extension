@@ -17,8 +17,8 @@ use Phpactor\Container\Extension;
 use Phpactor\Extension\Console\ConsoleExtension;
 use Phpactor\Extension\Logger\LoggingExtension;
 use Phpactor\Extension\ReferenceFinder\ReferenceFinderExtension;
-use Phpactor\Extension\Rpc\RpcExtension;
 use Phpactor\Extension\SourceCodeFilesystem\SourceCodeFilesystemExtension;
+use Phpactor\Extension\Rpc\RpcExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
 use Phpactor\FilePathResolver\PathResolver;
@@ -49,12 +49,14 @@ class IndexerExtension implements Extension
 {
     const PARAM_INDEX_PATH = 'indexer.index_path';
     const PARAM_DEFAULT_FILESYSTEM = 'indexer.default_filesystem';
-    const PARAM_INDEX_PATTERNS = 'indexer.index_patterns';
     const PARAM_INDEXER_POLL_TIME = 'indexer.poll_time';
     const PARAM_ENABLED_WATCHERS = 'indexer.enabled_watchers';
-
+    const PARAM_INCLUDE_PATTERNS = 'indexer.include_patterns';
+    const PARAM_EXCLUDE_PATTERNS = 'indexer.exclude_patterns';
     const TAG_WATCHER = 'indexer.watcher';
-    const PARAM_IGNORE_PATTERNS = 'indexer.ignore_patterns';
+
+    private const SERVICE_INDEXER_EXCLUDE_PATTERNS = 'indexer.exclude_patterns';
+    private const SERVICE_INDEXER_INCLUDE_PATTERNS = 'indexer.include_patterns';
 
     /**
      * {@inheritDoc}
@@ -65,12 +67,13 @@ class IndexerExtension implements Extension
             self::PARAM_ENABLED_WATCHERS => ['inotify', 'find', 'php'],
             self::PARAM_INDEX_PATH => '%cache%/index/%project_id%',
             self::PARAM_DEFAULT_FILESYSTEM => SourceCodeFilesystemExtension::FILESYSTEM_SIMPLE,
-            self::PARAM_INDEX_PATTERNS => [ '*.php' ],
-            self::PARAM_INDEXER_POLL_TIME => 5000,
-            self::PARAM_IGNORE_PATTERNS => [
+            self::PARAM_INCLUDE_PATTERNS => [],
+            self::PARAM_EXCLUDE_PATTERNS => [
                 '/vendor/**/Tests/**',
                 '/vendor/**/tests/**',
+                '/vendor/composer/**',
             ],
+            self::PARAM_INDEXER_POLL_TIME => 5000,
         ]);
     }
 
@@ -150,14 +153,26 @@ class IndexerExtension implements Extension
         });
         
         $container->register(FileListProvider::class, function (Container $container) {
-            $projectRoot = $container->getParameter(FilePathResolverExtension::PARAM_PROJECT_ROOT);
             return new FilesystemFileListProvider(
                 $container->get(SourceCodeFilesystemExtension::SERVICE_REGISTRY),
                 $container->getParameter(self::PARAM_DEFAULT_FILESYSTEM),
-                array_map(function (string $pattern) use ($projectRoot) {
-                    return Path::join([$projectRoot, $pattern]);
-                }, $container->getParameter(self::PARAM_IGNORE_PATTERNS))
+                $container->get(self::SERVICE_INDEXER_INCLUDE_PATTERNS),
+                $container->get(self::SERVICE_INDEXER_EXCLUDE_PATTERNS),
             );
+        });
+
+        $container->register(self::SERVICE_INDEXER_EXCLUDE_PATTERNS, function (Container $container) {
+            $projectRoot = $container->getParameter(FilePathResolverExtension::PARAM_PROJECT_ROOT);
+            return array_map(function (string $pattern) use ($projectRoot) {
+                return Path::join([$projectRoot, $pattern]);
+            }, $container->getParameter(self::PARAM_EXCLUDE_PATTERNS));
+        });
+
+        $container->register(self::SERVICE_INDEXER_INCLUDE_PATTERNS, function (Container $container) {
+            $projectRoot = $container->getParameter(FilePathResolverExtension::PARAM_PROJECT_ROOT);
+            return array_map(function (string $pattern) use ($projectRoot) {
+                return Path::join([$projectRoot, $pattern]);
+            }, $container->getParameter(self::PARAM_INCLUDE_PATTERNS));
         });
         
         $container->register(Index::class, function (Container $container) {
@@ -246,7 +261,8 @@ class IndexerExtension implements Extension
 
             return new PatternMatchingWatcher(
                 new FallbackWatcher($watchers, $container->get(LoggingExtension::SERVICE_LOGGER)),
-                $container->getParameter(self::PARAM_INDEX_PATTERNS)
+                $container->get(self::SERVICE_INDEXER_INCLUDE_PATTERNS),
+                $container->get(self::SERVICE_INDEXER_EXCLUDE_PATTERNS)
             );
         });
         $container->register(WatcherConfig::class, function (Container $container) {

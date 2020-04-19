@@ -24,16 +24,27 @@ class FilesystemFileListProvider implements FileListProvider
     /**
      * @var array<string>
      */
-    private $ignorePatterns = [];
+    private $excludePatterns = [];
 
     /**
-     * @param array<string> $ignorePatterns
+     * @var array<string>
      */
-    public function __construct(FilesystemRegistry $filesystemRegistry, string $filesystemName, array $ignorePatterns = [])
-    {
+    private $includePatterns;
+
+    /**
+     * @param array<string> $excludePatterns
+     * @param array<string> $includePatterns
+     */
+    public function __construct(
+        FilesystemRegistry $filesystemRegistry,
+        string $filesystemName,
+        array $includePatterns = [],
+        array $excludePatterns = []
+    ) {
         $this->filesystemRegistry = $filesystemRegistry;
         $this->filesystemName = $filesystemName;
-        $this->ignorePatterns = $ignorePatterns;
+        $this->includePatterns = $includePatterns;
+        $this->excludePatterns = $excludePatterns;
     }
 
     public function provideFileList(Index $index, ?string $subPath = null): FileList
@@ -45,7 +56,14 @@ class FilesystemFileListProvider implements FileListProvider
         }
 
         $files = $filesystem->fileList()->phpFiles();
-        $files = $files->excludePatterns($this->ignorePatterns);
+
+        if ($this->includePatterns) {
+            $files = $files->includePatterns($this->includePatterns);
+        }
+
+        if ($this->excludePatterns) {
+            $files = $files->excludePatterns($this->excludePatterns);
+        }
 
         if ($subPath) {
             $files = $files->within(FilePath::fromString($subPath));
