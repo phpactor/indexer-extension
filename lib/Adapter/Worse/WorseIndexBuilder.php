@@ -23,6 +23,7 @@ use Phpactor\WorseReflection\Core\Reflector\SourceCodeReflector;
 use Phpactor\WorseReflection\Core\SourceCode;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Safe\Exceptions\FilesystemException;
 use SplFileInfo;
 use function Safe\file_get_contents;
 
@@ -86,12 +87,22 @@ class WorseIndexBuilder implements IndexBuilder
             $this->logger->debug(sprintf('Indexing: %s', $fileInfo->getPathname()));
 
             try {
+                try {
+                    $contents = file_get_contents($fileInfo->getPathname());
+                } catch (FilesystemException $filesystemException) {
+                    $this->logger->warning(sprintf(
+                        'Error indexing file "%s": %s',
+                        $fileInfo->getPathname(),
+                        $filesystemException->getMessage()
+                    ));
+                    continue;
+                }
                 $this->indexClasses(
                     $fileInfo,
                     $this->reflector->reflectClassesIn(
                         SourceCode::fromPathAndString(
                             $fileInfo->getPathname(),
-                            file_get_contents($fileInfo->getPathname())
+                            $contents
                         )
                     )
                 );
