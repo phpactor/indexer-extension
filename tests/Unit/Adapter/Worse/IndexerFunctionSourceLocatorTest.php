@@ -6,18 +6,18 @@ use PHPUnit\Framework\TestCase;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryIndex;
-use Phpactor\Indexer\Adapter\Worse\IndexerSourceLocator;
-use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Adapter\Worse\IndexerFunctionSourceLocator;
+use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
 use Phpactor\WorseReflection\Core\Name;
 
-class IndexerSourceLocatorTest extends TestCase
+class IndexerFunctionSourceLocatorTest extends TestCase
 {
-    public function testThrowsExceptionIfClassNotInIndex(): void
+    public function testThrowsExceptionIfFunctionNotInIndex(): void
     {
         $this->expectException(SourceNotFound::class);
         $index = new InMemoryIndex();
-        $locator = new IndexerSourceLocator($index);
+        $locator = new IndexerFunctionSourceLocator($index);
         $locator->locate(Name::fromString('Foobar'));
     }
 
@@ -25,31 +25,30 @@ class IndexerSourceLocatorTest extends TestCase
     {
         $this->expectException(SourceNotFound::class);
         $this->expectExceptionMessage('does not exist');
-        $record = new ClassRecord(
+        $record = new FunctionRecord(
             0,
             FullyQualifiedName::fromString('Foobar'),
-            'class',
+            'function',
             ByteOffset::fromInt(0),
             'nope.php'
         );
         $index = new InMemoryIndex();
-        $index->write()->class($record);
-        $locator = new IndexerSourceLocator($index);
+        $index->write()->function($record);
+        $locator = new IndexerFunctionSourceLocator($index);
         $locator->locate(Name::fromString('Foobar'));
     }
 
     public function testReturnsSourceCode(): void
     {
-        $record = new ClassRecord(
+        $record = new FunctionRecord(
             0,
             FullyQualifiedName::fromString('Foobar'),
-            'class',
-            ByteOffset::fromInt(0),
-            __FILE__
+            __FILE__,
+            ByteOffset::fromInt(0)
         );
         $index = new InMemoryIndex();
-        $index->write()->class($record);
-        $locator = new IndexerSourceLocator($index);
+        $index->write()->function($record);
+        $locator = new IndexerFunctionSourceLocator($index);
         $sourceCode = $locator->locate(Name::fromString('Foobar'));
         $this->assertEquals(__FILE__, $sourceCode->path());
     }

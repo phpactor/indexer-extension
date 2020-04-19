@@ -22,7 +22,8 @@ use Phpactor\Extension\SourceCodeFilesystem\SourceCodeFilesystemExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
 use Phpactor\FilePathResolver\PathResolver;
-use Phpactor\Indexer\Adapter\Worse\IndexerSourceLocator;
+use Phpactor\Indexer\Adapter\Worse\IndexerClassSourceLocator;
+use Phpactor\Indexer\Adapter\Worse\IndexerFunctionSourceLocator;
 use Phpactor\Indexer\Extension\Command\IndexQueryFunctionCommand;
 use Phpactor\MapResolver\Resolver;
 use Phpactor\Indexer\Adapter\Filesystem\FilesystemFileListProvider;
@@ -101,8 +102,14 @@ class IndexerExtension implements Extension
             );
         });
         
-        $container->register(IndexerSourceLocator::class, function (Container $container) {
-            return new IndexerSourceLocator($container->get(Index::class));
+        $container->register(IndexerClassSourceLocator::class, function (Container $container) {
+            return new IndexerClassSourceLocator($container->get(Index::class));
+        }, [
+            WorseReflectionExtension::TAG_SOURCE_LOCATOR => []
+        ]);
+
+        $container->register(IndexerFunctionSourceLocator::class, function (Container $container) {
+            return new IndexerFunctionSourceLocator($container->get(Index::class));
         }, [
             WorseReflectionExtension::TAG_SOURCE_LOCATOR => []
         ]);

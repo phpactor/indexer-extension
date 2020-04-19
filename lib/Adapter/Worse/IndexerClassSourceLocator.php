@@ -9,7 +9,7 @@ use Phpactor\WorseReflection\Core\Name;
 use Phpactor\WorseReflection\Core\SourceCode;
 use Phpactor\WorseReflection\Core\SourceCodeLocator;
 
-class IndexerSourceLocator implements SourceCodeLocator
+class IndexerClassSourceLocator implements SourceCodeLocator
 {
     /**
      * @var Index
@@ -42,6 +42,7 @@ class IndexerSourceLocator implements SourceCodeLocator
         }
 
         $filePath = $record->filePath();
+
         if (!file_exists($filePath)) {
             throw new SourceNotFound(sprintf(
                 'Class "%s" is indexed, but it does not exist at path "%s"!',

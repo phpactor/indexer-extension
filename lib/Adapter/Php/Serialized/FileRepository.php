@@ -53,6 +53,11 @@ class FileRepository
             throw new RuntimeException(sprintf('Could not deserialize file "%s"', $path));
         }
 
+        // handle invalid entries (e.g. old data structures)
+        if (!$deserialized instanceof ClassRecord) {
+            return null;
+        }
+
         return $deserialized;
     }
 
@@ -129,6 +134,11 @@ class FileRepository
 
         if (!$deserialized) {
             throw new RuntimeException(sprintf('Could not deserialize file "%s"', $path));
+        }
+
+        // handle invalid entries (e.g. old data structures)
+        if (!$deserialized instanceof FunctionRecord) {
+            return null;
         }
 
         return $deserialized;
