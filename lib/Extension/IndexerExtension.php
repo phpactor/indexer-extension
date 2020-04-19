@@ -43,6 +43,7 @@ use Phpactor\TextDocument\TextDocumentUri;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\WorseReflection\ReflectorBuilder;
 use RuntimeException;
+use Webmozart\PathUtil\Path;
 
 class IndexerExtension implements Extension
 {
@@ -53,6 +54,7 @@ class IndexerExtension implements Extension
     const PARAM_ENABLED_WATCHERS = 'indexer.enabled_watchers';
 
     const TAG_WATCHER = 'indexer.watcher';
+    const PARAM_IGNORE_PATTERNS = 'indexer.ignore_patterns';
 
     /**
      * {@inheritDoc}
@@ -65,6 +67,10 @@ class IndexerExtension implements Extension
             self::PARAM_DEFAULT_FILESYSTEM => SourceCodeFilesystemExtension::FILESYSTEM_SIMPLE,
             self::PARAM_INDEX_PATTERNS => [ '*.php' ],
             self::PARAM_INDEXER_POLL_TIME => 5000,
+            self::PARAM_IGNORE_PATTERNS => [
+                '/vendor/**/Tests/**',
+                '/vendor/**/tests/**',
+            ],
         ]);
     }
 
@@ -144,9 +150,13 @@ class IndexerExtension implements Extension
         });
         
         $container->register(FileListProvider::class, function (Container $container) {
+            $projectRoot = $container->getParameter(FilePathResolverExtension::PARAM_PROJECT_ROOT);
             return new FilesystemFileListProvider(
                 $container->get(SourceCodeFilesystemExtension::SERVICE_REGISTRY),
-                $container->getParameter(self::PARAM_DEFAULT_FILESYSTEM)
+                $container->getParameter(self::PARAM_DEFAULT_FILESYSTEM),
+                array_map(function (string $pattern) use ($projectRoot) {
+                    return Path::join([$projectRoot, $pattern]);
+                }, $container->getParameter(self::PARAM_IGNORE_PATTERNS))
             );
         });
         

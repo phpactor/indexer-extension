@@ -50,7 +50,7 @@ class FileRepository
         $deserialized = unserialize($contents);
 
         if (!$deserialized) {
-            throw new RuntimeException(sprintf('Could not deserialize file "%s"', $path));
+            return null;
         }
 
         // handle invalid entries (e.g. old data structures)

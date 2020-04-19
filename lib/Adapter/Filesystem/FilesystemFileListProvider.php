@@ -21,11 +21,19 @@ class FilesystemFileListProvider implements FileListProvider
      */
     private $filesystemName;
 
+    /**
+     * @var array<string>
+     */
+    private $ignorePatterns = [];
 
-    public function __construct(FilesystemRegistry $filesystemRegistry, string $filesystemName)
+    /**
+     * @param array<string> $ignorePatterns
+     */
+    public function __construct(FilesystemRegistry $filesystemRegistry, string $filesystemName, array $ignorePatterns = [])
     {
         $this->filesystemRegistry = $filesystemRegistry;
         $this->filesystemName = $filesystemName;
+        $this->ignorePatterns = $ignorePatterns;
     }
 
     public function provideFileList(Index $index, ?string $subPath = null): FileList
@@ -37,6 +45,7 @@ class FilesystemFileListProvider implements FileListProvider
         }
 
         $files = $filesystem->fileList()->phpFiles();
+        $files = $files->excludePatterns($this->ignorePatterns);
 
         if ($subPath) {
             $files = $files->within(FilePath::fromString($subPath));

@@ -246,6 +246,9 @@ class WorseIndexBuilder implements IndexBuilder
             $implementedRecord = $this->index->query()->class(
                 FullyQualifiedName::fromString($implementedClass)
             );
+            if (null === $implementedRecord) {
+                continue;
+            }
             $implementedRecord->removeClass($classRecord->fqn());
             $this->index->write()->class($implementedRecord);
         }
