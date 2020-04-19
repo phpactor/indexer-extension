@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class IndexQueryClassCommand extends Command
+class IndexQueryFunctionCommand extends Command
 {
     const ARG_FQN = 'fqn';
 
@@ -25,33 +25,25 @@ class IndexQueryClassCommand extends Command
         parent::__construct();
     }
 
+    protected function configure(): void
+    {
+        $this->addArgument(self::ARG_FQN, InputArgument::REQUIRED, 'Fully qualified name');
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $class = $this->query->class(
+        $function = $this->query->function(
             FullyQualifiedName::fromString(
                 Cast::toString($input->getArgument(self::ARG_FQN))
             )
         );
-        if (!$class) {
-            $output->writeln('Class not found');
+        if (!$function) {
+            $output->writeln('Function not found');
             return 1;
         }
-        $output->writeln('<info>Class:</>'.$class->fqn());
-        $output->writeln('<info>Path:</>'.$class->filePath());
-        $output->writeln('<info>Last modified:</>'.$class->lastModified());
-        $output->writeln('<info>Implements</>:');
-        foreach ($class->implementedClasses() as $fqn) {
-            $output->writeln(' - ' . (string)$fqn);
-        }
-        $output->writeln('<info>Implementations</>:');
-        foreach ($class->implementations() as $fqn) {
-            $output->writeln(' - ' . (string)$fqn);
-        }
+        $output->writeln('<info>Function:</>'.$function->fqn());
+        $output->writeln('<info>Path:</>'.$function->filePath());
+        $output->writeln('<info>Last modified:</>'.$function->lastModified());
         return 0;
-    }
-
-    protected function configure(): void
-    {
-        $this->addArgument(self::ARG_FQN, InputArgument::REQUIRED, 'Fully qualified name');
     }
 }

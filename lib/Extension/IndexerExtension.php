@@ -23,6 +23,7 @@ use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
 use Phpactor\FilePathResolver\PathResolver;
 use Phpactor\Indexer\Adapter\Worse\IndexerSourceLocator;
+use Phpactor\Indexer\Extension\Command\IndexQueryFunctionCommand;
 use Phpactor\MapResolver\Resolver;
 use Phpactor\Indexer\Adapter\Filesystem\FilesystemFileListProvider;
 use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
@@ -119,6 +120,10 @@ class IndexerExtension implements Extension
         $container->register(IndexQueryClassCommand::class, function (Container $container) {
             return new IndexQueryClassCommand($container->get(IndexQuery::class));
         }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:query:class']]);
+
+        $container->register(IndexQueryFunctionCommand::class, function (Container $container) {
+            return new IndexQueryFunctionCommand($container->get(IndexQuery::class));
+        }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:query:function']]);
     }
 
     private function registerModel(ContainerBuilder $container): void

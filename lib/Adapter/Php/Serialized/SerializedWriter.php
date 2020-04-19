@@ -4,6 +4,7 @@ namespace Phpactor\Indexer\Adapter\Php\Serialized;
 
 use Phpactor\Indexer\Model\IndexWriter;
 use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record\FunctionRecord;
 
 class SerializedWriter implements IndexWriter
 {
@@ -25,5 +26,10 @@ class SerializedWriter implements IndexWriter
     public function timestamp(): void
     {
         $this->repository->putTimestamp();
+    }
+
+    public function function(FunctionRecord $function): void
+    {
+        $this->repository->putFunction($function);
     }
 }
