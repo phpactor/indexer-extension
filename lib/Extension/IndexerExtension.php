@@ -69,9 +69,9 @@ class IndexerExtension implements Extension
             self::PARAM_DEFAULT_FILESYSTEM => SourceCodeFilesystemExtension::FILESYSTEM_SIMPLE,
             self::PARAM_INCLUDE_PATTERNS => [],
             self::PARAM_EXCLUDE_PATTERNS => [
-                '/vendor/**/Tests/**',
-                '/vendor/**/tests/**',
-                '/vendor/composer/**',
+                '/vendor/**/Tests/**/*',
+                '/vendor/**/tests/**/*',
+                '/vendor/composer/**/*',
             ],
             self::PARAM_INDEXER_POLL_TIME => 5000,
         ]);
