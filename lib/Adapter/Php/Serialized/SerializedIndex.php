@@ -5,6 +5,7 @@ namespace Phpactor\Indexer\Adapter\Php\Serialized;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexQuery;
 use Phpactor\Indexer\Model\IndexWriter;
+use RuntimeException;
 use SplFileInfo;
 
 class SerializedIndex implements Index
@@ -36,7 +37,12 @@ class SerializedIndex implements Index
 
     public function isFresh(SplFileInfo $fileInfo): bool
     {
-        $mtime = $fileInfo->getCTime();
+        try {
+            $mtime = $fileInfo->getCTime();
+        } catch (RuntimeException $statFailed) {
+            // file likely doesn't exist
+            return false;
+        }
 
         return $mtime < $this->lastUpdate();
     }
