@@ -127,7 +127,7 @@ abstract class Record
         return $this->type;
     }
 
-    public function filePath(): string
+    public function filePath(): ?string
     {
         return $this->filePath;
     }

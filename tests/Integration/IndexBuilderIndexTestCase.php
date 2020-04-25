@@ -27,7 +27,7 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
     {
         $index = $this->buildIndex();
 
-        $function = $foo = $index->query()->class(
+        $function = $foo = $index->query()->function(
             FullyQualifiedName::fromString('Hello\world')
         );
 

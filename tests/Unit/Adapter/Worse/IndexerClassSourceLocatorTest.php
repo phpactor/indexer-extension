@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Tests\Unit\Adapter\Worse;
 
 use PHPUnit\Framework\TestCase;
+use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryIndex;
@@ -25,7 +26,7 @@ class IndexerClassSourceLocatorTest extends TestCase
     {
         $this->expectException(SourceNotFound::class);
         $this->expectExceptionMessage('does not exist');
-        $record = new Record(
+        $record = new ClassRecord(
             FullyQualifiedName::fromString('Foobar'),
             'class',
             ByteOffset::fromInt(0),
@@ -40,7 +41,7 @@ class IndexerClassSourceLocatorTest extends TestCase
 
     public function testReturnsSourceCode(): void
     {
-        $record = new Record(
+        $record = new ClassRecord(
             FullyQualifiedName::fromString('Foobar'),
             'class',
             ByteOffset::fromInt(0),
