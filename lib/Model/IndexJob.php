@@ -31,6 +31,7 @@ class IndexJob
             $this->indexBuilder->index($fileInfo);
             yield $fileInfo->getPathname();
         }
+        $this->indexBuilder->done();
     }
 
     public function run(): void

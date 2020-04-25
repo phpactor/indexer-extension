@@ -266,4 +266,9 @@ class WorseIndexBuilder implements IndexBuilder
 
         return $record;
     }
+
+    public function done(): void
+    {
+        $this->index->write()->timestamp();
+    }
 }

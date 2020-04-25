@@ -50,11 +50,11 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
         $repository = new InMemoryRepository();
         $index = new InMemoryIndex($repository);
         $indexBuilder = $this->createBuilder($index);
-        $fileList = $this->fileListProvider($index);
-        $indexer = new Indexer($indexBuilder, $index, $fileList);
+        $provider = $this->fileListProvider();
+        $indexer = new Indexer($indexBuilder, $index, $provider);
         $indexer->getJob()->run();
 
-        $references = $foo = $index->query()->implementing(
+        $references = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
         self::assertCount(2, $references);
@@ -70,9 +70,12 @@ class Foobar extends AbstractClass
 EOT
         );
 
-        $fileList = $this->fileListProvider($index);
-        $indexer = new Indexer($indexBuilder, $index, $fileList);
+        $provider = $this->fileListProvider();
+        $indexer = new Indexer($indexBuilder, $index, $provider);
         $indexer->getJob()->run();
+        $references = $index->query()->implementing(
+            FullyQualifiedName::fromString('AbstractClass')
+        );
 
         self::assertCount(3, $references);
     }
@@ -83,7 +86,7 @@ EOT
         $index = new InMemoryIndex($repository);
 
         $indexBuilder = $this->createBuilder($index);
-        $fileList = $this->fileListProvider($index);
+        $fileList = $this->fileListProvider();
         $indexer = new Indexer($indexBuilder, $index, $fileList);
         $indexer->getJob()->run();
 
@@ -104,8 +107,9 @@ EOT
         );
 
         $indexBuilder = $this->createBuilder($index);
-        $fileList = $this->fileListProvider($index);
+        $fileList = $this->fileListProvider();
         $indexer = new Indexer($indexBuilder, $index, $fileList);
+        $indexer->getJob()->run();
         $references = $foo = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
@@ -122,7 +126,7 @@ EOT
     {
         $repository = new InMemoryRepository();
         $index = new InMemoryIndex($repository);
-        $provider = $this->fileListProvider($index);
+        $provider = $this->fileListProvider();
         $indexer = new Indexer($this->createBuilder($index), $index, $provider);
         $indexer->getJob()->run();
         return $index;
