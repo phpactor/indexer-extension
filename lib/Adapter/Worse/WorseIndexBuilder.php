@@ -156,8 +156,8 @@ class WorseIndexBuilder implements IndexBuilder
 
             $implementedRecord = $this->createOrGetClassRecord($implementedClass->name()->full());
 
-            $classRecord->addImplements($implementedClass);
-            $implementedRecord->addImplementation($classReflection);
+            $classRecord->addImplements(FullyQualifiedName::fromString($implementedClass->name()));
+            $implementedRecord->addImplementation(FullyQualifiedName::fromString($classReflection->name()));
 
             $this->index->write($implementedRecord);
         }

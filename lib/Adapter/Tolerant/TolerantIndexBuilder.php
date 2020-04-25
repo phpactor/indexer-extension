@@ -12,6 +12,7 @@ use Phpactor\Indexer\Model\IndexBuilder;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
+use Phpactor\Name\FullyQualifiedName;
 use Phpactor\TextDocument\ByteOffset;
 use SplFileInfo;
 
@@ -113,7 +114,7 @@ class TolerantIndexBuilder implements IndexBuilder
                 continue;
             }
 
-            $classRecord->addImplements($interfaceName->getNamespacedName()->getFullyQualifiedNameText());
+            $classRecord->addImplements(FullyQualifiedName::fromString($interfaceName->getNamespacedName()->getFullyQualifiedNameText()));
 
             $interfaceRecord = $this->index->get(ClassRecord::fromName($interfaceName));
             assert($interfaceRecord instanceof ClassRecord);
@@ -136,7 +137,7 @@ class TolerantIndexBuilder implements IndexBuilder
         }
 
         $name = $baseClass->getNamespacedName()->getFullyQualifiedNameText();
-        $record->addImplements($name);
+        $record->addImplements(FullyQualifiedName::fromString($name));
         $baseClassRecord = $this->index->get(ClassRecord::fromName($name));
         assert($baseClassRecord instanceof ClassRecord);
         $baseClassRecord->addImplementation($record->fqn());

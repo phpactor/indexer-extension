@@ -28,23 +28,13 @@ class ClassRecord extends Record
         $this->implemented = [];
     }
 
-    public function addImplementation($fqn): void
+    public function addImplementation(FullyQualifiedName $fqn): void
     {
-        // TODO: Remove
-        if ($fqn instanceof ReflectionClassLike) {
-            $this->implementations[$fqn->name()->full()] = $fqn->name()->full();
-            return;
-        }
         $this->implementations[(string)$fqn] = (string)$fqn;
     }
 
-    public function addImplements($fqn): void
+    public function addImplements(FullyQualifiedName $fqn): void
     {
-        // TODO: Remove
-        if ($fqn instanceof ReflectionClassLike) {
-            $this->implemented[$fqn->name()->full()] = $fqn->name()->full();
-            return;
-        }
         $this->implemented[(string)$fqn] = (string)$fqn;
     }
 
