@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Adapter\Tolerant;
 
 use Microsoft\PhpParser\Node;
+use Microsoft\PhpParser\Node\QualifiedName;
 use Microsoft\PhpParser\Node\SourceFileNode;
 use Microsoft\PhpParser\Node\Statement\ClassDeclaration;
 use Microsoft\PhpParser\Parser;
@@ -68,6 +69,31 @@ class TolerantIndexBuilder implements IndexBuilder
         $record->withType('class');
         $record->withFilePath($info->getPathname());
 
+        $this->indexClassInterfaces($record, $node);
         $this->index->write($record);
+    }
+
+    private function indexClassInterfaces(ClassRecord $classRecord, ClassDeclaration $node): void
+    {
+        if (null === $interfaceClause = $node->classInterfaceClause) {
+            return;
+        }
+
+        if (null == $interfaceList = $interfaceClause->interfaceNameList) {
+            return;
+        }
+
+        foreach ($interfaceList->children as $interfaceName) {
+            if (!$interfaceName instanceof QualifiedName) {
+                continue;
+            }
+
+            $classRecord->addImplements($interfaceName->getNamespacedName()->getFullyQualifiedNameText());
+
+            $interfaceRecord = $this->index->get(ClassRecord::fromName($interfaceName));
+            assert($interfaceRecord instanceof ClassRecord);
+            $interfaceRecord->addImplementation($classRecord->fqn());
+            $this->index->write($interfaceRecord);
+        }
     }
 }

@@ -75,14 +75,22 @@ abstract class Record
         return $this;
     }
 
-    public function addImplementation(ReflectionClassLike $implementation): void
+    public function addImplementation($fqn): void
     {
-        $this->implementations[$implementation->name()->full()] = $implementation->name()->full();
+        // TODO: Remove
+        if ($fqn instanceof ReflectionClassLike) {
+            $this->implementations[$fqn->name()->full()] = $fqn->name()->full();
+        }
+        $this->implementations[(string)$fqn] = (string)$fqn;
     }
 
-    public function addImplements(ReflectionClassLike $implementedClass): void
+    public function addImplements($fqn): void
     {
-        $this->implemented[$implementedClass->name()->full()] = $implementedClass->name()->full();
+        // TODO: Remove
+        if ($fqn instanceof ReflectionClassLike) {
+            $this->implemented[$fqn->name()->full()] = $fqn->name()->full();
+        }
+        $this->implemented[(string)$fqn] = (string)$fqn;
     }
 
     public function removeClass(FullyQualifiedName $implementedClass): void
