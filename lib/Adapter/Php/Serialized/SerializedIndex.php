@@ -33,6 +33,22 @@ class SerializedIndex implements Index
         return new SerializedQuery($this->repository);
     }
 
+    public function get(Record $record): Record
+    {
+        if ($record instanceof ClassRecord) {
+            return $this->repository->getClass($record->fqn()) ?? $record;
+        }
+
+        if ($record instanceof FunctionRecord) {
+            return $this->repository->getFunction($record->fqn()) ?? $record;
+        }
+
+        throw new RuntimeException(sprintf(
+            'Do not know how to get "%s"',
+            get_class($record)
+        ));
+    }
+
     public function write(Record $record): void
     {
         if ($record instanceof ClassRecord) {

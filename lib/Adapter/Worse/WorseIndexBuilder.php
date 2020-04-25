@@ -124,13 +124,7 @@ class WorseIndexBuilder implements IndexBuilder
             return null;
         }
 
-        $name = FullyQualifiedName::fromString($name);
-
-        if ($class = $this->index->query()->class($name)) {
-            return $class;
-        }
-
-        return new ClassRecord($name);
+        return $this->index->get(ClassRecord::fromName($name));
     }
 
     private function updateClassRelations(ReflectionClassLike $classLike): void
@@ -221,7 +215,11 @@ class WorseIndexBuilder implements IndexBuilder
     {
         $mtime = $fileInfo->getCTime();
         foreach ($reflectionFunctionCollection as $reflectionFunction) {
-            $this->createFunctionRecord($reflectionFunction, $mtime);
+            $function = $this->createFunctionRecord($reflectionFunction, $mtime);
+            $function->withLastModified($mtime);
+            $function->withFilePath($reflectionFunction->sourceCode()->path());
+            $function->withStart(ByteOffset::fromInt($reflectionFunction->position()->start()));
+            $this->index->write($function);
         }
     }
 
@@ -235,20 +233,7 @@ class WorseIndexBuilder implements IndexBuilder
 
         $name = FullyQualifiedName::fromString($name);
 
-        if ($function = $this->index->query()->function($name)) {
-            return $function;
-        }
-
-        $record = Invoke::new(FunctionRecord::class, [
-            'lastModified' => $mtime,
-            'fqn' => $name,
-            'filePath' => $reflectionFunction->sourceCode()->path(),
-            'start' => ByteOffset::fromInt($reflectionFunction->position()->start()),
-        ]);
-
-        $this->index->write($record);
-
-        return $record;
+        return $this->index->get(FunctionRecord::fromName($name));
     }
 
     public function done(): void

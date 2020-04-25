@@ -57,6 +57,25 @@ class InMemoryIndex implements Index
         ));
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function get(Record $record): Record
+    {
+        if ($record instanceof ClassRecord) {
+            return $this->repository->getClass($record->fqn()) ?? $record;
+        }
+
+        if ($record instanceof FunctionRecord) {
+            return $this->repository->getFunction($record->fqn()) ?? $record;
+        }
+
+        throw new RuntimeException(sprintf(
+            'Do not know how to index "%s"',
+            get_class($record)
+        ));
+    }
+
     public function isFresh(SplFileInfo $fileInfo): bool
     {
         return false;
