@@ -4,6 +4,7 @@ namespace Phpactor\Indexer\Adapter\Worse;
 
 use DTL\Invoke\Invoke;
 use Generator;
+use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\FileList;
@@ -104,11 +105,12 @@ class WorseIndexBuilder implements IndexBuilder
     {
         $mtime = $fileInfo->getCTime();
         foreach ($classes as $reflectionClass) {
-            $record = $this->createOrGetClassRecord($reflectionClass, $mtime);
-
-            if (null === $record) {
-                continue;
-            }
+            $record = $this->createOrGetClassRecord($reflectionClass->name()->full());
+            $record->withLastModified($mtime);
+            $record->withType(WorseUtil::classType($reflectionClass));
+            $record->withStart(ByteOffset::fromInt($reflectionClass->position()->start()));
+            $record->withFilePath($fileInfo->getPathname());
+            $this->index->write()->class($record);
 
             $this->updateClassRelations(
                 $reflectionClass
@@ -116,12 +118,8 @@ class WorseIndexBuilder implements IndexBuilder
         }
     }
 
-    private function createOrGetClassRecord(ReflectionClassLike $reflectionClass, int $mtime): ?ClassRecord
+    private function createOrGetClassRecord(string $name): ?ClassRecord
     {
-        assert($reflectionClass instanceof ReflectionClassLike);
-
-        $name = $reflectionClass->name()->full();
-
         if (empty($name)) {
             return null;
         }
@@ -132,17 +130,7 @@ class WorseIndexBuilder implements IndexBuilder
             return $class;
         }
 
-        $record = Invoke::new(ClassRecord::class, [
-            'lastModified' => $mtime,
-            'fqn' => $name,
-            'type' => WorseUtil::classType($reflectionClass),
-            'filePath' => $reflectionClass->sourceCode()->path(),
-            'start' => ByteOffset::fromInt($reflectionClass->position()->start()),
-        ]);
-
-        $this->index->write()->class($record);
-
-        return $record;
+        return new ClassRecord($name);
     }
 
     private function updateClassRelations(ReflectionClassLike $classLike): void
@@ -168,22 +156,18 @@ class WorseIndexBuilder implements IndexBuilder
         ReflectionClassLike $classReflection,
         array $implementedClasses
     ): void {
-        $classRecord = $this->createOrGetClassRecord($classReflection, 0);
+        $classRecord = $this->createOrGetClassRecord($classReflection->name()->full());
 
         foreach ($implementedClasses as $implementedClass) {
             $implementedFqn = FullyQualifiedName::fromString(
                 $implementedClass->name()->full()
             );
 
-            $mtime = filemtime($implementedClass->sourceCode()->path());
-            $implementedRecord = $this->createOrGetClassRecord($implementedClass, $mtime ?: 0);
-
-            if (null === $implementedRecord) {
-                continue;
-            }
+            $implementedRecord = $this->createOrGetClassRecord($implementedClass->name()->full());
 
             $classRecord->addImplements($implementedClass);
             $implementedRecord->addImplementation($classReflection);
+
             $this->index->write()->class($implementedRecord);
         }
 

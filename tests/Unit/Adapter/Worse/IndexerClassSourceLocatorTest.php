@@ -26,11 +26,11 @@ class IndexerClassSourceLocatorTest extends TestCase
         $this->expectException(SourceNotFound::class);
         $this->expectExceptionMessage('does not exist');
         $record = new ClassRecord(
-            0,
             FullyQualifiedName::fromString('Foobar'),
             'class',
             ByteOffset::fromInt(0),
-            'nope.php'
+            'nope.php',
+            0
         );
         $index = new InMemoryIndex();
         $index->write()->class($record);
@@ -41,11 +41,11 @@ class IndexerClassSourceLocatorTest extends TestCase
     public function testReturnsSourceCode(): void
     {
         $record = new ClassRecord(
-            0,
             FullyQualifiedName::fromString('Foobar'),
             'class',
             ByteOffset::fromInt(0),
-            __FILE__
+            __FILE__,
+            0
         );
         $index = new InMemoryIndex();
         $index->write()->class($record);

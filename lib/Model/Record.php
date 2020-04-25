@@ -1,12 +1,12 @@
 <?php
 
-namespace Phpactor\Indexer\Model\Record;
+namespace Phpactor\Indexer\Model;
 
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionClassLike;
 
-class ClassRecord
+class Record
 {
     /**
      * @var int
@@ -45,10 +45,10 @@ class ClassRecord
 
     public function __construct(
         FullyQualifiedName $fqn,
-        ?string $type = null,
-        ?ByteOffset $start = null,
-        ?string $filePath = null,
-        ?int $lastModified = null
+        ?string $type,
+        ?ByteOffset $start,
+        ?string $filePath,
+        ?int $lastModified
     ) {
         $this->lastModified = $lastModified;
         $this->type = $type;
@@ -135,11 +135,5 @@ class ClassRecord
     public function start(): ByteOffset
     {
         return $this->start;
-    }
-
-    public function withLastModified(int $mtime): self
-    {
-        $this->lastModified = $mtime;
-        return $this;
     }
 }
