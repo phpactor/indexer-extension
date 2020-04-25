@@ -13,7 +13,7 @@ abstract class Record
     private $lastModified;
 
     /**
-     * @var FullyQualifiedName
+     * @var string
      */
     private $fqn;
 
@@ -23,14 +23,16 @@ abstract class Record
     private $filePath;
 
     /**
-     * @var ByteOffset
+     * @var int
      */
     private $start;
 
     public function __construct(
         FullyQualifiedName $fqn
     ) {
-        $this->fqn = $fqn;
+        // this object is serialized, do not store the object representation as
+        // it adds around 100b to the size of each indexed class
+        $this->fqn = $fqn->__toString();
     }
 
     public function setFilePath(string $path): self
@@ -41,7 +43,7 @@ abstract class Record
 
     public function setStart(ByteOffset $start): self
     {
-        $this->start = $start;
+        $this->start = $start->toInt();
         return $this;
     }
 
@@ -53,7 +55,7 @@ abstract class Record
 
     public function fqn(): FullyQualifiedName
     {
-        return $this->fqn;
+        return FullyQualifiedName::fromString($this->fqn);
     }
 
     public function lastModified(): int
@@ -68,6 +70,6 @@ abstract class Record
 
     public function start(): ByteOffset
     {
-        return $this->start;
+        return ByteOffset::fromInt($this->start);
     }
 }
