@@ -4,7 +4,6 @@ namespace Phpactor\Indexer\Adapter\Tolerant;
 
 use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\QualifiedName;
-use Microsoft\PhpParser\Node\SourceFileNode;
 use Microsoft\PhpParser\Node\Statement\ClassDeclaration;
 use Microsoft\PhpParser\Node\Statement\FunctionDeclaration;
 use Microsoft\PhpParser\Parser;
@@ -27,11 +26,6 @@ class TolerantIndexBuilder implements IndexBuilder
      * @var Parser
      */
     private $parser;
-
-    /**
-     * @var array<Record>
-     */
-    private $touched = [];
 
     public function __construct(
         Index $index,
@@ -105,6 +99,7 @@ class TolerantIndexBuilder implements IndexBuilder
 
     private function indexClassInterfaces(ClassRecord $classRecord, ClassDeclaration $node): void
     {
+        // @phpstan-ignore-next-line
         if (null === $interfaceClause = $node->classInterfaceClause) {
             return;
         }
@@ -123,18 +118,19 @@ class TolerantIndexBuilder implements IndexBuilder
             $interfaceRecord = $this->index->get(ClassRecord::fromName($interfaceName));
             assert($interfaceRecord instanceof ClassRecord);
             $interfaceRecord->addImplementation($classRecord->fqn());
-            $this->scheduleReferenceCheck($classRecord);
 
             $this->index->write($interfaceRecord);
         }
     }
 
-    private function indexBaseClass(ClassRecord $record, ClassDeclaration $node)
+    private function indexBaseClass(ClassRecord $record, ClassDeclaration $node): void
     {
+        // @phpstan-ignore-next-line
         if (null === $baseClause = $node->classBaseClause) {
             return;
         }
 
+        // @phpstan-ignore-next-line
         if (null === $baseClass = $baseClause->baseClass) {
             return;
         }
@@ -145,7 +141,6 @@ class TolerantIndexBuilder implements IndexBuilder
         assert($baseClassRecord instanceof ClassRecord);
         $baseClassRecord->addImplementation($record->fqn());
         $this->index->write($baseClassRecord);
-        $this->scheduleReferenceCheck($record);
     }
 
     private function indexFunction(SplFileInfo $info, FunctionDeclaration $node): void
@@ -156,10 +151,5 @@ class TolerantIndexBuilder implements IndexBuilder
         $record->withStart(ByteOffset::fromInt($node->getStart()));
         $record->withFilePath($info->getPathname());
         $this->index->write($record);
-    }
-
-    private function scheduleReferenceCheck(ClassRecord $record)
-    {
-        $this->touched[] = $record;
     }
 }

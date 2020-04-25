@@ -4,7 +4,6 @@ namespace Phpactor\Indexer\Adapter\Php\InMemory;
 
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexQuery;
-use Phpactor\Indexer\Model\IndexWriter;
 use RuntimeException;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Model\Record\ClassRecord;
@@ -63,10 +62,12 @@ class InMemoryIndex implements Index
     public function get(Record $record): Record
     {
         if ($record instanceof ClassRecord) {
+            // @phpstan-ignore-next-line
             return $this->repository->getClass($record->fqn()) ?? $record;
         }
 
         if ($record instanceof FunctionRecord) {
+            // @phpstan-ignore-next-line
             return $this->repository->getFunction($record->fqn()) ?? $record;
         }
 

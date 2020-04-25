@@ -4,7 +4,6 @@ namespace Phpactor\Indexer\Model;
 
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\TextDocument\ByteOffset;
-use Phpactor\WorseReflection\Core\Reflection\ReflectionClassLike;
 
 abstract class Record
 {

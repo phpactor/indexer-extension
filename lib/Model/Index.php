@@ -27,7 +27,7 @@ interface Index
      *
      * If the record is of an unknown type (e.g. not ClassRecord or FunctionRecord)
      * then an exception will be thrown.
-     * 
+     *
      * @throws \RuntimeException
      *
      * @template TRecord of \Phpactor\Indexer\Model\Record

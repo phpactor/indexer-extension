@@ -2,6 +2,7 @@
 
 namespace Phpactor\Indexer\Adapter\Php\Serialized;
 
+use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Record;
@@ -38,7 +39,7 @@ class FileRepository
         file_put_contents($path, serialize($class));
     }
 
-    public function getClass(FullyQualifiedName $name): ?Record
+    public function getClass(FullyQualifiedName $name): ?ClassRecord
     {
         $path = $this->pathFor(self::CLASS_PREFIX, $name);
 
@@ -54,7 +55,7 @@ class FileRepository
         }
 
         // handle invalid entries (e.g. old data structures)
-        if (!$deserialized instanceof Record) {
+        if (!$deserialized instanceof ClassRecord) {
             return null;
         }
 

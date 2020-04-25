@@ -6,7 +6,6 @@ use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\IndexQuery;
-use Phpactor\Indexer\Model\Record;
 
 class SerializedQuery implements IndexQuery
 {

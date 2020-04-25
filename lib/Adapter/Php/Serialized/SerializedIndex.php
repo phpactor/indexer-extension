@@ -4,7 +4,6 @@ namespace Phpactor\Indexer\Adapter\Php\Serialized;
 
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexQuery;
-use Phpactor\Indexer\Model\IndexWriter;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
@@ -36,10 +35,12 @@ class SerializedIndex implements Index
     public function get(Record $record): Record
     {
         if ($record instanceof ClassRecord) {
+            // @phpstan-ignore-next-line
             return $this->repository->getClass($record->fqn()) ?? $record;
         }
 
         if ($record instanceof FunctionRecord) {
+            // @phpstan-ignore-next-line
             return $this->repository->getFunction($record->fqn()) ?? $record;
         }
 

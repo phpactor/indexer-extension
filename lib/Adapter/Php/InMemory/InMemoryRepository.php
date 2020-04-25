@@ -2,7 +2,6 @@
 
 namespace Phpactor\Indexer\Adapter\Php\InMemory;
 
-use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 

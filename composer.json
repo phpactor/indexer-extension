@@ -51,9 +51,9 @@
     },
     "scripts": {
         "integrate": [
-            "vendor/bin/phpunit",
+            "vendor/bin/phpstan analyse",
             "vendor/bin/php-cs-fixer fix",
-            "vendor/bin/phpstan analyse"
+            "vendor/bin/phpunit"
         ]
     }
 }
