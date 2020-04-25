@@ -52,12 +52,7 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
 
     public function testPicksUpNewFiles(): void
     {
-        $repository = new InMemoryRepository();
-        $index = new InMemoryIndex($repository);
-        $indexBuilder = $this->createBuilder($index);
-        $provider = $this->fileListProvider();
-        $indexer = new Indexer($indexBuilder, $index, $provider);
-        $indexer->getJob()->run();
+        $index = $this->buildIndex();
 
         $references = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
@@ -75,9 +70,8 @@ class Foobar extends AbstractClass
 EOT
         );
 
-        $provider = $this->fileListProvider();
-        $indexer = new Indexer($indexBuilder, $index, $provider);
-        $indexer->getJob()->run();
+        $this->buildIndex($index);
+
         $references = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
@@ -87,13 +81,7 @@ EOT
 
     public function testRemovesExistingReferences(): void
     {
-        $repository = new InMemoryRepository();
-        $index = new InMemoryIndex($repository);
-
-        $indexBuilder = $this->createBuilder($index);
-        $fileList = $this->fileListProvider();
-        $indexer = new Indexer($indexBuilder, $index, $fileList);
-        $indexer->getJob()->run();
+        $index = $this->buildIndex();
 
         $references = $foo = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
@@ -111,10 +99,8 @@ class AbstractClassImplementation1
 EOT
         );
 
-        $indexBuilder = $this->createBuilder($index);
-        $fileList = $this->fileListProvider();
-        $indexer = new Indexer($indexBuilder, $index, $fileList);
-        $indexer->getJob()->run();
+        $index = $this->buildIndex($index);
+
         $references = $foo = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
@@ -127,13 +113,16 @@ EOT
         $this->workspace()->loadManifest(file_get_contents(__DIR__ . '/Manifest/buildIndex.php.test'));
     }
 
-    private function buildIndex(): InMemoryIndex
+    private function buildIndex(?Index $index = null): Index
     {
-        $repository = new InMemoryRepository();
-        $index = new InMemoryIndex($repository);
+        if (null === $index) {
+            $repository = new InMemoryRepository();
+            $index = new InMemoryIndex($repository);
+        }
         $provider = $this->fileListProvider();
         $indexer = new Indexer($this->createBuilder($index), $index, $provider);
         $indexer->getJob()->run();
+
         return $index;
     }
 }
