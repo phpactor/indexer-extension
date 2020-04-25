@@ -3,11 +3,7 @@
 namespace Phpactor\Indexer\Adapter\Tolerant\Indexer;
 
 use Microsoft\PhpParser\Node;
-use Microsoft\PhpParser\Node\Statement\ClassDeclaration;
 use Microsoft\PhpParser\Node\Statement\TraitDeclaration;
-use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexer;
-use Phpactor\TextDocument\ByteOffset;
-use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Index;
 use SplFileInfo;
 

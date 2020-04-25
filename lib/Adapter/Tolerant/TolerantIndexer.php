@@ -3,7 +3,6 @@
 namespace Phpactor\Indexer\Adapter\Tolerant;
 
 use Microsoft\PhpParser\Node;
-use Microsoft\PhpParser\Node\Statement\ClassDeclaration;
 use SplFileInfo;
 use Phpactor\Indexer\Model\Index;
 

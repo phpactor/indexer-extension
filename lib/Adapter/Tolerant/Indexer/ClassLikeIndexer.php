@@ -6,7 +6,6 @@ use Microsoft\PhpParser\NamespacedNameInterface;
 use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\QualifiedName;
 use Microsoft\PhpParser\Node\DelimitedList\QualifiedNameList;
-use Microsoft\PhpParser\Node\Statement\InterfaceDeclaration;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexer;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Record\ClassRecord;
