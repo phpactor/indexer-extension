@@ -145,7 +145,7 @@ class TolerantIndexBuilder implements IndexBuilder
         $this->index->write($record);
     }
 
-    private function removeImplementations(ClassRecord $record)
+    private function removeImplementations(ClassRecord $record): void
     {
         foreach ($record->implements() as $implementedClass) {
             $implementedRecord = $this->index->get(ClassRecord::fromName($implementedClass));

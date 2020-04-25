@@ -90,5 +90,4 @@ class ClassRecord extends Record
         $this->type = $type;
         return $this;
     }
-
 }
