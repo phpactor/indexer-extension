@@ -2,12 +2,11 @@
 
 namespace Phpactor\Indexer\Model;
 
-use Generator;
+use SplFileInfo;
 
-interface IndexBuilder extends IndexUpdater
+interface IndexBuilder
 {
-    /**
-     * @return Generator<string>
-     */
-    public function index(FileList $fileList): Generator;
+    public function index(SplFileInfo $info): void;
+
+    public function done(): void;
 }

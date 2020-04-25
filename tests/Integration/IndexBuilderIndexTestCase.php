@@ -2,7 +2,11 @@
 
 namespace Phpactor\Indexer\Tests\Integration;
 
-use Phpactor\Indexer\Model\Record\FunctionRecord;
+use Phpactor\Indexer\Model\Index;
+use Phpactor\Indexer\Model\IndexBuilder;
+use Phpactor\Indexer\Model\Indexer;
+use Phpactor\Indexer\Model\Record;
+use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryIndex;
 use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryRepository;
@@ -10,11 +14,28 @@ use function Safe\file_get_contents;
 
 abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
 {
+    abstract protected function createBuilder(Index $index): IndexBuilder;
+
+    public function testIndexesClass(): void
+    {
+        $index = $this->buildIndex();
+
+        $class = $index->query()->class(
+            FullyQualifiedName::fromString('InMemoryIndex')
+        );
+
+        self::assertInstanceOf(ClassRecord::class, $class);
+        self::assertEquals($this->workspace()->path('project/InMemoryIndex.php'), $class->filePath());
+        self::assertEquals('InMemoryIndex', $class->fqn());
+        self::assertEquals(6, $class->start()->toInt());
+        self::assertEquals('class', $class->type());
+    }
+
     public function testInterfaceImplementations(): void
     {
         $index = $this->buildIndex();
 
-        $references = $foo = $index->query()->implementing(
+        $references = $index->query()->implementing(
             FullyQualifiedName::fromString('Index')
         );
 
@@ -25,11 +46,11 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
     {
         $index = $this->buildIndex();
 
-        $function = $foo = $index->query()->function(
+        $function = $index->query()->function(
             FullyQualifiedName::fromString('Hello\world')
         );
 
-        self::assertInstanceOf(FunctionRecord::class, $function);
+        self::assertInstanceOf(Record::class, $function);
     }
 
 
@@ -37,7 +58,7 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
     {
         $index = $this->buildIndex();
 
-        $references = $foo = $index->query()->implementing(
+        $references = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
 
@@ -46,13 +67,9 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
 
     public function testPicksUpNewFiles(): void
     {
-        $repository = new InMemoryRepository();
-        $index = new InMemoryIndex($repository);
-        $indexBuilder = $this->createBuilder($index);
-        $fileList = $this->fileList($index);
-        $indexBuilder->build($fileList);
+        $index = $this->buildIndex();
 
-        $references = $foo = $index->query()->implementing(
+        $references = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
         self::assertCount(2, $references);
@@ -68,23 +85,20 @@ class Foobar extends AbstractClass
 EOT
         );
 
-        $fileList = $this->fileList($index);
-        $indexBuilder->build($fileList);
-        $references = $foo = $index->query()->implementing(
+        $this->buildIndex($index);
+
+        $references = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
+
         self::assertCount(3, $references);
     }
 
     public function testRemovesExistingReferences(): void
     {
-        $repository = new InMemoryRepository();
-        $index = new InMemoryIndex($repository);
-        $fileList = $this->fileList($index);
-        $indexBuilder = $this->createBuilder($index);
-        $indexBuilder->build($fileList);
+        $index = $this->buildIndex();
 
-        $references = $foo = $index->query()->implementing(
+        $references = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
         self::assertCount(2, $references);
@@ -100,13 +114,65 @@ class AbstractClassImplementation1
 EOT
         );
 
-        $fileList = $this->fileList($index);
-        $indexBuilder->build($fileList);
-        $references = $foo = $index->query()->implementing(
+        $index = $this->buildIndex($index);
+
+        $references = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
+
         self::assertCount(1, $references);
     }
+
+    public function testDoesNotRemoveExisting(): void
+    {
+        $this->workspace()->put(
+            'project/0000.php',
+            <<<'EOT'
+<?php
+
+class Foobar extends AbstractClass
+{
+}
+EOT
+        );
+        $this->workspace()->put(
+            'project/ZZZZ.php',
+            <<<'EOT'
+<?php
+
+class ZedFoobar extends AbstractClass
+{
+}
+EOT
+        );
+
+        $index = $this->buildIndex();
+
+        $references = $index->query()->implementing(
+            FullyQualifiedName::fromString('AbstractClass')
+        );
+        self::assertCount(4, $references);
+
+        $this->workspace()->put(
+            'project/0000.php',
+            <<<'EOT'
+<?php
+
+class Foobar
+{
+}
+EOT
+        );
+
+        $index = $this->buildIndex($index);
+
+        $references = $index->query()->implementing(
+            FullyQualifiedName::fromString('AbstractClass')
+        );
+
+        self::assertCount(3, $references);
+    }
+
 
     protected function setUp(): void
     {
@@ -114,12 +180,16 @@ EOT
         $this->workspace()->loadManifest(file_get_contents(__DIR__ . '/Manifest/buildIndex.php.test'));
     }
 
-    private function buildIndex(): InMemoryIndex
+    private function buildIndex(?Index $index = null): Index
     {
-        $repository = new InMemoryRepository();
-        $index = new InMemoryIndex($repository);
-        $fileList = $this->fileList($index);
-        $this->createBuilder($index)->build($fileList);
+        if (null === $index) {
+            $repository = new InMemoryRepository();
+            $index = new InMemoryIndex($repository);
+        }
+        $provider = $this->fileListProvider();
+        $indexer = new Indexer($this->createBuilder($index), $index, $provider);
+        $indexer->getJob()->run();
+
         return $index;
     }
 }

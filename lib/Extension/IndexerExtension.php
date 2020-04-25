@@ -23,6 +23,7 @@ use Phpactor\Extension\Rpc\RpcExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
 use Phpactor\FilePathResolver\PathResolver;
+use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Adapter\Worse\IndexerClassSourceLocator;
 use Phpactor\Indexer\Adapter\Worse\IndexerFunctionSourceLocator;
 use Phpactor\Indexer\Extension\Command\IndexQueryFunctionCommand;
@@ -55,11 +56,14 @@ class IndexerExtension implements Extension
     const PARAM_INCLUDE_PATTERNS = 'indexer.include_patterns';
     const PARAM_EXCLUDE_PATTERNS = 'indexer.exclude_patterns';
     const PARAM_INDEXER_BUFFER_TIME = 'indexer.buffer_time';
+    const PARAM_INDEXER = 'indexer.indexer';
 
     const TAG_WATCHER = 'indexer.watcher';
 
     private const SERVICE_INDEXER_EXCLUDE_PATTERNS = 'indexer.exclude_patterns';
     private const SERVICE_INDEXER_INCLUDE_PATTERNS = 'indexer.include_patterns';
+    const INDEXER_TOLERANT = 'tolerant';
+    const INDEXER_WORSE = 'worse';
 
     /**
      * {@inheritDoc}
@@ -89,6 +93,7 @@ class IndexerExtension implements Extension
             // for "realtime" watchers, e.g. inotify, buffer for given time in
             // milliseconds
             self::PARAM_INDEXER_BUFFER_TIME => 500,
+            self::PARAM_INDEXER => self::INDEXER_TOLERANT,
         ]);
     }
 
@@ -119,11 +124,24 @@ class IndexerExtension implements Extension
     private function registerWorseAdapters(ContainerBuilder $container): void
     {
         $container->register(IndexBuilder::class, function (Container $container) {
-            return new WorseIndexBuilder(
-                $container->get(Index::class),
-                $this->createReflector($container),
-                $container->get(LoggingExtension::SERVICE_LOGGER)
-            );
+            if ($container->getParameter(self::PARAM_INDEXER) === self::INDEXER_WORSE) {
+                return new WorseIndexBuilder(
+                    $container->get(Index::class),
+                    $this->createReflector($container),
+                    $container->get(LoggingExtension::SERVICE_LOGGER)
+                );
+            }
+
+            if ($container->getParameter(self::PARAM_INDEXER) === self::INDEXER_TOLERANT) {
+                return new TolerantIndexBuilder($container->get(Index::class));
+            }
+
+            throw new RuntimeException(sprintf(
+                'Unknown indexer "%s" must be one of "%s" or "%s"',
+                $container->getParameter(self::PARAM_INDEXER),
+                self::INDEXER_TOLERANT,
+                self::INDEXER_WORSE
+            ));
         });
         
         $container->register(IndexerClassSourceLocator::class, function (Container $container) {

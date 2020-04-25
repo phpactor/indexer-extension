@@ -2,10 +2,10 @@
 
 namespace Phpactor\Indexer\Adapter\Php\InMemory;
 
+use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\IndexQuery;
-use Phpactor\Indexer\Model\Record\ClassRecord;
 
 class InMemoryQuery implements IndexQuery
 {

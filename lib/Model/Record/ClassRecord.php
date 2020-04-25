@@ -2,27 +2,11 @@
 
 namespace Phpactor\Indexer\Model\Record;
 
+use Phpactor\Indexer\Model\Record;
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\TextDocument\ByteOffset;
-use Phpactor\WorseReflection\Core\Reflection\ReflectionClassLike;
 
-class ClassRecord
+final class ClassRecord extends Record
 {
-    /**
-     * @var int
-     */
-    private $lastModified;
-
-    /**
-     * @var FullyQualifiedName
-     */
-    private $fqn;
-
-    /**
-     * @var string
-     */
-    private $type;
-
     /**
      * @var array<string>
      */
@@ -31,40 +15,33 @@ class ClassRecord
     /**
      * @var array<string>
      */
-    private $implemented = [];
+    private $implements = [];
 
     /**
+     * Type of "class": class, interface or trait
+     *
      * @var string
      */
-    private $filePath;
+    private $type;
 
-    /**
-     * @var ByteOffset
-     */
-    private $start;
-
-    public function __construct(
-        int $lastModified,
-        FullyQualifiedName $fqn,
-        string $type,
-        ByteOffset $start,
-        string $filePath
-    ) {
-        $this->lastModified = $lastModified;
-        $this->type = $type;
-        $this->fqn = $fqn;
-        $this->filePath = $filePath;
-        $this->start = $start;
+    public static function fromName(string $name): self
+    {
+        return new self(FullyQualifiedName::fromString($name));
     }
 
-    public function addImplementation(ReflectionClassLike $implementation): void
+    public function clearImplemented(): void
     {
-        $this->implementations[$implementation->name()->full()] = $implementation->name()->full();
+        $this->implements = [];
     }
 
-    public function addImplements(ReflectionClassLike $implementedClass): void
+    public function addImplementation(FullyQualifiedName $fqn): void
     {
-        $this->implemented[$implementedClass->name()->full()] = $implementedClass->name()->full();
+        $this->implementations[(string)$fqn] = (string)$fqn;
+    }
+
+    public function addImplements(FullyQualifiedName $fqn): void
+    {
+        $this->implements[(string)$fqn] = (string)$fqn;
     }
 
     public function removeClass(FullyQualifiedName $implementedClass): void
@@ -78,11 +55,6 @@ class ClassRecord
         }
     }
 
-    public function fqn(): FullyQualifiedName
-    {
-        return $this->fqn;
-    }
-
     /**
      * @return array<string>
      */
@@ -94,28 +66,28 @@ class ClassRecord
     /**
      * @return array<string>
      */
-    public function implementedClasses(): array
+    public function implements(): array
     {
-        return $this->implemented;
+        return $this->implements;
     }
 
-    public function lastModified(): int
+    public function removeImplementation(FullyQualifiedName $name): bool
     {
-        return $this->lastModified;
+        if (!isset($this->implementations[(string)$name])) {
+            return false;
+        }
+        unset($this->implementations[(string)$name]);
+        return true;
     }
 
-    public function type(): string
+    public function type(): ?string
     {
         return $this->type;
     }
 
-    public function filePath(): string
+    public function setType(string $type): self
     {
-        return $this->filePath;
-    }
-
-    public function start(): ByteOffset
-    {
-        return $this->start;
+        $this->type = $type;
+        return $this;
     }
 }

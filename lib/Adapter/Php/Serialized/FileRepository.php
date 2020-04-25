@@ -2,9 +2,10 @@
 
 namespace Phpactor\Indexer\Adapter\Php\Serialized;
 
+use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record;
 use RuntimeException;
 use function Safe\file_get_contents;
 use function Safe\file_put_contents;
@@ -33,9 +34,7 @@ class FileRepository
 
     public function putClass(ClassRecord $class): void
     {
-        $path = $this->pathFor(self::CLASS_PREFIX, $class->fqn());
-        $this->ensureDirectoryExists(dirname($path));
-        file_put_contents($path, serialize($class));
+        $this->serializeRecord(self::CLASS_PREFIX, $class);
     }
 
     public function getClass(FullyQualifiedName $name): ?ClassRecord
@@ -59,19 +58,6 @@ class FileRepository
         }
 
         return $deserialized;
-    }
-
-    private function pathFor(string $namespace, FullyQualifiedName $class): string
-    {
-        $hash = md5($class->__toString());
-        return sprintf(
-            '%s/%s_%s/%s/%s.cache',
-            $this->path,
-            $namespace,
-            substr($hash, 0, 1),
-            substr($hash, 1, 1),
-            $hash
-        );
     }
 
     private function ensureDirectoryExists(string $path): void
@@ -116,9 +102,7 @@ class FileRepository
 
     public function putFunction(FunctionRecord $function): void
     {
-        $path = $this->pathFor(self::FUNC_PREFIX, $function->fqn());
-        $this->ensureDirectoryExists(dirname($path));
-        file_put_contents($path, serialize($function));
+        $this->serializeRecord(self::FUNC_PREFIX, $function);
     }
 
     public function getFunction(FullyQualifiedName $name): ?FunctionRecord
@@ -142,5 +126,25 @@ class FileRepository
         }
 
         return $deserialized;
+    }
+
+    private function serializeRecord(string $prefix, Record $record): void
+    {
+        $path = $this->pathFor($prefix, $record->fqn());
+        $this->ensureDirectoryExists(dirname($path));
+        file_put_contents($path, serialize($record));
+    }
+
+    private function pathFor(string $namespace, FullyQualifiedName $class): string
+    {
+        $hash = md5($class->__toString());
+        return sprintf(
+            '%s/%s_%s/%s/%s.cache',
+            $this->path,
+            $namespace,
+            substr($hash, 0, 1),
+            substr($hash, 1, 1),
+            $hash
+        );
     }
 }

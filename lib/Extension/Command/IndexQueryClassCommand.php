@@ -40,7 +40,7 @@ class IndexQueryClassCommand extends Command
         $output->writeln('<info>Path:</>'.$class->filePath());
         $output->writeln('<info>Last modified:</>'.$class->lastModified());
         $output->writeln('<info>Implements</>:');
-        foreach ($class->implementedClasses() as $fqn) {
+        foreach ($class->implements() as $fqn) {
             $output->writeln(' - ' . (string)$fqn);
         }
         $output->writeln('<info>Implementations</>:');

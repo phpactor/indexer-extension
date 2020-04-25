@@ -2,14 +2,11 @@
 
 namespace Phpactor\Indexer\Adapter\Worse;
 
-use DTL\Invoke\Invoke;
-use Generator;
+use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\Indexer\Model\FileList;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexBuilder;
-use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
 use Phpactor\WorseReflection\Core\Reflection\Collection\ReflectionClassCollection;
@@ -54,82 +51,47 @@ class WorseIndexBuilder implements IndexBuilder
         $this->logger = $logger;
     }
 
-    public function build(FileList $fileList): void
+    public function index(SplFileInfo $fileInfo): void
     {
-        iterator_to_array($this->index($fileList));
-    }
+        $this->logger->debug(sprintf('Indexing: %s', $fileInfo->getPathname()));
 
-    /**
-     * @return Generator<string>
-     */
-    public function index(FileList $fileList): Generator
-    {
-        $this->logger->info(sprintf(
-            'Last update: %s (%s)',
-            $this->index->lastUpdate(),
-            $this->formatTimestamp()
-        ));
-
-        yield from $this->doIndex($fileList);
-
-        $this->index->write()->timestamp();
-    }
-
-    /**
-     * @return Generator<string>
-     */
-    private function doIndex(FileList $fileList): Generator
-    {
-        $count = 0;
-        foreach ($fileList as $fileInfo) {
-            assert($fileInfo instanceof SplFileInfo);
-
-            $this->logger->debug(sprintf('Indexing: %s', $fileInfo->getPathname()));
-
+        try {
             try {
-                try {
-                    $contents = file_get_contents($fileInfo->getPathname());
-                } catch (FilesystemException $filesystemException) {
-                    $this->logger->warning(sprintf(
-                        'Error indexing file "%s": %s',
+                $contents = file_get_contents($fileInfo->getPathname());
+            } catch (FilesystemException $filesystemException) {
+                $this->logger->warning(sprintf(
+                    'Error indexing file "%s": %s',
+                    $fileInfo->getPathname(),
+                    $filesystemException->getMessage()
+                ));
+                return;
+            }
+            $this->indexClasses(
+                $fileInfo,
+                $this->reflector->reflectClassesIn(
+                    SourceCode::fromPathAndString(
                         $fileInfo->getPathname(),
-                        $filesystemException->getMessage()
-                    ));
-                    continue;
-                }
-                $this->indexClasses(
-                    $fileInfo,
-                    $this->reflector->reflectClassesIn(
-                        SourceCode::fromPathAndString(
-                            $fileInfo->getPathname(),
-                            $contents
-                        )
+                        $contents
                     )
-                );
-            } catch (SourceNotFound $e) {
-                $this->logger->error($e->getMessage());
-            }
-
-            try {
-                $this->indexFunctions(
-                    $fileInfo,
-                    $this->reflector->reflectFunctionsIn(
-                        SourceCode::fromPathAndString(
-                            $fileInfo->getPathname(),
-                            file_get_contents($fileInfo->getPathname())
-                        )
-                    )
-                );
-            } catch (SourceNotFound $e) {
-                $this->logger->error($e->getMessage());
-            }
-
-            yield $fileInfo->getPathname();
-
-            $count++;
+                )
+            );
+        } catch (SourceNotFound $e) {
+            $this->logger->error($e->getMessage());
         }
 
-        return $count > 0;
+        try {
+            $this->indexFunctions(
+                $fileInfo,
+                $this->reflector->reflectFunctionsIn(
+                    SourceCode::fromPathAndString(
+                        $fileInfo->getPathname(),
+                        file_get_contents($fileInfo->getPathname())
+                    )
+                )
+            );
+        } catch (SourceNotFound $e) {
+            $this->logger->error($e->getMessage());
+        }
     }
 
     /**
@@ -139,11 +101,12 @@ class WorseIndexBuilder implements IndexBuilder
     {
         $mtime = $fileInfo->getCTime();
         foreach ($classes as $reflectionClass) {
-            $record = $this->createOrGetClassRecord($reflectionClass, $mtime);
-
-            if (null === $record) {
-                continue;
-            }
+            $record = $this->createOrGetClassRecord($reflectionClass->name()->full());
+            $record->setLastModified($mtime);
+            $record->setType(WorseUtil::classType($reflectionClass));
+            $record->setStart(ByteOffset::fromInt($reflectionClass->position()->start()));
+            $record->setFilePath($fileInfo->getPathname());
+            $this->index->write($record);
 
             $this->updateClassRelations(
                 $reflectionClass
@@ -151,33 +114,13 @@ class WorseIndexBuilder implements IndexBuilder
         }
     }
 
-    private function createOrGetClassRecord(ReflectionClassLike $reflectionClass, int $mtime): ?ClassRecord
+    private function createOrGetClassRecord(string $name): ?ClassRecord
     {
-        assert($reflectionClass instanceof ReflectionClassLike);
-        
-        $name = $reflectionClass->name()->full();
-        
         if (empty($name)) {
             return null;
         }
 
-        $name = FullyQualifiedName::fromString($name);
-
-        if ($class = $this->index->query()->class($name)) {
-            return $class;
-        }
-        
-        $record = Invoke::new(ClassRecord::class, [
-            'lastModified' => $mtime,
-            'fqn' => $name,
-            'type' => WorseUtil::classType($reflectionClass),
-            'filePath' => $reflectionClass->sourceCode()->path(),
-            'start' => ByteOffset::fromInt($reflectionClass->position()->start()),
-        ]);
-
-        $this->index->write()->class($record);
-
-        return $record;
+        return $this->index->get(ClassRecord::fromName($name));
     }
 
     private function updateClassRelations(ReflectionClassLike $classLike): void
@@ -203,26 +146,22 @@ class WorseIndexBuilder implements IndexBuilder
         ReflectionClassLike $classReflection,
         array $implementedClasses
     ): void {
-        $classRecord = $this->createOrGetClassRecord($classReflection, 0);
+        $classRecord = $this->createOrGetClassRecord($classReflection->name()->full());
 
         foreach ($implementedClasses as $implementedClass) {
             $implementedFqn = FullyQualifiedName::fromString(
                 $implementedClass->name()->full()
             );
 
-            $mtime = filemtime($implementedClass->sourceCode()->path());
-            $implementedRecord = $this->createOrGetClassRecord($implementedClass, $mtime ?: 0);
+            $implementedRecord = $this->createOrGetClassRecord($implementedClass->name()->full());
 
-            if (null === $implementedRecord) {
-                continue;
-            }
+            $classRecord->addImplements(FullyQualifiedName::fromString($implementedClass->name()));
+            $implementedRecord->addImplementation(FullyQualifiedName::fromString($classReflection->name()));
 
-            $classRecord->addImplements($implementedClass);
-            $implementedRecord->addImplementation($classReflection);
-            $this->index->write()->class($implementedRecord);
+            $this->index->write($implementedRecord);
         }
 
-        $this->index->write()->class($classRecord);
+        $this->index->write($classRecord);
     }
 
     /**
@@ -253,7 +192,7 @@ class WorseIndexBuilder implements IndexBuilder
 
     private function removeExistingReferences(ClassRecord $classRecord): void
     {
-        foreach ($classRecord->implementedClasses() as $implementedClass) {
+        foreach ($classRecord->implements() as $implementedClass) {
             $implementedRecord = $this->index->query()->class(
                 FullyQualifiedName::fromString($implementedClass)
             );
@@ -261,7 +200,7 @@ class WorseIndexBuilder implements IndexBuilder
                 continue;
             }
             $implementedRecord->removeClass($classRecord->fqn());
-            $this->index->write()->class($implementedRecord);
+            $this->index->write($implementedRecord);
         }
     }
 
@@ -272,7 +211,11 @@ class WorseIndexBuilder implements IndexBuilder
     {
         $mtime = $fileInfo->getCTime();
         foreach ($reflectionFunctionCollection as $reflectionFunction) {
-            $this->createFunctionRecord($reflectionFunction, $mtime);
+            $function = $this->createFunctionRecord($reflectionFunction, $mtime);
+            $function->setLastModified($mtime);
+            $function->setFilePath($reflectionFunction->sourceCode()->path());
+            $function->setStart(ByteOffset::fromInt($reflectionFunction->position()->start()));
+            $this->index->write($function);
         }
     }
 
@@ -286,19 +229,11 @@ class WorseIndexBuilder implements IndexBuilder
 
         $name = FullyQualifiedName::fromString($name);
 
-        if ($function = $this->index->query()->function($name)) {
-            return $function;
-        }
+        return $this->index->get(FunctionRecord::fromName($name));
+    }
 
-        $record = Invoke::new(FunctionRecord::class, [
-            'lastModified' => $mtime,
-            'fqn' => $name,
-            'filePath' => $reflectionFunction->sourceCode()->path(),
-            'start' => ByteOffset::fromInt($reflectionFunction->position()->start()),
-        ]);
-
-        $this->index->write()->function($record);
-
-        return $record;
+    public function done(): void
+    {
+        $this->index->updateTimestamp();
     }
 }

@@ -81,6 +81,7 @@ class IndexBuildCommand extends Command
         $progress = new ProgressBar($output, $job->size(), 0.001);
         foreach ($job->generator() as $filePath) {
             if ($output->isVerbose()) {
+                $output->writeln(sprintf('Updating %s', $filePath));
                 continue;
             }
             $progress->advance();
