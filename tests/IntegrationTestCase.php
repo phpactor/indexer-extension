@@ -48,7 +48,13 @@ class IntegrationTestCase extends TestCase
         $process->mustRun();
     }
 
-    protected function createBuilder(Index $index): IndexBuilder
+    protected function createInMemoryIndex(): Index
+    {
+        $repository = new InMemoryRepository();
+        return new InMemoryIndex($repository);
+    }
+
+    protected function createTestBuilder(Index $index): IndexBuilder
     {
         $indexBuilder = new WorseIndexBuilder(
             $index,
@@ -64,11 +70,6 @@ class IntegrationTestCase extends TestCase
         return $indexBuilder;
     }
 
-    protected function createInMemoryIndex(): Index
-    {
-        $repository = new InMemoryRepository();
-        return new InMemoryIndex($repository);
-    }
 
     protected function fileListProvider(): FileListProvider
     {

@@ -18,7 +18,7 @@ class IndexedImplementationFinderTest extends InMemoryTestCase
     public function testFinder(): void
     {
         $index = $this->createInMemoryIndex();
-        $indexBuilder = $this->createBuilder($index);
+        $indexBuilder = $this->createTestBuilder($index);
         $fileList = $this->fileListProvider();
         $indexer = new Indexer($indexBuilder, $index, $fileList);
         $indexer->getJob()->run();

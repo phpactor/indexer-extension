@@ -2,6 +2,8 @@
 
 namespace Phpactor\Indexer\Tests\Integration;
 
+use Phpactor\Indexer\Model\Index;
+use Phpactor\Indexer\Model\IndexBuilder;
 use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
@@ -12,6 +14,8 @@ use function Safe\file_get_contents;
 
 abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
 {
+    abstract protected function createBuilder(Index $index): IndexBuilder;
+
     public function testInterfaceImplementations(): void
     {
         $index = $this->buildIndex();
