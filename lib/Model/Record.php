@@ -80,6 +80,7 @@ abstract class Record
         // TODO: Remove
         if ($fqn instanceof ReflectionClassLike) {
             $this->implementations[$fqn->name()->full()] = $fqn->name()->full();
+            return;
         }
         $this->implementations[(string)$fqn] = (string)$fqn;
     }
@@ -89,6 +90,7 @@ abstract class Record
         // TODO: Remove
         if ($fqn instanceof ReflectionClassLike) {
             $this->implemented[$fqn->name()->full()] = $fqn->name()->full();
+            return;
         }
         $this->implemented[(string)$fqn] = (string)$fqn;
     }

@@ -77,6 +77,7 @@ class TolerantIndexBuilder implements IndexBuilder
         $record->withFilePath($info->getPathname());
 
         $this->indexClassInterfaces($record, $node);
+        $this->indexBaseClass($record, $node);
 
         $this->index->write($record);
     }
@@ -103,6 +104,24 @@ class TolerantIndexBuilder implements IndexBuilder
             $interfaceRecord->addImplementation($classRecord->fqn());
             $this->index->write($interfaceRecord);
         }
+    }
+
+    private function indexBaseClass(ClassRecord $record, ClassDeclaration $node)
+    {
+        if (null === $baseClause = $node->classBaseClause) {
+            return;
+        }
+
+        if (null === $baseClass = $baseClause->baseClass) {
+            return;
+        }
+
+        $name = $baseClass->getNamespacedName()->getFullyQualifiedNameText();
+        $record->addImplements($name);
+        $baseClassRecord = $this->index->get(ClassRecord::fromName($name));
+        assert($baseClassRecord instanceof ClassRecord);
+        $baseClassRecord->addImplementation($record->fqn());
+        $this->index->write($baseClassRecord);
     }
 
     private function indexFunction(SplFileInfo $info, FunctionDeclaration $node): void
