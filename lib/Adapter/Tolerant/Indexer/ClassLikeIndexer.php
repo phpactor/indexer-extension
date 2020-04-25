@@ -28,18 +28,21 @@ abstract class ClassLikeIndexer implements TolerantIndexer
         }
     }
 
-    protected function indexInterfaceList(QualifiedNameList $interfaceList, ClassRecord $classRecord, Index $index): void
+    protected function indexInterfaceList(QualifiedNameList $interfaceList, ClassRecord $record, Index $index): void
     {
         foreach ($interfaceList->children as $interfaceName) {
             if (!$interfaceName instanceof QualifiedName) {
                 continue;
             }
-        
-            $classRecord->addImplements(FullyQualifiedName::fromString($interfaceName->getNamespacedName()->getFullyQualifiedNameText()));
-        
+
             $interfaceRecord = $index->get(ClassRecord::fromName($interfaceName));
+        
+            $record->addImplements(
+                FullyQualifiedName::fromString($interfaceName->getNamespacedName()->getFullyQualifiedNameText())
+            );
+        
             assert($interfaceRecord instanceof ClassRecord);
-            $interfaceRecord->addImplementation($classRecord->fqn());
+            $interfaceRecord->addImplementation($record->fqn());
         
             $index->write($interfaceRecord);
         }

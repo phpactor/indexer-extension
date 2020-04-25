@@ -20,7 +20,7 @@ class InterfaceDeclarationIndexer extends ClassLikeIndexer
         assert($node instanceof InterfaceDeclaration);
         $record = $this->getClassLikeRecord('interface', $node, $index, $info);
 
-        // remove any references to this class and other classes before
+        // remove any references to this interface and other classes before
         // updating with the current data
         $this->removeImplementations($index, $record);
         $record->clearImplemented();

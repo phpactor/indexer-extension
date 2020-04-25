@@ -4,6 +4,8 @@ namespace Phpactor\Indexer\Tests\Integration;
 
 use Closure;
 use Generator;
+use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
+use Phpactor\Indexer\Adapter\Php\Serialized\SerializedIndex;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexBuilder;
 use Phpactor\Indexer\Model\Indexer;
@@ -53,6 +55,30 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
             }
         ];
 
+        yield 'namespaced class' => [
+            '<?php namespace Foobar { class ThisClass {} }',
+            'Foobar\\ThisClass',
+            function (ClassRecord $record) {
+                self::assertEquals('Foobar\\ThisClass', $record->fqn());
+            }
+        ];
+
+        yield 'interface has class implementation' => [
+            '<?php interface Foobar {} class ThisClass implements Foobar {}',
+            'Foobar',
+            function (ClassRecord $record) {
+                self::assertCount(1, $record->implementations());
+            }
+        ];
+
+        yield 'interface has class implementations' => [
+            '<?php interface Foobar {} class ThisClass implements Foobar {} class ThatClass implements Foobar {}',
+            'Foobar',
+            function (ClassRecord $record) {
+                self::assertCount(2, $record->implementations());
+            }
+        ];
+
         yield 'interface' => [
             '<?php interface ThisInterface {}',
             'ThisInterface',
@@ -62,6 +88,14 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
                 self::assertEquals('ThisInterface', $record->fqn());
                 self::assertEquals(6, $record->start()->toInt());
                 self::assertEquals('interface', $record->type());
+            }
+        ];
+
+        yield 'namespaced interface' => [
+            '<?php namespace Foobar {interface ThisInterface {}}',
+            'Foobar\\ThisInterface',
+            function (ClassRecord $record) {
+                self::assertEquals('Foobar\\ThisInterface', $record->fqn());
             }
         ];
 
@@ -230,9 +264,10 @@ EOT
     private function buildIndex(?Index $index = null): Index
     {
         if (null === $index) {
-            $repository = new InMemoryRepository();
-            $index = new InMemoryIndex($repository);
+            $repository = new FileRepository($this->workspace()->path('index'));
+            $index = new SerializedIndex($repository);
         }
+
         $provider = $this->fileListProvider();
         $indexer = new Indexer($this->createBuilder($index), $index, $provider);
         $indexer->getJob()->run();
