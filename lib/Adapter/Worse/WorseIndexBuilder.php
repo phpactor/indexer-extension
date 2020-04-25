@@ -7,7 +7,6 @@ use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexBuilder;
-use Phpactor\Indexer\Model\Record;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
 use Phpactor\WorseReflection\Core\Reflection\Collection\ReflectionClassCollection;

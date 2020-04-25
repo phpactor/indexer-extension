@@ -4,7 +4,6 @@ namespace Phpactor\Indexer\Model\Record;
 
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\WorseReflection\Core\Reflection\ReflectionClassLike;
 
 class ClassRecord extends Record
 {
