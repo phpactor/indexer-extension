@@ -78,17 +78,9 @@ class TolerantIndexBuilder implements IndexBuilder
         $record->setType('class');
         $record->setFilePath($info->getPathname());
 
-        // de-reference this class
-        foreach ($record->implements() as $implementedClass) {
-            $implementedRecord = $this->index->get(ClassRecord::fromName($implementedClass));
-
-            if (false === $implementedRecord->removeImplementation($record->fqn())) {
-                continue;
-            }
-
-            $this->index->write($implementedRecord);
-        }
-
+        // remove any references to this class and other classes before
+        // updating with the current data
+        $this->removeImplementations($record);
         $record->clearImplemented();
 
         $this->indexClassInterfaces($record, $node);
@@ -99,7 +91,7 @@ class TolerantIndexBuilder implements IndexBuilder
 
     private function indexClassInterfaces(ClassRecord $classRecord, ClassDeclaration $node): void
     {
-        // @phpstan-ignore-next-line
+        // @phpstan-ignore-next-line because ClassInterfaceClause _can_ (and has been) be NULL
         if (null === $interfaceClause = $node->classInterfaceClause) {
             return;
         }
@@ -125,12 +117,12 @@ class TolerantIndexBuilder implements IndexBuilder
 
     private function indexBaseClass(ClassRecord $record, ClassDeclaration $node): void
     {
-        // @phpstan-ignore-next-line
+        // @phpstan-ignore-next-line because classBaseClause _can_ be NULL
         if (null === $baseClause = $node->classBaseClause) {
             return;
         }
 
-        // @phpstan-ignore-next-line
+        // @phpstan-ignore-next-line because classBaseClause _can_ be NULL
         if (null === $baseClass = $baseClause->baseClass) {
             return;
         }
@@ -151,5 +143,18 @@ class TolerantIndexBuilder implements IndexBuilder
         $record->setStart(ByteOffset::fromInt($node->getStart()));
         $record->setFilePath($info->getPathname());
         $this->index->write($record);
+    }
+
+    private function removeImplementations(ClassRecord $record)
+    {
+        foreach ($record->implements() as $implementedClass) {
+            $implementedRecord = $this->index->get(ClassRecord::fromName($implementedClass));
+        
+            if (false === $implementedRecord->removeImplementation($record->fqn())) {
+                continue;
+            }
+        
+            $this->index->write($implementedRecord);
+        }
     }
 }
