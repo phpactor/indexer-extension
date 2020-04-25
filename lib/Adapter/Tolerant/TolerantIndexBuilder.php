@@ -32,7 +32,7 @@ class TolerantIndexBuilder implements IndexBuilder
         ?Parser $parser = null
     ) {
         $this->index = $index;
-        $this->parser = $parser ?: new Parser();
+        $this->parser = new Parser();
     }
 
     public function index(SplFileInfo $info): void
@@ -43,10 +43,8 @@ class TolerantIndexBuilder implements IndexBuilder
             return;
         }
 
-        foreach ($this->parser->parseSourceFile($contents, $info->getPathname())->getDescendantNodes() as $node) {
-            $this->indexNode($info, $node);
-
-        }
+        $node = $this->parser->parseSourceFile($contents, $info->getPathname());
+        $this->indexNode($info, $node);
     }
 
     public function done(): void
@@ -64,6 +62,10 @@ class TolerantIndexBuilder implements IndexBuilder
         if ($node instanceof FunctionDeclaration) {
             $this->indexFunction($info, $node);
             return;
+        }
+
+        foreach ($node->getChildNodes() as $childNode) {
+            $this->indexNode($info, $childNode);
         }
     }
 
@@ -102,6 +104,7 @@ class TolerantIndexBuilder implements IndexBuilder
             $interfaceRecord = $this->index->get(ClassRecord::fromName($interfaceName));
             assert($interfaceRecord instanceof ClassRecord);
             $interfaceRecord->addImplementation($classRecord->fqn());
+
             $this->index->write($interfaceRecord);
         }
     }

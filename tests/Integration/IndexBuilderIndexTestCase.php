@@ -97,7 +97,6 @@ EOT
 
     public function testRemovesExistingReferences(): void
     {
-        $this->markTestSkipped();
         $index = $this->buildIndex();
 
         $references = $index->query()->implementing(
