@@ -35,7 +35,7 @@ abstract class ClassLikeIndexer implements TolerantIndexer
                 continue;
             }
 
-            $interfaceName = $interfaceName->getNamespacedName()->getFullyQualifiedNameText();
+            $interfaceName = $interfaceName->getResolvedName();
             $interfaceRecord = $index->get(ClassRecord::fromName($interfaceName));
             $record->addImplements(
                 FullyQualifiedName::fromString($interfaceName)

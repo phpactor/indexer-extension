@@ -56,8 +56,8 @@ class ClassDeclarationIndexer extends ClassLikeIndexer
             return;
         }
 
-        $name = $baseClass->getNamespacedName()->getFullyQualifiedNameText();
-        $record->addImplements(FullyQualifiedName::fromString($name));
+        $name = $baseClass->getResolvedName();
+        $record->addImplements(FullyQualifiedName::fromString((string)$name));
         $baseClassRecord = $index->get(ClassRecord::fromName($name));
         assert($baseClassRecord instanceof ClassRecord);
         $baseClassRecord->addImplementation($record->fqn());
