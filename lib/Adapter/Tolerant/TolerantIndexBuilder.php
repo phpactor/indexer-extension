@@ -10,6 +10,7 @@ use Microsoft\PhpParser\Node\Statement\FunctionDeclaration;
 use Microsoft\PhpParser\Parser;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexBuilder;
+use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\TextDocument\ByteOffset;
@@ -27,12 +28,17 @@ class TolerantIndexBuilder implements IndexBuilder
      */
     private $parser;
 
+    /**
+     * @var array<Record>
+     */
+    private $touched = [];
+
     public function __construct(
         Index $index,
         ?Parser $parser = null
     ) {
         $this->index = $index;
-        $this->parser = new Parser();
+        $this->parser = $parser ?: new Parser();
     }
 
     public function index(SplFileInfo $info): void
@@ -78,6 +84,20 @@ class TolerantIndexBuilder implements IndexBuilder
         $record->withType('class');
         $record->withFilePath($info->getPathname());
 
+
+        // de-reference this class
+        foreach ($record->implementedClasses() as $implementedClass) {
+            $implementedRecord = $this->index->get(ClassRecord::fromName($implementedClass));
+
+            if (false === $implementedRecord->removeImplementation($record->fqn())) {
+                continue;
+            }
+
+            $this->index->write($implementedRecord);
+        }
+
+        $record->clearImplements();
+
         $this->indexClassInterfaces($record, $node);
         $this->indexBaseClass($record, $node);
 
@@ -104,6 +124,7 @@ class TolerantIndexBuilder implements IndexBuilder
             $interfaceRecord = $this->index->get(ClassRecord::fromName($interfaceName));
             assert($interfaceRecord instanceof ClassRecord);
             $interfaceRecord->addImplementation($classRecord->fqn());
+            $this->scheduleReferenceCheck($classRecord);
 
             $this->index->write($interfaceRecord);
         }
@@ -125,6 +146,7 @@ class TolerantIndexBuilder implements IndexBuilder
         assert($baseClassRecord instanceof ClassRecord);
         $baseClassRecord->addImplementation($record->fqn());
         $this->index->write($baseClassRecord);
+        $this->scheduleReferenceCheck($record);
     }
 
     private function indexFunction(SplFileInfo $info, FunctionDeclaration $node): void
@@ -135,5 +157,10 @@ class TolerantIndexBuilder implements IndexBuilder
         $record->withStart(ByteOffset::fromInt($node->getStart()));
         $record->withFilePath($info->getPathname());
         $this->index->write($record);
+    }
+
+    private function scheduleReferenceCheck(ClassRecord $record)
+    {
+        $this->touched[] = $record;
     }
 }

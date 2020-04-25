@@ -120,6 +120,7 @@ EOT
         $references = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
+
         self::assertCount(1, $references);
     }
 
