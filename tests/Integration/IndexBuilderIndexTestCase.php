@@ -63,6 +63,22 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
             }
         ];
 
+        yield 'extended class has implementations' => [
+            '<?php class Foobar {} class Barfoo extends Foobar {}',
+            'Foobar',
+            function (ClassRecord $record) {
+                self::assertCount(1, $record->implementations());
+            }
+        ];
+
+        yield 'class implements' => [
+            '<?php class Foobar {} class Barfoo extends Foobar {}',
+            'Barfoo',
+            function (ClassRecord $record) {
+                self::assertCount(1, $record->implements());
+            }
+        ];
+
         yield 'interface has class implementation' => [
             '<?php interface Foobar {} class ThisClass implements Foobar {}',
             'Foobar',
@@ -73,6 +89,23 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
 
         yield 'namespaced interface has class implementation' => [
             '<?php namespace Foobar; interface Foobar {} class ThisClass implements Foobar {}',
+            'Foobar\Foobar',
+            function (ClassRecord $record) {
+                self::assertCount(1, $record->implementations());
+            }
+        ];
+
+        yield 'interface implements' => [
+            '<?php interface Foobar {} interface Barfoo extends Foobar {}',
+            'Foobar',
+            function (ClassRecord $record) {
+                self::assertCount(1, $record->implementations());
+            }
+        ];
+
+
+        yield 'namespaced interface implements' => [
+            '<?php namespace Foobar; interface Foobar {} interface Barfoo extends Foobar {}',
             'Foobar\Foobar',
             function (ClassRecord $record) {
                 self::assertCount(1, $record->implementations());
@@ -116,6 +149,14 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
                 self::assertEquals('ThisTrait', $record->fqn());
                 self::assertEquals(6, $record->start()->toInt());
                 self::assertEquals('trait', $record->type());
+            }
+        ];
+
+        yield 'class uses trait' => [
+            '<?php trait ThisTrait {} class Foobar { use ThisTrait; }',
+            'ThisTrait',
+            function (ClassRecord $record) {
+                self::assertCount(1, $record->implementations());
             }
         ];
     }
