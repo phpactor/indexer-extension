@@ -71,6 +71,14 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
             }
         ];
 
+        yield 'namespaced interface has class implementation' => [
+            '<?php namespace Foobar; interface Foobar {} class ThisClass implements Foobar {}',
+            'Foobar\Foobar',
+            function (ClassRecord $record) {
+                self::assertCount(1, $record->implementations());
+            }
+        ];
+
         yield 'interface has class implementations' => [
             '<?php interface Foobar {} class ThisClass implements Foobar {} class ThatClass implements Foobar {}',
             'Foobar',
