@@ -3,11 +3,12 @@
 namespace Phpactor\Indexer\Model;
 
 use Phpactor\Indexer\Model\Record;
+use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 
 interface IndexWriter
 {
-    public function class(Record $class): void;
+    public function class(ClassRecord $class): void;
 
     public function timestamp(): void;
 

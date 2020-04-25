@@ -6,7 +6,7 @@ use Phpactor\Name\FullyQualifiedName;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionClassLike;
 
-class Record
+abstract class Record
 {
     /**
      * @var int

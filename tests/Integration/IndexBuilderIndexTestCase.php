@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Tests\Integration;
 
 use Phpactor\Indexer\Model\Indexer;
+use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryIndex;
@@ -26,11 +27,11 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
     {
         $index = $this->buildIndex();
 
-        $function = $foo = $index->query()->function(
+        $function = $foo = $index->query()->class(
             FullyQualifiedName::fromString('Hello\world')
         );
 
-        self::assertInstanceOf(FunctionRecord::class, $function);
+        self::assertInstanceOf(Record::class, $function);
     }
 
 

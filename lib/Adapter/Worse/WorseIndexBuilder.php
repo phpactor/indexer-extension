@@ -4,6 +4,7 @@ namespace Phpactor\Indexer\Adapter\Worse;
 
 use DTL\Invoke\Invoke;
 use Generator;
+use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\FileList;
@@ -117,7 +118,7 @@ class WorseIndexBuilder implements IndexBuilder
         }
     }
 
-    private function createOrGetClassRecord(string $name): ?Record
+    private function createOrGetClassRecord(string $name): ?ClassRecord
     {
         if (empty($name)) {
             return null;
@@ -129,7 +130,7 @@ class WorseIndexBuilder implements IndexBuilder
             return $class;
         }
 
-        return new Record($name);
+        return new ClassRecord($name);
     }
 
     private function updateClassRelations(ReflectionClassLike $classLike): void
