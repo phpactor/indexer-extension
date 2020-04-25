@@ -73,13 +73,13 @@ class TolerantIndexBuilder implements IndexBuilder
     {
         $record = $this->index->get(ClassRecord::fromName($node->getNamespacedName()->getFullyQualifiedNameText()));
         assert($record instanceof ClassRecord);
-        $record->withLastModified($info->getCTime());
-        $record->withStart(ByteOffset::fromInt($node->getStart()));
-        $record->withType('class');
-        $record->withFilePath($info->getPathname());
+        $record->setLastModified($info->getCTime());
+        $record->setStart(ByteOffset::fromInt($node->getStart()));
+        $record->setType('class');
+        $record->setFilePath($info->getPathname());
 
         // de-reference this class
-        foreach ($record->implementedClasses() as $implementedClass) {
+        foreach ($record->implements() as $implementedClass) {
             $implementedRecord = $this->index->get(ClassRecord::fromName($implementedClass));
 
             if (false === $implementedRecord->removeImplementation($record->fqn())) {
@@ -89,7 +89,7 @@ class TolerantIndexBuilder implements IndexBuilder
             $this->index->write($implementedRecord);
         }
 
-        $record->clearImplements();
+        $record->clearImplemented();
 
         $this->indexClassInterfaces($record, $node);
         $this->indexBaseClass($record, $node);
@@ -147,9 +147,9 @@ class TolerantIndexBuilder implements IndexBuilder
     {
         $record = $this->index->get(FunctionRecord::fromName($node->getNamespacedName()->getFullyQualifiedNameText()));
         assert($record instanceof FunctionRecord);
-        $record->withLastModified($info->getCTime());
-        $record->withStart(ByteOffset::fromInt($node->getStart()));
-        $record->withFilePath($info->getPathname());
+        $record->setLastModified($info->getCTime());
+        $record->setStart(ByteOffset::fromInt($node->getStart()));
+        $record->setFilePath($info->getPathname());
         $this->index->write($record);
     }
 }

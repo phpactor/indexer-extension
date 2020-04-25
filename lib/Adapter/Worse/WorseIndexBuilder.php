@@ -102,10 +102,10 @@ class WorseIndexBuilder implements IndexBuilder
         $mtime = $fileInfo->getCTime();
         foreach ($classes as $reflectionClass) {
             $record = $this->createOrGetClassRecord($reflectionClass->name()->full());
-            $record->withLastModified($mtime);
-            $record->withType(WorseUtil::classType($reflectionClass));
-            $record->withStart(ByteOffset::fromInt($reflectionClass->position()->start()));
-            $record->withFilePath($fileInfo->getPathname());
+            $record->setLastModified($mtime);
+            $record->setType(WorseUtil::classType($reflectionClass));
+            $record->setStart(ByteOffset::fromInt($reflectionClass->position()->start()));
+            $record->setFilePath($fileInfo->getPathname());
             $this->index->write($record);
 
             $this->updateClassRelations(
@@ -192,7 +192,7 @@ class WorseIndexBuilder implements IndexBuilder
 
     private function removeExistingReferences(ClassRecord $classRecord): void
     {
-        foreach ($classRecord->implementedClasses() as $implementedClass) {
+        foreach ($classRecord->implements() as $implementedClass) {
             $implementedRecord = $this->index->query()->class(
                 FullyQualifiedName::fromString($implementedClass)
             );
@@ -212,9 +212,9 @@ class WorseIndexBuilder implements IndexBuilder
         $mtime = $fileInfo->getCTime();
         foreach ($reflectionFunctionCollection as $reflectionFunction) {
             $function = $this->createFunctionRecord($reflectionFunction, $mtime);
-            $function->withLastModified($mtime);
-            $function->withFilePath($reflectionFunction->sourceCode()->path());
-            $function->withStart(ByteOffset::fromInt($reflectionFunction->position()->start()));
+            $function->setLastModified($mtime);
+            $function->setFilePath($reflectionFunction->sourceCode()->path());
+            $function->setStart(ByteOffset::fromInt($reflectionFunction->position()->start()));
             $this->index->write($function);
         }
     }

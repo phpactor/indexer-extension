@@ -15,16 +15,23 @@ class ClassRecord extends Record
     /**
      * @var array<string>
      */
-    private $implemented = [];
+    private $implements = [];
+
+    /**
+     * Type of "class": class, interface or trait
+     *
+     * @var string
+     */
+    private $type;
 
     public static function fromName(string $name): self
     {
         return new self(FullyQualifiedName::fromString($name));
     }
 
-    public function clearImplements(): void
+    public function clearImplemented(): void
     {
-        $this->implemented = [];
+        $this->implements = [];
     }
 
     public function addImplementation(FullyQualifiedName $fqn): void
@@ -34,7 +41,7 @@ class ClassRecord extends Record
 
     public function addImplements(FullyQualifiedName $fqn): void
     {
-        $this->implemented[(string)$fqn] = (string)$fqn;
+        $this->implements[(string)$fqn] = (string)$fqn;
     }
 
     public function removeClass(FullyQualifiedName $implementedClass): void
@@ -59,9 +66,9 @@ class ClassRecord extends Record
     /**
      * @return array<string>
      */
-    public function implementedClasses(): array
+    public function implements(): array
     {
-        return $this->implemented;
+        return $this->implements;
     }
 
     public function removeImplementation(FullyQualifiedName $name): bool
@@ -72,4 +79,16 @@ class ClassRecord extends Record
         unset($this->implementations[(string)$name]);
         return true;
     }
+
+    public function type(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): self
+    {
+        $this->type = $type;
+        return $this;
+    }
+
 }

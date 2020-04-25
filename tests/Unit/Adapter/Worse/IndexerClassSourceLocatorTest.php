@@ -26,13 +26,12 @@ class IndexerClassSourceLocatorTest extends TestCase
     {
         $this->expectException(SourceNotFound::class);
         $this->expectExceptionMessage('does not exist');
-        $record = new ClassRecord(
-            FullyQualifiedName::fromString('Foobar'),
-            'class',
-            ByteOffset::fromInt(0),
-            'nope.php',
-            0
-        );
+        $record = ClassRecord::fromName('Foobar')
+            ->setType('class')
+            ->setStart(ByteOffset::fromInt(0))
+            ->setFilePath('nope.php')
+            ->setLastModified(0);
+
         $index = new InMemoryIndex();
         $index->write($record);
         $locator = new IndexerClassSourceLocator($index);
@@ -41,13 +40,12 @@ class IndexerClassSourceLocatorTest extends TestCase
 
     public function testReturnsSourceCode(): void
     {
-        $record = new ClassRecord(
-            FullyQualifiedName::fromString('Foobar'),
-            'class',
-            ByteOffset::fromInt(0),
-            __FILE__,
-            0
-        );
+        $record = ClassRecord::fromName('Foobar')
+            ->setType('class')
+            ->setStart(ByteOffset::fromInt(0))
+            ->setFilePath(__FILE__)
+            ->setLastModified(0);
+
         $index = new InMemoryIndex();
         $index->write($record);
         $locator = new IndexerClassSourceLocator($index);

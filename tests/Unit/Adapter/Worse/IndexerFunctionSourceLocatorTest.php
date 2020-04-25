@@ -28,7 +28,7 @@ class IndexerFunctionSourceLocatorTest extends TestCase
         $record = new FunctionRecord(
             FullyQualifiedName::fromString('Foobar')
         );
-        $record->withFilePath('nope.php');
+        $record->setFilePath('nope.php');
         $index = new InMemoryIndex();
         $index->write($record);
         $locator = new IndexerFunctionSourceLocator($index);
@@ -40,7 +40,7 @@ class IndexerFunctionSourceLocatorTest extends TestCase
         $record = new FunctionRecord(
             FullyQualifiedName::fromString('Foobar')
         );
-        $record->withFilePath(__FILE__);
+        $record->setFilePath(__FILE__);
         $index = new InMemoryIndex();
         $index->write($record);
         $locator = new IndexerFunctionSourceLocator($index);
