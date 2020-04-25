@@ -6,6 +6,7 @@ use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexBuilder;
 use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Model\Record;
+use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryIndex;
@@ -16,11 +17,26 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
 {
     abstract protected function createBuilder(Index $index): IndexBuilder;
 
+    public function testIndexesClass(): void
+    {
+        $index = $this->buildIndex();
+
+        $class = $index->query()->class(
+            FullyQualifiedName::fromString('InMemoryIndex')
+        );
+
+        self::assertInstanceOf(ClassRecord::class, $class);
+        self::assertEquals($this->workspace()->path('project/InMemoryIndex.php'), $class->filePath());
+        self::assertEquals('InMemoryIndex', $class->fqn());
+        self::assertEquals(6, $class->start()->toInt());
+        self::assertEquals('class', $class->type());
+    }
+
     public function testInterfaceImplementations(): void
     {
         $index = $this->buildIndex();
 
-        $references = $foo = $index->query()->implementing(
+        $references = $index->query()->implementing(
             FullyQualifiedName::fromString('Index')
         );
 
@@ -31,7 +47,7 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
     {
         $index = $this->buildIndex();
 
-        $function = $foo = $index->query()->function(
+        $function = $index->query()->function(
             FullyQualifiedName::fromString('Hello\world')
         );
 
@@ -43,7 +59,7 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
     {
         $index = $this->buildIndex();
 
-        $references = $foo = $index->query()->implementing(
+        $references = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
 
@@ -83,7 +99,7 @@ EOT
     {
         $index = $this->buildIndex();
 
-        $references = $foo = $index->query()->implementing(
+        $references = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
         self::assertCount(2, $references);
@@ -101,7 +117,7 @@ EOT
 
         $index = $this->buildIndex($index);
 
-        $references = $foo = $index->query()->implementing(
+        $references = $index->query()->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
         self::assertCount(1, $references);
