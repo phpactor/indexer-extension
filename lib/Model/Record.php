@@ -45,10 +45,10 @@ class Record
 
     public function __construct(
         FullyQualifiedName $fqn,
-        ?string $type,
-        ?ByteOffset $start,
-        ?string $filePath,
-        ?int $lastModified
+        ?string $type = null,
+        ?ByteOffset $start = null,
+        ?string $filePath = null,
+        ?int $lastModified = null
     ) {
         $this->lastModified = $lastModified;
         $this->type = $type;
@@ -135,5 +135,11 @@ class Record
     public function start(): ByteOffset
     {
         return $this->start;
+    }
+
+    public function withLastModified(int $mtime): self
+    {
+        $this->lastModified = $mtime;
+        return $this;
     }
 }

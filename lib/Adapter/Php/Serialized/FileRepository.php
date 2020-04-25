@@ -4,7 +4,7 @@ namespace Phpactor\Indexer\Adapter\Php\Serialized;
 
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record;
 use RuntimeException;
 use function Safe\file_get_contents;
 use function Safe\file_put_contents;
@@ -31,14 +31,14 @@ class FileRepository
         $this->initializeLastUpdate();
     }
 
-    public function putClass(ClassRecord $class): void
+    public function putClass(Record $class): void
     {
         $path = $this->pathFor(self::CLASS_PREFIX, $class->fqn());
         $this->ensureDirectoryExists(dirname($path));
         file_put_contents($path, serialize($class));
     }
 
-    public function getClass(FullyQualifiedName $name): ?ClassRecord
+    public function getClass(FullyQualifiedName $name): ?Record
     {
         $path = $this->pathFor(self::CLASS_PREFIX, $name);
 
@@ -54,7 +54,7 @@ class FileRepository
         }
 
         // handle invalid entries (e.g. old data structures)
-        if (!$deserialized instanceof ClassRecord) {
+        if (!$deserialized instanceof Record) {
             return null;
         }
 

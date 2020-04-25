@@ -4,13 +4,12 @@ namespace Phpactor\Indexer\Adapter\Worse;
 
 use DTL\Invoke\Invoke;
 use Generator;
-use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\FileList;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexBuilder;
-use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
 use Phpactor\WorseReflection\Core\Reflection\Collection\ReflectionClassCollection;
@@ -118,7 +117,7 @@ class WorseIndexBuilder implements IndexBuilder
         }
     }
 
-    private function createOrGetClassRecord(string $name): ?ClassRecord
+    private function createOrGetClassRecord(string $name): ?Record
     {
         if (empty($name)) {
             return null;
@@ -130,7 +129,7 @@ class WorseIndexBuilder implements IndexBuilder
             return $class;
         }
 
-        return new ClassRecord($name);
+        return new Record($name);
     }
 
     private function updateClassRelations(ReflectionClassLike $classLike): void
@@ -200,7 +199,7 @@ class WorseIndexBuilder implements IndexBuilder
         return $format;
     }
 
-    private function removeExistingReferences(ClassRecord $classRecord): void
+    private function removeExistingReferences(Record $classRecord): void
     {
         foreach ($classRecord->implementedClasses() as $implementedClass) {
             $implementedRecord = $this->index->query()->class(

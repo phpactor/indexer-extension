@@ -3,7 +3,7 @@
 namespace Phpactor\Indexer\Adapter\Php\Serialized;
 
 use Phpactor\Indexer\Model\IndexWriter;
-use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 
 class SerializedWriter implements IndexWriter
@@ -18,7 +18,7 @@ class SerializedWriter implements IndexWriter
         $this->repository = $repository;
     }
 
-    public function class(ClassRecord $class): void
+    public function class(Record $class): void
     {
         $this->repository->putClass($class);
     }
