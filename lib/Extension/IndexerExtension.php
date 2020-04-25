@@ -93,7 +93,7 @@ class IndexerExtension implements Extension
             // for "realtime" watchers, e.g. inotify, buffer for given time in
             // milliseconds
             self::PARAM_INDEXER_BUFFER_TIME => 500,
-            self::PARAM_INDEXER => self::INDEXER_TOLERANT,
+            self::PARAM_INDEXER => self::INDEXER_WORSE,
         ]);
     }
 
