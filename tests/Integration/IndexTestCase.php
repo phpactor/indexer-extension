@@ -2,6 +2,7 @@
 
 namespace Phpactor\Indexer\Tests\Integration;
 
+use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Name\FullyQualifiedName;
 use function Safe\file_get_contents;
 
@@ -11,7 +12,8 @@ abstract class IndexTestCase extends InMemoryTestCase
     {
         $index = $this->createIndex();
         $builder = $this->createBuilder($index);
-        $builder->build($this->fileList($index));
+        $indexer = new Indexer($builder, $index, $this->fileListProvider($index));
+        $indexer->getJob()->run();
         $references = $foo = $index->query()->implementing(
             FullyQualifiedName::fromString('Index')
         );

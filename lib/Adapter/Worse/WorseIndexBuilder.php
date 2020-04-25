@@ -54,82 +54,47 @@ class WorseIndexBuilder implements IndexBuilder
         $this->logger = $logger;
     }
 
-    public function build(FileList $fileList): void
+    public function index(SplFileInfo $fileInfo): void
     {
-        iterator_to_array($this->index($fileList));
-    }
+        $this->logger->debug(sprintf('Indexing: %s', $fileInfo->getPathname()));
 
-    /**
-     * @return Generator<string>
-     */
-    public function index(FileList $fileList): Generator
-    {
-        $this->logger->info(sprintf(
-            'Last update: %s (%s)',
-            $this->index->lastUpdate(),
-            $this->formatTimestamp()
-        ));
-
-        yield from $this->doIndex($fileList);
-
-        $this->index->write()->timestamp();
-    }
-
-    /**
-     * @return Generator<string>
-     */
-    private function doIndex(FileList $fileList): Generator
-    {
-        $count = 0;
-        foreach ($fileList as $fileInfo) {
-            assert($fileInfo instanceof SplFileInfo);
-
-            $this->logger->debug(sprintf('Indexing: %s', $fileInfo->getPathname()));
-
+        try {
             try {
-                try {
-                    $contents = file_get_contents($fileInfo->getPathname());
-                } catch (FilesystemException $filesystemException) {
-                    $this->logger->warning(sprintf(
-                        'Error indexing file "%s": %s',
+                $contents = file_get_contents($fileInfo->getPathname());
+            } catch (FilesystemException $filesystemException) {
+                $this->logger->warning(sprintf(
+                    'Error indexing file "%s": %s',
+                    $fileInfo->getPathname(),
+                    $filesystemException->getMessage()
+                ));
+                return;
+            }
+            $this->indexClasses(
+                $fileInfo,
+                $this->reflector->reflectClassesIn(
+                    SourceCode::fromPathAndString(
                         $fileInfo->getPathname(),
-                        $filesystemException->getMessage()
-                    ));
-                    continue;
-                }
-                $this->indexClasses(
-                    $fileInfo,
-                    $this->reflector->reflectClassesIn(
-                        SourceCode::fromPathAndString(
-                            $fileInfo->getPathname(),
-                            $contents
-                        )
+                        $contents
                     )
-                );
-            } catch (SourceNotFound $e) {
-                $this->logger->error($e->getMessage());
-            }
-
-            try {
-                $this->indexFunctions(
-                    $fileInfo,
-                    $this->reflector->reflectFunctionsIn(
-                        SourceCode::fromPathAndString(
-                            $fileInfo->getPathname(),
-                            file_get_contents($fileInfo->getPathname())
-                        )
-                    )
-                );
-            } catch (SourceNotFound $e) {
-                $this->logger->error($e->getMessage());
-            }
-
-            yield $fileInfo->getPathname();
-
-            $count++;
+                )
+            );
+        } catch (SourceNotFound $e) {
+            $this->logger->error($e->getMessage());
         }
 
-        return $count > 0;
+        try {
+            $this->indexFunctions(
+                $fileInfo,
+                $this->reflector->reflectFunctionsIn(
+                    SourceCode::fromPathAndString(
+                        $fileInfo->getPathname(),
+                        file_get_contents($fileInfo->getPathname())
+                    )
+                )
+            );
+        } catch (SourceNotFound $e) {
+            $this->logger->error($e->getMessage());
+        }
     }
 
     /**
@@ -154,9 +119,9 @@ class WorseIndexBuilder implements IndexBuilder
     private function createOrGetClassRecord(ReflectionClassLike $reflectionClass, int $mtime): ?ClassRecord
     {
         assert($reflectionClass instanceof ReflectionClassLike);
-        
+
         $name = $reflectionClass->name()->full();
-        
+
         if (empty($name)) {
             return null;
         }
@@ -166,7 +131,7 @@ class WorseIndexBuilder implements IndexBuilder
         if ($class = $this->index->query()->class($name)) {
             return $class;
         }
-        
+
         $record = Invoke::new(ClassRecord::class, [
             'lastModified' => $mtime,
             'fqn' => $name,

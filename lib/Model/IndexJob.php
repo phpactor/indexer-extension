@@ -27,8 +27,9 @@ class IndexJob
      */
     public function generator(): Generator
     {
-        foreach ($this->indexBuilder->index($this->fileList) as $filePath) {
-            yield $filePath;
+        foreach ($this->fileList as $fileInfo) {
+            $this->indexBuilder->index($fileInfo);
+            yield $fileInfo->getPathname();
         }
     }
 

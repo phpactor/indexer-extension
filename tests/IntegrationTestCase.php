@@ -17,6 +17,7 @@ use Phpactor\Indexer\Extension\IndexerExtension;
 use Phpactor\Container\Container;
 use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
 use Phpactor\Filesystem\Domain\MappedFilesystemRegistry;
+use Phpactor\Indexer\Model\FileListProvider;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\TestUtils\Workspace;
 use Phpactor\Indexer\Adapter\Filesystem\FilesystemFileListProvider;
@@ -69,12 +70,12 @@ class IntegrationTestCase extends TestCase
         return new InMemoryIndex($repository);
     }
 
-    protected function fileList(Index $index): FileList
+    protected function fileListProvider(): FileListProvider
     {
         $provider = new FilesystemFileListProvider(new MappedFilesystemRegistry([
             'foobar' => new SimpleFilesystem($this->workspace()->path('/project')),
         ]), 'foobar');
-        return $provider->provideFileList($index);
+        return $provider;
     }
 
     protected function createReflector(): Reflector

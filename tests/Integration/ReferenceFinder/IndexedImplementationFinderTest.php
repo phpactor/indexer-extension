@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Tests\Integration\ReferenceFinder;
 
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedImplementationFinder;
+use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Tests\Integration\InMemoryTestCase;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\TextDocumentBuilder;
@@ -14,12 +15,13 @@ class IndexedImplementationFinderTest extends InMemoryTestCase
         $this->initProject();
     }
 
-    public function testFinder()
+    public function testFinder(): void
     {
         $index = $this->createInMemoryIndex();
-        $builder = $this->createBuilder($index);
-        $fileList = $this->fileList($index);
-        $builder->build($fileList);
+        $indexBuilder = $this->createBuilder($index);
+        $fileList = $this->fileListProvider();
+        $indexer = new Indexer($indexBuilder, $index, $fileList);
+        $indexer->getJob()->run();
 
         $implementationFinder = new IndexedImplementationFinder(
             $index,
