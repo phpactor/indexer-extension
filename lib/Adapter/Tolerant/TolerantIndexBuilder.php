@@ -12,7 +12,7 @@ use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexBuilder;
 use SplFileInfo;
 
-class TolerantIndexBuilder implements IndexBuilder
+final class TolerantIndexBuilder implements IndexBuilder
 {
     /**
      * @var Index
@@ -29,18 +29,30 @@ class TolerantIndexBuilder implements IndexBuilder
      */
     private $indexers;
 
+    /**
+     * @param TolerantIndexer[] $indexers
+     */
     public function __construct(
         Index $index,
+        array $indexers,
         ?Parser $parser = null
     ) {
         $this->index = $index;
         $this->parser = $parser ?: new Parser();
-        $this->indexers = [
-            new ClassDeclarationIndexer(),
-            new FunctionDeclarationIndexer(),
-            new InterfaceDeclarationIndexer(),
-            new TraitDeclarationIndexer(),
-        ];
+        $this->indexers = $indexers;
+    }
+
+    public static function create(Index $index): self
+    {
+        return new self(
+            $index,
+            [
+                new ClassDeclarationIndexer(),
+                new FunctionDeclarationIndexer(),
+                new InterfaceDeclarationIndexer(),
+                new TraitDeclarationIndexer(),
+            ]
+        );
     }
 
     public function index(SplFileInfo $info): void

@@ -11,6 +11,6 @@ class TolerantIndexBuilderTest extends IndexBuilderIndexTestCase
 {
     protected function createBuilder(Index $index): IndexBuilder
     {
-        return new TolerantIndexBuilder($index);
+        return TolerantIndexBuilder::create($index);
     }
 }
