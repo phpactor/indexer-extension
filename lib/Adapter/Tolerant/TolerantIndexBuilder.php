@@ -84,7 +84,6 @@ class TolerantIndexBuilder implements IndexBuilder
         $record->withType('class');
         $record->withFilePath($info->getPathname());
 
-
         // de-reference this class
         foreach ($record->implementedClasses() as $implementedClass) {
             $implementedRecord = $this->index->get(ClassRecord::fromName($implementedClass));

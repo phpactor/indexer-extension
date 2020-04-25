@@ -124,6 +124,57 @@ EOT
         self::assertCount(1, $references);
     }
 
+    public function testDoesNotRemoveExisting(): void
+    {
+        $this->workspace()->put(
+            'project/0000.php',
+            <<<'EOT'
+<?php
+
+class Foobar extends AbstractClass
+{
+}
+EOT
+        );
+        $this->workspace()->put(
+            'project/ZZZZ.php',
+            <<<'EOT'
+<?php
+
+class ZedFoobar extends AbstractClass
+{
+}
+EOT
+        );
+
+        $index = $this->buildIndex();
+
+        $references = $index->query()->implementing(
+            FullyQualifiedName::fromString('AbstractClass')
+        );
+        self::assertCount(4, $references);
+
+        $this->workspace()->put(
+            'project/0000.php',
+            <<<'EOT'
+<?php
+
+class Foobar
+{
+}
+EOT
+        );
+
+        $index = $this->buildIndex($index);
+
+        $references = $index->query()->implementing(
+            FullyQualifiedName::fromString('AbstractClass')
+        );
+
+        self::assertCount(3, $references);
+    }
+
+
     protected function setUp(): void
     {
         $this->workspace()->reset();

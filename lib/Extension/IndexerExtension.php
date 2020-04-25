@@ -120,7 +120,7 @@ class IndexerExtension implements Extension
     private function registerWorseAdapters(ContainerBuilder $container): void
     {
         $container->register(IndexBuilder::class, function (Container $container) {
-            //return new TolerantIndexBuilder($container->get(Index::class));
+            return new TolerantIndexBuilder($container->get(Index::class));
             return new WorseIndexBuilder(
                 $container->get(Index::class),
                 $this->createReflector($container),
