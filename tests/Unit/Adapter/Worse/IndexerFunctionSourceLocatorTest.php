@@ -30,7 +30,7 @@ class IndexerFunctionSourceLocatorTest extends TestCase
         );
         $record->withFilePath('nope.php');
         $index = new InMemoryIndex();
-        $index->write()->function($record);
+        $index->write($record);
         $locator = new IndexerFunctionSourceLocator($index);
         $locator->locate(Name::fromString('Foobar'));
     }
@@ -42,7 +42,7 @@ class IndexerFunctionSourceLocatorTest extends TestCase
         );
         $record->withFilePath(__FILE__);
         $index = new InMemoryIndex();
-        $index->write()->function($record);
+        $index->write($record);
         $locator = new IndexerFunctionSourceLocator($index);
         $sourceCode = $locator->locate(Name::fromString('Foobar'));
         $this->assertEquals(__FILE__, $sourceCode->path());

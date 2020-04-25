@@ -110,7 +110,7 @@ class WorseIndexBuilder implements IndexBuilder
             $record->withType(WorseUtil::classType($reflectionClass));
             $record->withStart(ByteOffset::fromInt($reflectionClass->position()->start()));
             $record->withFilePath($fileInfo->getPathname());
-            $this->index->write()->class($record);
+            $this->index->write($record);
 
             $this->updateClassRelations(
                 $reflectionClass
@@ -168,10 +168,10 @@ class WorseIndexBuilder implements IndexBuilder
             $classRecord->addImplements($implementedClass);
             $implementedRecord->addImplementation($classReflection);
 
-            $this->index->write()->class($implementedRecord);
+            $this->index->write($implementedRecord);
         }
 
-        $this->index->write()->class($classRecord);
+        $this->index->write($classRecord);
     }
 
     /**
@@ -210,7 +210,7 @@ class WorseIndexBuilder implements IndexBuilder
                 continue;
             }
             $implementedRecord->removeClass($classRecord->fqn());
-            $this->index->write()->class($implementedRecord);
+            $this->index->write($implementedRecord);
         }
     }
 
@@ -246,13 +246,13 @@ class WorseIndexBuilder implements IndexBuilder
             'start' => ByteOffset::fromInt($reflectionFunction->position()->start()),
         ]);
 
-        $this->index->write()->function($record);
+        $this->index->write($record);
 
         return $record;
     }
 
     public function done(): void
     {
-        $this->index->write()->timestamp();
+        $this->index->updateTimestamp();
     }
 }

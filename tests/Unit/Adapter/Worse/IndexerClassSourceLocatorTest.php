@@ -34,7 +34,7 @@ class IndexerClassSourceLocatorTest extends TestCase
             0
         );
         $index = new InMemoryIndex();
-        $index->write()->class($record);
+        $index->write($record);
         $locator = new IndexerClassSourceLocator($index);
         $locator->locate(Name::fromString('Foobar'));
     }
@@ -49,7 +49,7 @@ class IndexerClassSourceLocatorTest extends TestCase
             0
         );
         $index = new InMemoryIndex();
-        $index->write()->class($record);
+        $index->write($record);
         $locator = new IndexerClassSourceLocator($index);
         $sourceCode = $locator->locate(Name::fromString('Foobar'));
         $this->assertEquals(__FILE__, $sourceCode->path());

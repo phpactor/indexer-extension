@@ -5,6 +5,9 @@ namespace Phpactor\Indexer\Adapter\Php\Serialized;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexQuery;
 use Phpactor\Indexer\Model\IndexWriter;
+use Phpactor\Indexer\Model\Record;
+use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record\FunctionRecord;
 use RuntimeException;
 use SplFileInfo;
 
@@ -30,9 +33,22 @@ class SerializedIndex implements Index
         return new SerializedQuery($this->repository);
     }
 
-    public function write(): IndexWriter
+    public function write(Record $record): void
     {
-        return new SerializedWriter($this->repository);
+        if ($record instanceof ClassRecord) {
+            $this->repository->putClass($record);
+            return;
+        }
+
+        if ($record instanceof FunctionRecord) {
+            $this->repository->putFunction($record);
+            return;
+        }
+
+        throw new RuntimeException(sprintf(
+            'Do not know how to index "%s"',
+            get_class($record)
+        ));
     }
 
     public function isFresh(SplFileInfo $fileInfo): bool
@@ -55,5 +71,10 @@ class SerializedIndex implements Index
     public function exists(): bool
     {
         return $this->repository->lastUpdate() > 0;
+    }
+
+    public function updateTimestamp(): void
+    {
+        $this->repository->putTimestamp();
     }
 }

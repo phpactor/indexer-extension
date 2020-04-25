@@ -10,11 +10,13 @@ interface Index
 
     public function query(): IndexQuery;
 
-    public function write(): IndexWriter;
+    public function write(Record $record): void;
 
     public function isFresh(SplFileInfo $fileInfo): bool;
 
     public function reset(): void;
 
     public function exists(): bool;
+
+    public function updateTimestamp(): void;
 }
