@@ -2,6 +2,8 @@
 
 namespace Phpactor\Indexer\Tests\Integration;
 
+use Closure;
+use Generator;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexBuilder;
 use Phpactor\Indexer\Model\Indexer;
@@ -16,19 +18,52 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
 {
     abstract protected function createBuilder(Index $index): IndexBuilder;
 
-    public function testIndexesClass(): void
+    /**
+     * @dataProvider provideIndexesClassLike
+     */
+    public function testIndexesClassLike(string $source, string $name, Closure $assertions): void
     {
+        $this->workspace()->put('project/test.php', $source);
+
         $index = $this->buildIndex();
 
         $class = $index->query()->class(
-            FullyQualifiedName::fromString('InMemoryIndex')
+            FullyQualifiedName::fromString($name)
         );
 
-        self::assertInstanceOf(ClassRecord::class, $class);
-        self::assertEquals($this->workspace()->path('project/InMemoryIndex.php'), $class->filePath());
-        self::assertEquals('InMemoryIndex', $class->fqn());
-        self::assertEquals(6, $class->start()->toInt());
-        self::assertEquals('class', $class->type());
+        self::assertNotNull($class, 'Class was found');
+
+        $assertions($class);
+    }
+
+    /**
+     * @return Generator<string, array>
+     */
+    public function provideIndexesClassLike(): Generator
+    {
+        yield 'class' => [
+            '<?php class ThisClass {}',
+            'ThisClass',
+            function (ClassRecord $record) {
+                self::assertInstanceOf(ClassRecord::class, $record);
+                self::assertEquals($this->workspace()->path('project/test.php'), $record->filePath());
+                self::assertEquals('ThisClass', $record->fqn());
+                self::assertEquals(6, $record->start()->toInt());
+                self::assertEquals('class', $record->type());
+            }
+        ];
+
+        yield 'interface' => [
+            '<?php interface ThisInterface {}',
+            'ThisInterface',
+            function (ClassRecord $record) {
+                self::assertInstanceOf(ClassRecord::class, $record);
+                self::assertEquals($this->workspace()->path('project/test.php'), $record->filePath());
+                self::assertEquals('ThisInterface', $record->fqn());
+                self::assertEquals(6, $record->start()->toInt());
+                self::assertEquals('interface', $record->type());
+            }
+        ];
     }
 
     public function testInterfaceImplementations(): void
