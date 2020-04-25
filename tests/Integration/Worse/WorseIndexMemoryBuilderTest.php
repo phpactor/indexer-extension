@@ -19,4 +19,9 @@ class WorseIndexMemoryBuilderTest extends IndexBuilderIndexTestCase
         );
         return $indexBuilder;
     }
+
+    public function testIndexesClassLike(): void
+    {
+        $this->markTestSkipped();
+    }
 }

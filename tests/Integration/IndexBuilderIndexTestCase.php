@@ -12,8 +12,6 @@ use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryIndex;
-use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryRepository;
 use function Safe\file_get_contents;
 
 abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
