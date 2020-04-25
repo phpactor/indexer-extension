@@ -6,10 +6,12 @@ use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\QualifiedName;
 use Microsoft\PhpParser\Node\SourceFileNode;
 use Microsoft\PhpParser\Node\Statement\ClassDeclaration;
+use Microsoft\PhpParser\Node\Statement\FunctionDeclaration;
 use Microsoft\PhpParser\Parser;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexBuilder;
 use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\TextDocument\ByteOffset;
 use SplFileInfo;
 
@@ -58,6 +60,11 @@ class TolerantIndexBuilder implements IndexBuilder
             $this->indexClassDeclaration($info, $node);
             return;
         }
+
+        if ($node instanceof FunctionDeclaration) {
+            $this->indexFunction($info, $node);
+            return;
+        }
     }
 
     private function indexClassDeclaration(SplFileInfo $info, ClassDeclaration $node): void
@@ -70,6 +77,7 @@ class TolerantIndexBuilder implements IndexBuilder
         $record->withFilePath($info->getPathname());
 
         $this->indexClassInterfaces($record, $node);
+
         $this->index->write($record);
     }
 
@@ -95,5 +103,15 @@ class TolerantIndexBuilder implements IndexBuilder
             $interfaceRecord->addImplementation($classRecord->fqn());
             $this->index->write($interfaceRecord);
         }
+    }
+
+    private function indexFunction(SplFileInfo $info, FunctionDeclaration $node): void
+    {
+        $record = $this->index->get(FunctionRecord::fromName($node->getNamespacedName()->getFullyQualifiedNameText()));
+        assert($record instanceof FunctionRecord);
+        $record->withLastModified($info->getCTime());
+        $record->withStart(ByteOffset::fromInt($node->getStart()));
+        $record->withFilePath($info->getPathname());
+        $this->index->write($record);
     }
 }
