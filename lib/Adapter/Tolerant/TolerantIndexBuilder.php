@@ -8,6 +8,7 @@ use Phpactor\Indexer\Adapter\Tolerant\Indexer\ClassDeclarationIndexer;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\FunctionDeclarationIndexer;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\InterfaceDeclarationIndexer;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\TraitDeclarationIndexer;
+use Phpactor\Indexer\Adapter\Tolerant\Indexer\TraitUseClauseIndexer;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexBuilder;
 use SplFileInfo;
@@ -51,6 +52,7 @@ final class TolerantIndexBuilder implements IndexBuilder
                 new FunctionDeclarationIndexer(),
                 new InterfaceDeclarationIndexer(),
                 new TraitDeclarationIndexer(),
+                new TraitUseClauseIndexer(),
             ]
         );
     }

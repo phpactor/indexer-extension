@@ -176,10 +176,25 @@ EOT
         ];
 
         yield 'class uses trait' => [
-            "// File: project/test.php\n<?php trait ThisTrait {} class Foobar { use ThisTrait; }",
-            'ThisTrait',
+            <<<'EOT'
+// File: project/test1.php
+<?php
+namespace Foobar;
+
+trait ThisIsTrait {}
+// File: project/test2.php
+<?php
+namespace Barfoo;
+
+use Foobar\ThisIsTrait;
+
+class Hoo
+{
+    use ThisIsTrait;
+}
+EOT
+            , 'Foobar\ThisIsTrait',
             function (ClassRecord $record) {
-                $this->markTestSkipped();
                 self::assertCount(1, $record->implementations());
             }
         ];
