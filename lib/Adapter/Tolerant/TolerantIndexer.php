@@ -9,7 +9,7 @@ use Phpactor\Indexer\Model\Index;
 
 interface TolerantIndexer
 {
-    public function index(Index $index, SplFileInfo $info, Node $node): void;
-
     public function canIndex(Node $node): bool;
+
+    public function index(Index $index, SplFileInfo $info, Node $node): void;
 }

@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Adapter\Tolerant\Indexer;
 
 use Microsoft\PhpParser\Node;
+use Microsoft\PhpParser\Node\DelimitedList\QualifiedNameList;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexer;
 use Phpactor\Name\FullyQualifiedName;
 use Microsoft\PhpParser\Node\QualifiedName;
@@ -12,7 +13,7 @@ use Microsoft\PhpParser\Node\Statement\ClassDeclaration;
 use SplFileInfo;
 use Phpactor\Indexer\Model\Index;
 
-class ClassDeclarationIndexer implements TolerantIndexer
+class ClassDeclarationIndexer extends ClassLikeIndexer
 {
     public function canIndex(Node $node): bool
     {
@@ -22,16 +23,8 @@ class ClassDeclarationIndexer implements TolerantIndexer
     public function index(Index $index, SplFileInfo $info, Node $node): void
     {
         assert($node instanceof ClassDeclaration);
+        $record = $this->getClassLikeRecord('class', $node, $index, $info);
 
-        $record = $index->get(ClassRecord::fromName($node->getNamespacedName()->getFullyQualifiedNameText()));
-        assert($record instanceof ClassRecord);
-        $record->setLastModified($info->getCTime());
-        $record->setStart(ByteOffset::fromInt($node->getStart()));
-        $record->setFilePath($info->getPathname());
-        $record->setType('class');
-
-        // remove any references to this class and other classes before
-        // updating with the current data
         $this->removeImplementations($index, $record);
         $record->clearImplemented();
 
@@ -39,19 +32,6 @@ class ClassDeclarationIndexer implements TolerantIndexer
         $this->indexBaseClass($index, $record, $node);
 
         $index->write($record);
-    }
-
-    private function removeImplementations(Index $index, ClassRecord $record): void
-    {
-        foreach ($record->implements() as $implementedClass) {
-            $implementedRecord = $index->get(ClassRecord::fromName($implementedClass));
-        
-            if (false === $implementedRecord->removeImplementation($record->fqn())) {
-                continue;
-            }
-        
-            $index->write($implementedRecord);
-        }
     }
 
     private function indexClassInterfaces(Index $index, ClassRecord $classRecord, ClassDeclaration $node): void
@@ -65,19 +45,7 @@ class ClassDeclarationIndexer implements TolerantIndexer
             return;
         }
 
-        foreach ($interfaceList->children as $interfaceName) {
-            if (!$interfaceName instanceof QualifiedName) {
-                continue;
-            }
-
-            $classRecord->addImplements(FullyQualifiedName::fromString($interfaceName->getNamespacedName()->getFullyQualifiedNameText()));
-
-            $interfaceRecord = $index->get(ClassRecord::fromName($interfaceName));
-            assert($interfaceRecord instanceof ClassRecord);
-            $interfaceRecord->addImplementation($classRecord->fqn());
-
-            $index->write($interfaceRecord);
-        }
+        $this->indexInterfaceList($interfaceList, $classRecord, $index);
     }
 
     private function indexBaseClass(Index $index, ClassRecord $record, ClassDeclaration $node): void
