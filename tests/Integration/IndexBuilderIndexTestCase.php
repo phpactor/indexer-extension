@@ -64,6 +64,18 @@ abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
                 self::assertEquals('interface', $record->type());
             }
         ];
+
+        yield 'trait' => [
+            '<?php trait ThisTrait {}',
+            'ThisTrait',
+            function (ClassRecord $record) {
+                self::assertInstanceOf(ClassRecord::class, $record);
+                self::assertEquals($this->workspace()->path('project/test.php'), $record->filePath());
+                self::assertEquals('ThisTrait', $record->fqn());
+                self::assertEquals(6, $record->start()->toInt());
+                self::assertEquals('trait', $record->type());
+            }
+        ];
     }
 
     public function testInterfaceImplementations(): void
