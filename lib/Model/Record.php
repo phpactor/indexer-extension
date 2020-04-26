@@ -2,6 +2,7 @@
 
 namespace Phpactor\Indexer\Model;
 
+use Phpactor\Indexer\Model\Exception\CorruptedRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\TextDocument\ByteOffset;
 
@@ -71,5 +72,14 @@ abstract class Record
     public function start(): ByteOffset
     {
         return ByteOffset::fromInt($this->start);
+    }
+
+    public function __wakeup(): void
+    {
+        if (null === $this->fqn) {
+            throw new CorruptedRecord(sprintf(
+                'Record was corrupted'
+            ));
+        }
     }
 }

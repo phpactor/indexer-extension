@@ -57,6 +57,7 @@ abstract class ClassLikeIndexer implements TolerantIndexer
         $record->setStart(ByteOffset::fromInt($node->getStart()));
         $record->setFilePath($info->getPathname());
         $record->setType($type);
+
         return $record;
     }
 }

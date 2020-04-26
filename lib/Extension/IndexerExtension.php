@@ -214,7 +214,8 @@ class IndexerExtension implements Extension
                     FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER
                 )->resolve(
                     $container->getParameter(self::PARAM_INDEX_PATH)
-                )
+                ),
+                $container->get(LoggingExtension::SERVICE_LOGGER)
             );
             return new SerializedIndex($repository);
         });
