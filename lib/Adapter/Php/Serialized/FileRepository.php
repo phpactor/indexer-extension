@@ -5,6 +5,7 @@ namespace Phpactor\Indexer\Adapter\Php\Serialized;
 use Phpactor\Indexer\Model\Exception\CorruptedRecord;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
+use Phpactor\Indexer\Util\Filesystem;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Record;
 use Psr\Log\LoggerInterface;
@@ -87,7 +88,7 @@ class FileRepository
 
     public function reset(): void
     {
-        $this->putTimestamp(0);
+        Filesystem::removeDir($this->path);
     }
 
     public function putFunction(FunctionRecord $function): void
