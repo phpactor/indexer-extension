@@ -2,33 +2,200 @@
 
 namespace Phpactor\Indexer\Tests\Integration;
 
+use Closure;
+use Generator;
+use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
+use Phpactor\Indexer\Adapter\Php\Serialized\SerializedIndex;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexBuilder;
 use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryIndex;
-use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryRepository;
 use function Safe\file_get_contents;
 
 abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
 {
     abstract protected function createBuilder(Index $index): IndexBuilder;
 
-    public function testIndexesClass(): void
+    /**
+     * @dataProvider provideIndexesClassLike
+     */
+    public function testIndexesClassLike(string $source, string $name, Closure $assertions): void
     {
+        $this->workspace()->loadManifest($source);
+
         $index = $this->buildIndex();
 
         $class = $index->query()->class(
-            FullyQualifiedName::fromString('InMemoryIndex')
+            FullyQualifiedName::fromString($name)
         );
 
-        self::assertInstanceOf(ClassRecord::class, $class);
-        self::assertEquals($this->workspace()->path('project/InMemoryIndex.php'), $class->filePath());
-        self::assertEquals('InMemoryIndex', $class->fqn());
-        self::assertEquals(6, $class->start()->toInt());
-        self::assertEquals('class', $class->type());
+        self::assertNotNull($class, 'Class was found');
+
+        $assertions($class);
+    }
+
+    /**
+     * @return Generator<string, array>
+     */
+    public function provideIndexesClassLike(): Generator
+    {
+        yield 'class' => [
+            "// File: project/test.php\n<?php class ThisClass {}",
+            'ThisClass',
+            function (ClassRecord $record) {
+                self::assertInstanceOf(ClassRecord::class, $record);
+                self::assertEquals($this->workspace()->path('project/test.php'), $record->filePath());
+                self::assertEquals('ThisClass', $record->fqn());
+                self::assertEquals(6, $record->start()->toInt());
+                self::assertEquals('class', $record->type());
+            }
+        ];
+
+        yield 'namespaced class' => [
+            "// File: project/test.php\n<?php namespace Foobar { class ThisClass {} }",
+            'Foobar\\ThisClass',
+            function (ClassRecord $record) {
+                self::assertEquals('Foobar\\ThisClass', $record->fqn());
+            }
+        ];
+
+        yield 'extended class has implementations' => [
+            "// File: project/test.php\n<?php class Foobar {} class Barfoo extends Foobar {}",
+            'Foobar',
+            function (ClassRecord $record) {
+                self::assertCount(1, $record->implementations());
+            }
+        ];
+
+        yield 'namespaced extended abstract class has implementations' => [
+            "// File: project/test.php\n<?php namespace Foobar; abstract class Foobar {} class Barfoo extends Foobar {}",
+            'Foobar\Foobar',
+            function (ClassRecord $record) {
+                self::assertCount(1, $record->implementations());
+            }
+        ];
+
+        yield 'interface referenced by alias from another namespace' => [
+            <<<'EOT'
+// File: project/test.php
+<?php namespace Foobar; interface Barfoo {} 
+// File: project/test2.php
+<?php namespace Barfoo;
+use Foobar\Barfoo as BarBar;
+class Barfoo implements BarBar {}
+EOT
+            , 'Foobar\Barfoo',
+            function (ClassRecord $record) {
+                self::assertCount(1, $record->implementations());
+            }
+        ];
+
+        yield 'class implements' => [
+            "// File: project/test.php\n<?php class Foobar {} class Barfoo extends Foobar {}",
+            'Barfoo',
+            function (ClassRecord $record) {
+                self::assertCount(1, $record->implements());
+            }
+        ];
+
+        yield 'interface has class implementation' => [
+            "// File: project/test.php\n<?php interface Foobar {} class ThisClass implements Foobar {}",
+            'Foobar',
+            function (ClassRecord $record) {
+                self::assertCount(1, $record->implementations());
+            }
+        ];
+
+        yield 'namespaced interface has class implementation' => [
+            "// File: project/test.php\n<?php namespace Foobar; interface Foobar {} class ThisClass implements Foobar {}",
+            'Foobar\Foobar',
+            function (ClassRecord $record) {
+                self::assertCount(1, $record->implementations());
+            }
+        ];
+
+        yield 'interface implements' => [
+            "// File: project/test.php\n<?php interface Foobar {} interface Barfoo extends Foobar {}",
+            'Foobar',
+            function (ClassRecord $record) {
+                self::assertCount(1, $record->implementations());
+            }
+        ];
+
+
+        yield 'namespaced interface implements' => [
+            "// File: project/test.php\n<?php namespace Foobar; interface Foobar {} interface Barfoo extends Foobar {}",
+            'Foobar\Foobar',
+            function (ClassRecord $record) {
+                self::assertCount(1, $record->implementations());
+            }
+        ];
+
+        yield 'interface has class implementations' => [
+            "// File: project/test.php\n<?php interface Foobar {} class ThisClass implements Foobar {} class ThatClass implements Foobar {}",
+            'Foobar',
+            function (ClassRecord $record) {
+                self::assertCount(2, $record->implementations());
+            }
+        ];
+
+        yield 'interface' => [
+            "// File: project/test.php\n<?php interface ThisInterface {}",
+            'ThisInterface',
+            function (ClassRecord $record) {
+                self::assertInstanceOf(ClassRecord::class, $record);
+                self::assertEquals($this->workspace()->path('project/test.php'), $record->filePath());
+                self::assertEquals('ThisInterface', $record->fqn());
+                self::assertEquals(6, $record->start()->toInt());
+                self::assertEquals('interface', $record->type());
+            }
+        ];
+
+        yield 'namespaced interface' => [
+            "// File: project/test.php\n<?php namespace Foobar {interface ThisInterface {}}",
+            'Foobar\\ThisInterface',
+            function (ClassRecord $record) {
+                self::assertEquals('Foobar\\ThisInterface', $record->fqn());
+            }
+        ];
+
+        yield 'trait' => [
+            "// File: project/test.php\n<?php trait ThisTrait {}",
+            'ThisTrait',
+            function (ClassRecord $record) {
+                self::assertInstanceOf(ClassRecord::class, $record);
+                self::assertEquals($this->workspace()->path('project/test.php'), $record->filePath());
+                self::assertEquals('ThisTrait', $record->fqn());
+                self::assertEquals(6, $record->start()->toInt());
+                self::assertEquals('trait', $record->type());
+            }
+        ];
+
+        yield 'class uses trait' => [
+            <<<'EOT'
+// File: project/test1.php
+<?php
+namespace Foobar;
+
+trait ThisIsTrait {}
+// File: project/test2.php
+<?php
+namespace Barfoo;
+
+use Foobar\ThisIsTrait;
+
+class Hoo
+{
+    use ThisIsTrait;
+}
+EOT
+            , 'Foobar\ThisIsTrait',
+            function (ClassRecord $record) {
+                self::assertCount(1, $record->implementations());
+            }
+        ];
     }
 
     public function testInterfaceImplementations(): void
@@ -183,9 +350,10 @@ EOT
     private function buildIndex(?Index $index = null): Index
     {
         if (null === $index) {
-            $repository = new InMemoryRepository();
-            $index = new InMemoryIndex($repository);
+            $repository = new FileRepository($this->workspace()->path('index'));
+            $index = new SerializedIndex($repository);
         }
+
         $provider = $this->fileListProvider();
         $indexer = new Indexer($this->createBuilder($index), $index, $provider);
         $indexer->getJob()->run();

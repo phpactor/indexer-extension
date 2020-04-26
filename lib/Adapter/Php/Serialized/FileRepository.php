@@ -2,11 +2,13 @@
 
 namespace Phpactor\Indexer\Adapter\Php\Serialized;
 
+use Phpactor\Indexer\Model\Exception\CorruptedRecord;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Record;
-use RuntimeException;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use function Safe\file_get_contents;
 use function Safe\file_put_contents;
 use function Safe\mkdir;
@@ -26,10 +28,16 @@ class FileRepository
      */
     private $lastUpdate;
 
-    public function __construct(string $path)
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(string $path, ?LoggerInterface $logger = null)
     {
         $this->path = $path;
         $this->initializeLastUpdate();
+        $this->logger = $logger ?: new NullLogger();
     }
 
     public function putClass(ClassRecord $class): void
@@ -39,25 +47,7 @@ class FileRepository
 
     public function getClass(FullyQualifiedName $name): ?ClassRecord
     {
-        $path = $this->pathFor(self::CLASS_PREFIX, $name);
-
-        if (!file_exists($path)) {
-            return null;
-        }
-
-        $contents = file_get_contents($path);
-        $deserialized = unserialize($contents);
-
-        if (!$deserialized) {
-            return null;
-        }
-
-        // handle invalid entries (e.g. old data structures)
-        if (!$deserialized instanceof ClassRecord) {
-            return null;
-        }
-
-        return $deserialized;
+        return $this->deserializeRecord(self::CLASS_PREFIX, $name, ClassRecord::class);
     }
 
     private function ensureDirectoryExists(string $path): void
@@ -116,10 +106,6 @@ class FileRepository
         $contents = file_get_contents($path);
         $deserialized = unserialize($contents);
 
-        if (!$deserialized) {
-            throw new RuntimeException(sprintf('Could not deserialize file "%s"', $path));
-        }
-
         // handle invalid entries (e.g. old data structures)
         if (!$deserialized instanceof FunctionRecord) {
             return null;
@@ -146,5 +132,51 @@ class FileRepository
             substr($hash, 1, 1),
             $hash
         );
+    }
+
+    /**
+     * @template TClass of Record
+     * @param class-string<TClass> $expectedClass
+     * @return TClass|null
+     */
+    private function deserializeRecord(string $prefix, FullyQualifiedName $name, string $expectedClass): ?Record
+    {
+        $path = $this->pathFor($prefix, $name);
+        
+        if (!file_exists($path)) {
+            return null;
+        }
+        
+        $contents = file_get_contents($path);
+        
+        try {
+            $deserialized = @unserialize($contents);
+        } catch (CorruptedRecord $corruption) {
+            $this->logger->warning(sprintf(
+                'Cache entry file "%s" is corrupted: %s',
+                $path,
+                $corruption->getMessage()
+            ));
+            return null;
+        }
+        
+        if (!$deserialized) {
+            $this->logger->warning(sprintf(
+                'Cache entry file "%s" is empty after deserialization',
+                $path
+            ));
+            return null;
+        }
+        
+        if (!$deserialized instanceof $expectedClass) {
+            $this->logger->warning(sprintf(
+                'Invalid cache entry file: "%s", got instance of "%s"',
+                $path,
+                is_object($deserialized) ? get_class($deserialized):gettype($deserialized)
+            ));
+            return null;
+        }
+        
+        return $deserialized;
     }
 }

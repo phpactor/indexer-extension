@@ -133,7 +133,7 @@ class IndexerExtension implements Extension
             }
 
             if ($container->getParameter(self::PARAM_INDEXER) === self::INDEXER_TOLERANT) {
-                return new TolerantIndexBuilder($container->get(Index::class));
+                return TolerantIndexBuilder::create($container->get(Index::class));
             }
 
             throw new RuntimeException(sprintf(
@@ -214,7 +214,8 @@ class IndexerExtension implements Extension
                     FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER
                 )->resolve(
                     $container->getParameter(self::PARAM_INDEX_PATH)
-                )
+                ),
+                $container->get(LoggingExtension::SERVICE_LOGGER)
             );
             return new SerializedIndex($repository);
         });
