@@ -89,6 +89,7 @@ class FileRepository
     public function reset(): void
     {
         Filesystem::removeDir($this->path);
+        $this->putTimestamp(0);
     }
 
     public function putFunction(FunctionRecord $function): void
