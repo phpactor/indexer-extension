@@ -97,21 +97,7 @@ class FileRepository
 
     public function getFunction(FullyQualifiedName $name): ?FunctionRecord
     {
-        $path = $this->pathFor(self::FUNC_PREFIX, $name);
-
-        if (!file_exists($path)) {
-            return null;
-        }
-
-        $contents = file_get_contents($path);
-        $deserialized = unserialize($contents);
-
-        // handle invalid entries (e.g. old data structures)
-        if (!$deserialized instanceof FunctionRecord) {
-            return null;
-        }
-
-        return $deserialized;
+        return $this->deserializeRecord(self::FUNC_PREFIX, $name, FunctionRecord::class);
     }
 
     private function serializeRecord(string $prefix, Record $record): void
