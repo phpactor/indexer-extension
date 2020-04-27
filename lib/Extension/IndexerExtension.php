@@ -62,8 +62,8 @@ class IndexerExtension implements Extension
 
     private const SERVICE_INDEXER_EXCLUDE_PATTERNS = 'indexer.exclude_patterns';
     private const SERVICE_INDEXER_INCLUDE_PATTERNS = 'indexer.include_patterns';
-    const INDEXER_TOLERANT = 'tolerant';
-    const INDEXER_WORSE = 'worse';
+    private const INDEXER_TOLERANT = 'tolerant';
+    private const INDEXER_WORSE = 'worse';
 
     /**
      * {@inheritDoc}
@@ -93,7 +93,7 @@ class IndexerExtension implements Extension
             // for "realtime" watchers, e.g. inotify, buffer for given time in
             // milliseconds
             self::PARAM_INDEXER_BUFFER_TIME => 500,
-            self::PARAM_INDEXER => self::INDEXER_WORSE,
+            self::PARAM_INDEXER => self::INDEXER_TOLERANT,
         ]);
     }
 
