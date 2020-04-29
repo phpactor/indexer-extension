@@ -27,7 +27,7 @@ class IndexerFunctionSourceLocator implements SourceCodeLocator
     public function locate(Name $name): SourceCode
     {
         if (empty($name->__toString())) {
-            throw new SourecNotFound('Name is empty');
+            throw new SourceNotFound('Name is empty');
         }
 
         $record = $this->index->query()->function(
