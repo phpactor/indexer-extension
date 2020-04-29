@@ -3,7 +3,7 @@
 namespace Phpactor\Indexer\Adapter\Filesystem;
 
 use Phpactor\Filesystem\Domain\FilePath;
-use Phpactor\Filesystem\Domain\FilesystemRegistry;
+use Phpactor\Filesystem\Domain\Filesystem;
 use Phpactor\Indexer\Model\FileList;
 use Phpactor\Indexer\Model\FileListProvider;
 use SplFileInfo;
@@ -11,16 +11,6 @@ use Phpactor\Indexer\Model\Index;
 
 class FilesystemFileListProvider implements FileListProvider
 {
-    /**
-     * @var FilesystemRegistry
-     */
-    private $filesystemRegistry;
-
-    /**
-     * @var string
-     */
-    private $filesystemName;
-
     /**
      * @var array<string>
      */
@@ -32,30 +22,31 @@ class FilesystemFileListProvider implements FileListProvider
     private $includePatterns;
 
     /**
+     * @var Filesystem
+     */
+    private $filesystem;
+
+    /**
      * @param array<string> $excludePatterns
      * @param array<string> $includePatterns
      */
     public function __construct(
-        FilesystemRegistry $filesystemRegistry,
-        string $filesystemName,
+        Filesystem $filesystem,
         array $includePatterns = [],
         array $excludePatterns = []
     ) {
-        $this->filesystemRegistry = $filesystemRegistry;
-        $this->filesystemName = $filesystemName;
+        $this->filesystem = $filesystem;
         $this->includePatterns = $includePatterns;
         $this->excludePatterns = $excludePatterns;
     }
 
     public function provideFileList(Index $index, ?string $subPath = null): FileList
     {
-        $filesystem = $this->filesystemRegistry->get($this->filesystemName);
-
-        if (null !== $subPath && $filesystem->exists($subPath) && is_file($subPath)) {
+        if (null !== $subPath && $this->filesystem->exists($subPath) && is_file($subPath)) {
             return FileList::fromSingleFilePath($subPath);
         }
 
-        $files = $filesystem->fileList()->phpFiles();
+        $files = $this->filesystem->fileList()->phpFiles();
 
         if ($this->includePatterns) {
             $files = $files->includePatterns($this->includePatterns);

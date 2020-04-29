@@ -14,11 +14,6 @@ use Phpactor\Indexer\Tests\IntegrationTestCase;
 class FilesystemFileListProviderTest extends IntegrationTestCase
 {
     /**
-     * @var ObjectProphecy
-     */
-    private $registry;
-
-    /**
      * @var FilesystemFileListProvider
      */
     private $provider;
@@ -36,9 +31,8 @@ class FilesystemFileListProviderTest extends IntegrationTestCase
 
     protected function setUp(): void
     {
-        $this->registry = $this->prophesize(FilesystemRegistry::class);
         $this->filesystem = new SimpleFilesystem($this->workspace()->path());
-        $this->provider = new FilesystemFileListProvider($this->registry->reveal(), 'default');
+        $this->provider = new FilesystemFileListProvider($this->filesystem);
         $this->workspace()->reset();
         $this->index = $this->prophesize(Index::class);
     }
@@ -46,7 +40,6 @@ class FilesystemFileListProviderTest extends IntegrationTestCase
     public function testProvidesSingleFile()
     {
         $this->workspace()->put('foo.php', '<?php echo "hello";');
-        $this->registry->get('default')->willReturn($this->filesystem);
         $index = new InMemoryIndex();
         $list = $this->provider->provideFileList($index, $this->workspace()->path('foo.php'));
         self::assertEquals(1, $list->count());
@@ -54,7 +47,6 @@ class FilesystemFileListProviderTest extends IntegrationTestCase
 
     public function testProvidesFromFilesystemRoot()
     {
-        $this->registry->get('default')->willReturn($this->filesystem);
         $this->workspace()->put('foo.php', '<?php echo "hello";');
         $this->workspace()->put('bar.php', '<?php echo "hello";');
         $index = new InMemoryIndex();
@@ -66,7 +58,6 @@ class FilesystemFileListProviderTest extends IntegrationTestCase
 
     public function testDoesNotUseCacheIfSubPathProvided()
     {
-        $this->registry->get('default')->willReturn($this->filesystem);
         $this->workspace()->put('foo.php', '<?php echo "hello";');
 
         $this->index->isFresh()->shouldNotBeCalled();
