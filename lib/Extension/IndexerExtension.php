@@ -23,6 +23,9 @@ use Phpactor\Extension\Rpc\RpcExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
 use Phpactor\FilePathResolver\PathResolver;
+use Phpactor\Filesystem\Adapter\Simple\SimpleFileListProvider;
+use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
+use Phpactor\Filesystem\Domain\FilePath;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Adapter\Worse\IndexerClassSourceLocator;
 use Phpactor\Indexer\Adapter\Worse\IndexerFunctionSourceLocator;
@@ -64,6 +67,9 @@ class IndexerExtension implements Extension
     private const SERVICE_INDEXER_INCLUDE_PATTERNS = 'indexer.include_patterns';
     private const INDEXER_TOLERANT = 'tolerant';
     private const INDEXER_WORSE = 'worse';
+    private const SERVICE_FILESYSTEM = 'indexer.filesystem';
+    private const PARAM_PROJECT_ROOT = 'indexer.project_root';
+    private const PARAM_FOLLOW_SYMLINKS = 'indexer.follow_syminks';
 
     /**
      * {@inheritDoc}
@@ -93,7 +99,15 @@ class IndexerExtension implements Extension
             // for "realtime" watchers, e.g. inotify, buffer for given time in
             // milliseconds
             self::PARAM_INDEXER_BUFFER_TIME => 500,
+
+            // indexer implementation to use
             self::PARAM_INDEXER => self::INDEXER_TOLERANT,
+
+            // index the project from this directory
+            self::PARAM_PROJECT_ROOT => '%project_root%',
+
+            // follow symlinks when indexing
+            self::PARAM_FOLLOW_SYMLINKS => true,
         ]);
     }
 
@@ -108,6 +122,7 @@ class IndexerExtension implements Extension
         $this->registerRpc($container);
         $this->registerReferenceFinderAdapters($container);
         $this->registerWatcher($container);
+        $this->registerFilesystem($container);
     }
 
     private function createReflector(Container $container): Reflector
@@ -187,8 +202,7 @@ class IndexerExtension implements Extension
         
         $container->register(FileListProvider::class, function (Container $container) {
             return new FilesystemFileListProvider(
-                $container->get(SourceCodeFilesystemExtension::SERVICE_REGISTRY),
-                $container->getParameter(self::PARAM_DEFAULT_FILESYSTEM),
+                $container->get(self::SERVICE_FILESYSTEM),
                 $container->get(self::SERVICE_INDEXER_INCLUDE_PATTERNS),
                 $container->get(self::SERVICE_INDEXER_EXCLUDE_PATTERNS),
             );
@@ -358,5 +372,22 @@ class IndexerExtension implements Extension
                 'name' => 'php',
             ]
         ]);
+    }
+
+    private function registerFilesystem(ContainerBuilder $container): void
+    {
+        $container->register(self::SERVICE_FILESYSTEM, function (Container $container) {
+            $projectRoot = $container->get(
+                FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER
+            )->resolve($container->getParameter(self::PARAM_PROJECT_ROOT));
+
+            return new SimpleFilesystem(
+                $projectRoot,
+                new SimpleFileListProvider(
+                    FilePath::fromString($projectRoot),
+                    $container->getParameter(self::PARAM_FOLLOW_SYMLINKS)
+                )
+            );
+        });
     }
 }

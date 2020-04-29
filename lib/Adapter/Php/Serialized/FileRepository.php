@@ -4,9 +4,7 @@ namespace Phpactor\Indexer\Adapter\Php\Serialized;
 
 use Phpactor\Indexer\Model\Exception\CorruptedRecord;
 use Phpactor\Indexer\Model\Record\ClassRecord;
-use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Util\Filesystem;
-use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Record;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -16,9 +14,6 @@ use function Safe\mkdir;
 
 class FileRepository
 {
-    private const FUNC_PREFIX = '__func__';
-    private const CLASS_PREFIX = '__class__';
-
     /**
      * @var string
      */
@@ -41,14 +36,19 @@ class FileRepository
         $this->logger = $logger ?: new NullLogger();
     }
 
-    public function putClass(ClassRecord $class): void
+    public function put(Record $record): void
     {
-        $this->serializeRecord(self::CLASS_PREFIX, $class);
+        $this->serializeRecord($record);
     }
 
-    public function getClass(FullyQualifiedName $name): ?ClassRecord
+    /**
+     * @template TRecord of Record
+     * @param TRecord $record
+     * @return TRecord
+     */
+    public function get(Record $record): ?Record
     {
-        return $this->deserializeRecord(self::CLASS_PREFIX, $name, ClassRecord::class);
+        return $this->deserializeRecord($record);
     }
 
     private function ensureDirectoryExists(string $path): void
@@ -92,44 +92,29 @@ class FileRepository
         $this->putTimestamp(0);
     }
 
-    public function putFunction(FunctionRecord $function): void
+    private function serializeRecord(Record $record): void
     {
-        $this->serializeRecord(self::FUNC_PREFIX, $function);
-    }
-
-    public function getFunction(FullyQualifiedName $name): ?FunctionRecord
-    {
-        return $this->deserializeRecord(self::FUNC_PREFIX, $name, FunctionRecord::class);
-    }
-
-    private function serializeRecord(string $prefix, Record $record): void
-    {
-        $path = $this->pathFor($prefix, $record->fqn());
+        $path = $this->pathFor($record);
         $this->ensureDirectoryExists(dirname($path));
         file_put_contents($path, serialize($record));
     }
 
-    private function pathFor(string $namespace, FullyQualifiedName $class): string
+    private function pathFor(Record $record): string
     {
-        $hash = md5($class->__toString());
+        $hash = md5($record->fqn()->__toString());
         return sprintf(
             '%s/%s_%s/%s/%s.cache',
             $this->path,
-            $namespace,
+            $record->recordType(),
             substr($hash, 0, 1),
             substr($hash, 1, 1),
             $hash
         );
     }
 
-    /**
-     * @template TClass of Record
-     * @param class-string<TClass> $expectedClass
-     * @return TClass|null
-     */
-    private function deserializeRecord(string $prefix, FullyQualifiedName $name, string $expectedClass): ?Record
+    private function deserializeRecord(Record $record): ?Record
     {
-        $path = $this->pathFor($prefix, $name);
+        $path = $this->pathFor($record);
         
         if (!file_exists($path)) {
             return null;
@@ -156,7 +141,7 @@ class FileRepository
             return null;
         }
         
-        if (!$deserialized instanceof $expectedClass) {
+        if (!$deserialized instanceof $record) {
             $this->logger->warning(sprintf(
                 'Invalid cache entry file: "%s", got instance of "%s"',
                 $path,
@@ -166,5 +151,22 @@ class FileRepository
         }
         
         return $deserialized;
+    }
+
+    public function remove(ClassRecord $classRecord): void
+    {
+        $path = $this->pathFor($classRecord);
+        if (!file_exists($path)) {
+            return;
+        }
+
+        if (@unlink($path)) {
+            return;
+        }
+
+        $this->logger->warning(sprintf(
+            'Could not remove index file "%s"',
+            $path
+        ));
     }
 }

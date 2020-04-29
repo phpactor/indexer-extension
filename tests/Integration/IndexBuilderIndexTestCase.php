@@ -342,7 +342,8 @@ EOT
 
     public function testIndexesSymlinkedFiles(): void
     {
-        $this->workspace()->loadManifest(<<<'EOT'
+        $this->workspace()->loadManifest(
+            <<<'EOT'
 // File: other-project/One.php
 <?php class Foobar()
 {
@@ -358,7 +359,8 @@ EOT
             FullyQualifiedName::fromString('Foobar')
         );
 
-        self::assertNotNull($class, 'Class was found');
+        self::assertInstanceOf(ClassRecord::class, $class, 'Class was found');
+        self::assertEquals($this->workspace()->path('/project/other-project/One.php'), $class->filePath());
     }
 
 

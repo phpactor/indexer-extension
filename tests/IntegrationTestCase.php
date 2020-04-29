@@ -76,9 +76,7 @@ class IntegrationTestCase extends TestCase
     protected function fileListProvider(): FileListProvider
     {
         $path = $this->workspace()->path('/project');
-        $provider = new FilesystemFileListProvider(new MappedFilesystemRegistry([
-            'foobar' => new SimpleFilesystem($path, new SimpleFileListProvider(FilePath::fromString($path), true)),
-        ]), 'foobar');
+        $provider = new FilesystemFileListProvider(new SimpleFilesystem($path, new SimpleFileListProvider(FilePath::fromString($path), true)));
         return $provider;
     }
 

@@ -4,7 +4,9 @@ namespace Phpactor\Indexer\Tests\Unit\Adapter\Php\Serialized;
 
 use PHPUnit\Framework\TestCase;
 use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
+use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
+use Phpactor\Name\FullyQualifiedName;
 
 class FileRepositoryTest extends IntegrationTestCase
 {
@@ -21,5 +23,14 @@ class FileRepositoryTest extends IntegrationTestCase
 
         self::assertFileNotExists($this->workspace()->path('index/something.cache'));
         self::assertFileNotExists($this->workspace()->path('index/something/else/some.cache', 'bar'));
+    }
+
+    public function testRemovesClassRecord(): void
+    {
+        $repo = new FileRepository($this->workspace()->path('index'));
+        $repo->put(ClassRecord::fromName('Foobar'));
+        self::assertNotNull($repo->get(ClassRecord::fromName('Foobar')));
+        $repo->remove(ClassRecord::fromName('Foobar'));
+        self::assertNull($repo->get(ClassRecord::fromName('Foobar')));
     }
 }

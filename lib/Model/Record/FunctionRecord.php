@@ -7,8 +7,18 @@ use Phpactor\Name\FullyQualifiedName;
 
 final class FunctionRecord extends Record
 {
+    private const RECORD_TYPE = 'function';
+
     public static function fromName(string $name): self
     {
         return new self(FullyQualifiedName::fromString($name));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function recordType(): string
+    {
+        return self::RECORD_TYPE;
     }
 }
