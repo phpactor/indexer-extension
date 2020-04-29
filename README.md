@@ -3,9 +3,7 @@ Project Indexer
 
 [![Build Status](https://travis-ci.org/phpactor/indexer-extension.svg?branch=master)](https://travis-ci.org/phpactor/indexer-extension)
 
-[Phpactor](https://github.com/phpactor/phpactor) extension for indexing querying a project's workspace.
-
-Provides indexing and index-querying capabiltities for Phpactor.
+Provides indexing and index-querying capabiltities for [Phpactor](https://github.com/phpactor/phpactor)
 
 Usage
 -----
