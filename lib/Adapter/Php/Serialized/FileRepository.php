@@ -14,9 +14,6 @@ use function Safe\mkdir;
 
 class FileRepository
 {
-    private const FUNC_PREFIX = '__func__';
-    private const CLASS_PREFIX = '__class__';
-
     /**
      * @var string
      */
