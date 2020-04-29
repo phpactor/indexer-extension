@@ -13,6 +13,8 @@ use Phpactor\Extension\Logger\LoggingExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
 use Phpactor\Extension\Console\ConsoleExtension;
 use Phpactor\Container\PhpactorContainer;
+use Phpactor\Filesystem\Adapter\Simple\SimpleFileListProvider;
+use Phpactor\Filesystem\Domain\FilePath;
 use Phpactor\Indexer\Extension\IndexerExtension;
 use Phpactor\Container\Container;
 use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
@@ -73,8 +75,9 @@ class IntegrationTestCase extends TestCase
 
     protected function fileListProvider(): FileListProvider
     {
+        $path = $this->workspace()->path('/project');
         $provider = new FilesystemFileListProvider(new MappedFilesystemRegistry([
-            'foobar' => new SimpleFilesystem($this->workspace()->path('/project')),
+            'foobar' => new SimpleFilesystem($path, new SimpleFileListProvider(FilePath::fromString($path), true)),
         ]), 'foobar');
         return $provider;
     }
