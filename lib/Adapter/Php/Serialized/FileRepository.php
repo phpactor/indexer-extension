@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Adapter\Php\Serialized;
 
 use Phpactor\Indexer\Model\Exception\CorruptedRecord;
+use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Util\Filesystem;
 use Phpactor\Indexer\Model\Record;
 use Psr\Log\LoggerInterface;
@@ -153,5 +154,22 @@ class FileRepository
         }
         
         return $deserialized;
+    }
+
+    public function remove(ClassRecord $classRecord): void
+    {
+        $path = $this->pathFor($classRecord);
+        if (!file_exists($path)) {
+            return;
+        }
+
+        if (@unlink($path)) {
+            return;
+        }
+
+        $this->logger->warning(sprintf(
+            'Could not remove index file "%s"',
+            $path
+        ));
     }
 }
