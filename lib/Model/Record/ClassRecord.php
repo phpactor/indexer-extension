@@ -7,6 +7,8 @@ use Phpactor\Name\FullyQualifiedName;
 
 final class ClassRecord extends Record
 {
+    private const RECORD_TYPE = 'class';
+
     /**
      * @var array<string>
      */
@@ -89,5 +91,13 @@ final class ClassRecord extends Record
     {
         $this->type = $type;
         return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function recordType(): string
+    {
+        return self::RECORD_TYPE;
     }
 }

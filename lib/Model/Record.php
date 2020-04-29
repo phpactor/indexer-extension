@@ -36,6 +36,12 @@ abstract class Record
         $this->fqn = $fqn->__toString();
     }
 
+    /**
+     * Return string which is unique to this record (used for namespacing),
+     * e.g. "class".
+     */
+    abstract public function recordType(): string;
+
     public function setFilePath(string $path): self
     {
         $this->filePath = $path;

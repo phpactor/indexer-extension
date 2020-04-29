@@ -24,24 +24,24 @@ class SerializedQuery implements IndexQuery
      */
     public function implementing(FullyQualifiedName $name): array
     {
-        $class = $this->repository->getClass($name);
+        $record = $this->repository->get(ClassRecord::fromName($name));
 
-        if (!$class) {
+        if (!$record) {
             return [];
         }
 
         return array_map(function (string $fqn) {
             return FullyQualifiedName::fromString($fqn);
-        }, $class->implementations());
+        }, $record->implementations());
     }
 
     public function class(FullyQualifiedName $name): ?ClassRecord
     {
-        return $this->repository->getClass($name);
+        return $this->repository->get(ClassRecord::fromName($name));
     }
 
-    public function function(FullyQualifiedName $fullyQualifiedName): ?FunctionRecord
+    public function function(FullyQualifiedName $name): ?FunctionRecord
     {
-        return $this->repository->getFunction($fullyQualifiedName);
+        return $this->repository->get(FunctionRecord::fromName($name));
     }
 }

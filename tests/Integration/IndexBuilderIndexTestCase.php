@@ -342,7 +342,8 @@ EOT
 
     public function testIndexesSymlinkedFiles(): void
     {
-        $this->workspace()->loadManifest(<<<'EOT'
+        $this->workspace()->loadManifest(
+            <<<'EOT'
 // File: other-project/One.php
 <?php class Foobar()
 {
