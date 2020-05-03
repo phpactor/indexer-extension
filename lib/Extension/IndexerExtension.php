@@ -69,7 +69,6 @@ class IndexerExtension implements Extension
     private const INDEXER_WORSE = 'worse';
     private const SERVICE_FILESYSTEM = 'indexer.filesystem';
     private const PARAM_PROJECT_ROOT = 'indexer.project_root';
-    private const PARAM_FOLLOW_SYMLINKS = 'indexer.follow_syminks';
 
     /**
      * {@inheritDoc}
@@ -105,9 +104,6 @@ class IndexerExtension implements Extension
 
             // index the project from this directory
             self::PARAM_PROJECT_ROOT => '%project_root%',
-
-            // follow symlinks when indexing
-            self::PARAM_FOLLOW_SYMLINKS => true,
         ]);
     }
 
@@ -384,8 +380,7 @@ class IndexerExtension implements Extension
             return new SimpleFilesystem(
                 $projectRoot,
                 new SimpleFileListProvider(
-                    FilePath::fromString($projectRoot),
-                    $container->getParameter(self::PARAM_FOLLOW_SYMLINKS)
+                    FilePath::fromString($projectRoot)
                 )
             );
         });

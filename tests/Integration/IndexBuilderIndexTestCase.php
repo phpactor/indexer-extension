@@ -340,30 +340,6 @@ EOT
         self::assertCount(3, $references);
     }
 
-    public function testIndexesSymlinkedFiles(): void
-    {
-        $this->workspace()->loadManifest(
-            <<<'EOT'
-// File: other-project/One.php
-<?php class Foobar()
-{
-}
-EOT
-        );
-
-        symlink($this->workspace()->path('other-project'), $this->workspace()->path('project/other-project'));
-
-        $index = $this->buildIndex();
-
-        $class = $index->query()->class(
-            FullyQualifiedName::fromString('Foobar')
-        );
-
-        self::assertInstanceOf(ClassRecord::class, $class, 'Class was found');
-        self::assertEquals($this->workspace()->path('/project/other-project/One.php'), $class->filePath());
-    }
-
-
     protected function setUp(): void
     {
         $this->workspace()->reset();
