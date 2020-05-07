@@ -11,10 +11,11 @@ use Phpactor\Indexer\Model\IndexBuilder;
 use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Tests\IntegrationTestCase;
 use Phpactor\Name\FullyQualifiedName;
 use function Safe\file_get_contents;
 
-abstract class IndexBuilderIndexTestCase extends InMemoryTestCase
+abstract class IndexBuilderIndexTestCase extends IntegrationTestCase
 {
     abstract protected function createBuilder(Index $index): IndexBuilder;
 

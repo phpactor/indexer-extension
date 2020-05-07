@@ -3,10 +3,11 @@
 namespace Phpactor\Indexer\Tests\Integration;
 
 use Phpactor\Indexer\Model\Indexer;
+use Phpactor\Indexer\Tests\IntegrationTestCase;
 use Phpactor\Name\FullyQualifiedName;
 use function Safe\file_get_contents;
 
-abstract class IndexTestCase extends InMemoryTestCase
+abstract class IndexTestCase extends IntegrationTestCase
 {
     public function testBuild(): void
     {

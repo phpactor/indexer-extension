@@ -4,11 +4,12 @@ namespace Phpactor\Indexer\Tests\Integration\ReferenceFinder;
 
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedImplementationFinder;
 use Phpactor\Indexer\Model\Indexer;
+use Phpactor\Indexer\Tests\IntegrationTestCase;
 use Phpactor\Indexer\Tests\Integration\InMemoryTestCase;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\TextDocumentBuilder;
 
-class IndexedImplementationFinderTest extends InMemoryTestCase
+class IndexedImplementationFinderTest extends IntegrationTestCase
 {
     protected function setUp(): void
     {
