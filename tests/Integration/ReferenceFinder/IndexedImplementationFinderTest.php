@@ -19,6 +19,7 @@ class IndexedImplementationFinderTest extends IntegrationTestCase
 
     /**
      * @dataProvider provideClassLikes
+     * @dataProvider provideClassMembers
      */
     public function testFinder(string $manifest, int $expectedLocationCount): void
     {
@@ -90,6 +91,29 @@ class Barfoo extends Foo {}
 EOT
         ,
             2
+        ];
+    }
+
+    /**
+     * @return Generator<mixed>
+     */
+    public function provideClassMembers(): Generator
+    {
+        yield 'class member' => [
+            <<<'EOT'
+// File: project/subject.php
+<?php interface FooInterface {
+   public function doT<>his();
+}
+// File: project/class.php
+<?php
+
+class Foobar implements FooInterface {
+    public function doThis();
+}
+EOT
+        ,
+            1
         ];
     }
 }
