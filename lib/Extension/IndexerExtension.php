@@ -242,7 +242,7 @@ class IndexerExtension implements Extension
         $container->register(IndexedImplementationFinder::class, function (Container $container) {
             return new IndexedImplementationFinder(
                 $container->get(Index::class),
-                $this->createReflector($container)
+                $container->get(WorseReflectionExtension::SERVICE_REFLECTOR)
             );
         }, [ ReferenceFinderExtension::TAG_IMPLEMENTATION_FINDER => []]);
     }

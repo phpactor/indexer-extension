@@ -13,7 +13,6 @@ use Phpactor\TextDocument\TextDocumentUri;
 use Phpactor\WorseReflection\Core\Exception\NotFound;
 use Phpactor\WorseReflection\Core\Inference\Symbol;
 use Phpactor\WorseReflection\Core\Inference\SymbolContext;
-use Phpactor\WorseReflection\Core\Reflector\SourceCodeReflector;
 use Phpactor\WorseReflection\Reflector;
 
 class IndexedImplementationFinder implements ClassImplementationFinder
@@ -40,7 +39,7 @@ class IndexedImplementationFinder implements ClassImplementationFinder
     public function findImplementations(TextDocument $document, ByteOffset $byteOffset): Locations
     {
         $symbolContext = $this->reflector->reflectOffset(
-            $document,
+            $document->__toString(),
             $byteOffset->toInt()
         )->symbolContext();
 
@@ -69,6 +68,10 @@ class IndexedImplementationFinder implements ClassImplementationFinder
     {
         $container = $symbolContext->containerType();
 
+        if (null === $container) {
+            return new Locations([]);
+        }
+
         $implementations = $this->index->query()->implementing(
             FullyQualifiedName::fromString(
                 $container->__toString()
@@ -80,14 +83,14 @@ class IndexedImplementationFinder implements ClassImplementationFinder
 
         foreach ($implementations as $implementation) {
             $record = $this->index->query()->class($implementation);
-            $reflection = $this->reflector->reflectClassLike($implementation->__toString());
             try {
+                $reflection = $this->reflector->reflectClassLike($implementation->__toString());
                 $method = $reflection->methods()->get($methodName);
             } catch (NotFound $notFound) {
                 continue;
             }
 
-             $locations[] = Location::fromPathAndOffset(
+            $locations[] = Location::fromPathAndOffset(
                 $record->filePath(),
                 $method->position()->start()
             );
