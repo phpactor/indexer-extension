@@ -99,7 +99,18 @@ EOT
      */
     public function provideClassMembers(): Generator
     {
-        yield 'class member' => [
+        yield 'none' => [
+            <<<'EOT'
+// File: project/subject.php
+<?php interface FooInterface {
+   public function doT<>his();
+}
+EOT
+        ,
+            0
+        ];
+
+        yield 'interface member' => [
             <<<'EOT'
 // File: project/subject.php
 <?php interface FooInterface {
@@ -109,6 +120,26 @@ EOT
 <?php
 
 class Foobar implements FooInterface {
+    public function doThis();
+}
+class Barfoo implements FooInterface {
+    public function doThis();
+}
+EOT
+        ,
+            2
+        ];
+
+        yield 'class member' => [
+            <<<'EOT'
+// File: project/subject.php
+<?php class Foo {
+   public function doT<>his();
+}
+// File: project/class.php
+<?php
+
+class Foobar extends Foo {
     public function doThis();
 }
 EOT
