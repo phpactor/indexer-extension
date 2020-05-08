@@ -39,6 +39,11 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
     public function index(Index $index, SplFileInfo $info, Node $node): void
     {
         $targetRecord = $this->getClassLikeRecord('class', $node, $index, $info);
+
+        if (null === $targetRecord) {
+            return;
+        }
+
         $targetRecord->addReference($info->getPathname());
         $index->write($targetRecord);
 

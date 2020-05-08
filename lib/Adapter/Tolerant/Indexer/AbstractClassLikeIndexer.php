@@ -48,10 +48,16 @@ abstract class AbstractClassLikeIndexer implements TolerantIndexer
         }
     }
 
-    protected function getClassLikeRecord(string $type, Node $node, Index $index, SplFileInfo $info): ClassRecord
+    protected function getClassLikeRecord(string $type, Node $node, Index $index, SplFileInfo $info): ?ClassRecord
     {
         assert($node instanceof NamespacedNameInterface);
-        $record = $index->get(ClassRecord::fromName($node->getNamespacedName()->getFullyQualifiedNameText()));
+        $name = $node->getNamespacedName()->getFullyQualifiedNameText();
+
+        if (empty($name)) {
+            return null;
+        }
+
+        $record = $index->get(ClassRecord::fromName($name));
         assert($record instanceof ClassRecord);
         $record->setLastModified($info->getCTime());
         $record->setStart(ByteOffset::fromInt($node->getStart()));
