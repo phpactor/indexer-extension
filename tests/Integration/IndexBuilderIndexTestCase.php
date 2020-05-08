@@ -249,23 +249,25 @@ EOT
             }
         ];
 
-        yield 'namespaced references' => [
+        yield 'incoming namespaced references' => [
             <<<'EOT'
 // File: project/test1.php
 <?php
-namespace Foobar
+
+namespace Foobar;
+
+class Foobar
 {
-    class Foobar
-    {
-    }
 }
 
 // File: project/test2.php
 <?php
+
 new Foobar\Foobar();
 
 // File: project/test3.php
 <?php
+
 use Foobar\Foobar;
 new Foobar();
 EOT
@@ -273,6 +275,59 @@ EOT
             function (ClassRecord $record) {
                 // there is one file reference per class
                 self::assertCount(2, $record->references());
+            }
+        ];
+
+        yield 'outgoing namespaced references' => [
+            <<<'EOT'
+// File: project/test1.php
+<?php
+
+namespace Foobar;
+
+use Test\Something;
+
+class Foobar
+{
+    public function something()
+    {
+        new Something();
+    }
+}
+
+// File: project/test2.php
+<?php
+
+namespace Test;
+
+class Something
+{
+}
+
+EOT
+            , 'Test\Something',
+            function (ClassRecord $record) {
+                // there is one file reference per class
+                self::assertCount(1, $record->references());
+            }
+        ];
+
+        yield 'static call reference' => [
+            <<<'EOT'
+// File: project/test1.php
+<?php
+class Foobar
+{
+}
+
+// File: project/test2.php
+<?php
+Foobar::foobar();
+EOT
+            , 'Foobar',
+            function (ClassRecord $record) {
+                // there is one file reference per class
+                self::assertCount(1, $record->references());
             }
         ];
     }
