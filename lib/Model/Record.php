@@ -16,25 +16,7 @@ abstract class Record
     /**
      * @var string
      */
-    private $fqn;
-
-    /**
-     * @var string
-     */
     private $filePath;
-
-    /**
-     * @var int
-     */
-    private $start;
-
-    public function __construct(
-        FullyQualifiedName $fqn
-    ) {
-        // this object is serialized, do not store the object representation as
-        // it adds around 100b to the size of each indexed class
-        $this->fqn = $fqn->__toString();
-    }
 
     /**
      * Return string which is unique to this record (used for namespacing),
@@ -48,21 +30,10 @@ abstract class Record
         return $this;
     }
 
-    public function setStart(ByteOffset $start): self
-    {
-        $this->start = $start->toInt();
-        return $this;
-    }
-
     public function setLastModified(int $mtime): self
     {
         $this->lastModified = $mtime;
         return $this;
-    }
-
-    public function fqn(): FullyQualifiedName
-    {
-        return FullyQualifiedName::fromString($this->fqn);
     }
 
     public function lastModified(): int
@@ -75,17 +46,14 @@ abstract class Record
         return $this->filePath;
     }
 
-    public function start(): ByteOffset
-    {
-        return ByteOffset::fromInt($this->start);
-    }
-
     public function __wakeup(): void
     {
-        if (null === $this->fqn) {
+        if (null === $this->lastModified) {
             throw new CorruptedRecord(sprintf(
                 'Record was corrupted'
             ));
         }
     }
+
+    abstract public function identifier(): string;
 }

@@ -16,6 +16,10 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
         return $node instanceof QualifiedName;
     }
 
+    public function beforeParse(Index $index, SplFileInfo $info): void
+    {
+    }
+
     public function index(Index $index, SplFileInfo $info, Node $node): void
     {
         $targetRecord = $this->getClassLikeRecord('class', $node, $index, $info);

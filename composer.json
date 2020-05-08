@@ -31,7 +31,8 @@
         "friendsofphp/php-cs-fixer": "^2.15.0",
         "phpstan/phpstan": "^0.12.0",
         "phpactor/test-utils": "^1.0.2",
-        "phpactor/console-extension": "^0.1.2"
+        "phpactor/console-extension": "^0.1.2",
+        "symfony/var-dumper": "^5.1@dev"
     },
     "autoload": {
         "psr-4": {

@@ -101,7 +101,7 @@ class FileRepository
 
     private function pathFor(Record $record): string
     {
-        $hash = md5($record->fqn()->__toString());
+        $hash = md5($record->identifier());
         return sprintf(
             '%s/%s_%s/%s/%s.cache',
             $this->path,

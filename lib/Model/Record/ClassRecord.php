@@ -4,9 +4,12 @@ namespace Phpactor\Indexer\Model\Record;
 
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Name\FullyQualifiedName;
+use Phpactor\Indexer\Model\Record\FullyQualifiedReferenceTrait;
 
 final class ClassRecord extends Record
 {
+    use FullyQualifiedReferenceTrait;
+
     private const RECORD_TYPE = 'class';
 
     /**
