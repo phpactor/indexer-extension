@@ -7,7 +7,7 @@ use Microsoft\PhpParser\Node\Statement\TraitDeclaration;
 use Phpactor\Indexer\Model\Index;
 use SplFileInfo;
 
-class TraitDeclarationIndexer extends ClassLikeIndexer
+class TraitDeclarationIndexer extends AbstractClassLikeIndexer
 {
     public function canIndex(Node $node): bool
     {

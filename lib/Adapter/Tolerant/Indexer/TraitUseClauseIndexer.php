@@ -51,4 +51,8 @@ class TraitUseClauseIndexer implements TolerantIndexer
             $index->write($traitRecord);
         }
     }
+
+    public function beforeParse(Index $index, SplFileInfo $info): void
+    {
+    }
 }

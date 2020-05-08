@@ -8,7 +8,7 @@ use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Index;
 use SplFileInfo;
 
-class InterfaceDeclarationIndexer extends ClassLikeIndexer
+class InterfaceDeclarationIndexer extends AbstractClassLikeIndexer
 {
     public function canIndex(Node $node): bool
     {

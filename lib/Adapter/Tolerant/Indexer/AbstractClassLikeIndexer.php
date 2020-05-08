@@ -13,7 +13,7 @@ use Phpactor\TextDocument\ByteOffset;
 use Phpactor\Indexer\Model\Index;
 use SplFileInfo;
 
-abstract class ClassLikeIndexer implements TolerantIndexer
+abstract class AbstractClassLikeIndexer implements TolerantIndexer
 {
     protected function removeImplementations(Index $index, ClassRecord $record): void
     {
@@ -59,5 +59,9 @@ abstract class ClassLikeIndexer implements TolerantIndexer
         $record->setType($type);
 
         return $record;
+    }
+
+    public function beforeParse(Index $index, SplFileInfo $info): void
+    {
     }
 }
