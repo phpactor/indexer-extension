@@ -23,6 +23,7 @@ use Phpactor\Container\Container;
 use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
 use Phpactor\Filesystem\Domain\MappedFilesystemRegistry;
 use Phpactor\Indexer\Model\FileListProvider;
+use Phpactor\Indexer\Model\Indexer;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\TestUtils\Workspace;
 use Phpactor\Indexer\Adapter\Filesystem\FilesystemFileListProvider;
@@ -57,6 +58,17 @@ class IntegrationTestCase extends TestCase
     {
         $repository = new FileRepository($this->workspace()->path('repo'));
         return new SerializedIndex($repository);
+    }
+
+    protected function buildIndex(): Index
+    {
+        $index = $this->createIndex();
+        $indexBuilder = $this->createTestBuilder($index);
+        $fileList = $this->fileListProvider();
+        $indexer = new Indexer($indexBuilder, $index, $fileList);
+        $indexer->getJob()->run();
+
+        return $index;
     }
 
     protected function createTestBuilder(Index $index): IndexBuilder

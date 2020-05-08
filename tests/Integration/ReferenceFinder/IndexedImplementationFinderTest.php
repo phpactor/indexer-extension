@@ -4,6 +4,7 @@ namespace Phpactor\Indexer\Tests\Integration\ReferenceFinder;
 
 use Generator;
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedImplementationFinder;
+use Phpactor\Indexer\Integration\ReferenceFinder\IndexedReferenceFinder;
 use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
 use Phpactor\TestUtils\ExtractOffset;
@@ -27,18 +28,14 @@ class IndexedImplementationFinderTest extends IntegrationTestCase
         [ $source, $offset ] = ExtractOffset::fromSource($this->workspace()->getContents('project/subject.php'));
         $this->workspace()->put('project/subject.php', $source);
 
-        $index = $this->createIndex();
-        $indexBuilder = $this->createTestBuilder($index);
-        $fileList = $this->fileListProvider();
-        $indexer = new Indexer($indexBuilder, $index, $fileList);
-        $indexer->getJob()->run();
+        $index = $this->buildIndex();
 
-        $implementationFinder = new IndexedImplementationFinder(
+        $implementationFinder = new IndexedReferenceFinder(
             $index,
             $this->createReflector()
         );
 
-        $locations = $implementationFinder->findImplementations(
+        $locations = $implementationFinder->find(
             TextDocumentBuilder::create($source)->build(),
             ByteOffset::fromInt((int)$offset)
         );
