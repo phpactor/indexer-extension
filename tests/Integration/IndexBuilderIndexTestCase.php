@@ -21,8 +21,9 @@ abstract class IndexBuilderIndexTestCase extends IntegrationTestCase
 
     /**
      * @dataProvider provideIndexesClassLike
+     * @dataProvider provideIndexesReferences
      */
-    public function testIndexesClassLike(string $source, string $name, Closure $assertions): void
+    public function testIndex(string $source, string $name, Closure $assertions): void
     {
         $this->workspace()->loadManifest($source);
 
@@ -195,6 +196,29 @@ EOT
             , 'Foobar\ThisIsTrait',
             function (ClassRecord $record) {
                 self::assertCount(1, $record->implementations());
+            }
+        ];
+    }
+
+    /**
+     * @return Generator<string, array>
+     */
+    public function provideIndexesReferences(): Generator
+    {
+        yield 'single reference' => [
+            <<<'EOT'
+// File: project/test1.php
+<?php
+class Foobar
+{
+}
+// File: project/test2.php
+<?php
+new Foobar();
+EOT
+            , 'Foobar',
+            function (ClassRecord $record) {
+                self::assertCount(1, $record->references());
             }
         ];
     }
