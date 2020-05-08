@@ -4,6 +4,7 @@ namespace Phpactor\Indexer\Model\Record;
 
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Name\FullyQualifiedName;
+use Phpactor\Indexer\Model\Record\FullyQualifiedReferenceTrait;
 
 final class ClassRecord extends Record
 {
@@ -20,11 +21,6 @@ final class ClassRecord extends Record
      * @var array<string>
      */
     private $implements = [];
-
-    /**
-     * @var array<string,bool>
-     */
-    private $references = [];
 
     /**
      * Type of "class": class, interface or trait
@@ -106,31 +102,5 @@ final class ClassRecord extends Record
     public function recordType(): string
     {
         return self::RECORD_TYPE;
-    }
-
-    /**
-     * @return array<string>
-     */
-    public function references(): array
-    {
-        return array_keys($this->references);
-    }
-
-    public function addReference(string $path): self
-    {
-        $this->references[$path] = true;
-
-        return $this;
-    }
-
-    public function removeReference(string $path): self
-    {
-        if (!isset($this->references[$path])) {
-            return $this;
-        }
-
-        unset($this->references[$path]);
-
-        return $this;
     }
 }

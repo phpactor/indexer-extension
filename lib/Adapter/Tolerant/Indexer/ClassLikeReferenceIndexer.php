@@ -17,6 +17,8 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
 {
     public function canIndex(Node $node): bool
     {
+        // its hard to tell what is a class and what is not but all function
+        // calls have parent that is instanceof CallExpression
         return $node instanceof QualifiedName && !$node->parent instanceof CallExpression;
     }
 

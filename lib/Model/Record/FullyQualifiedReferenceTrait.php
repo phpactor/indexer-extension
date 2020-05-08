@@ -3,7 +3,6 @@
 namespace Phpactor\Indexer\Model\Record;
 
 use Phpactor\TextDocument\ByteOffset;
-
 use Phpactor\Name\FullyQualifiedName;
 
 trait FullyQualifiedReferenceTrait
@@ -17,6 +16,11 @@ trait FullyQualifiedReferenceTrait
      * @var int
      */
     private $start;
+
+    /**
+     * @var array<string,bool>
+     */
+    private $references = [];
 
     public function __construct(
         FullyQualifiedName $fqn
@@ -45,5 +49,31 @@ trait FullyQualifiedReferenceTrait
     public function identifier(): string
     {
         return $this->fqn;
+    }
+
+    public function addReference(string $path): self
+    {
+        $this->references[$path] = true;
+
+        return $this;
+    }
+
+    public function removeReference(string $path): self
+    {
+        if (!isset($this->references[$path])) {
+            return $this;
+        }
+
+        unset($this->references[$path]);
+
+        return $this;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function references(): array
+    {
+        return array_keys($this->references);
     }
 }
