@@ -58,7 +58,7 @@ class IntegrationTestCase extends TestCase
 
     protected function createTestBuilder(Index $index): IndexBuilder
     {
-        $indexBuilder = new WorseIndexBuilder(
+        return new WorseIndexBuilder(
             $index,
             ReflectorBuilder::create()->addLocator(
                 new StubSourceLocator(
@@ -69,9 +69,7 @@ class IntegrationTestCase extends TestCase
             )->build(),
             new NullLogger()
         );
-        return $indexBuilder;
     }
-
 
     protected function fileListProvider(): FileListProvider
     {
