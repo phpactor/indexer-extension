@@ -3,6 +3,8 @@
 namespace Phpactor\Indexer\Adapter\Tolerant\Indexer;
 
 use Microsoft\PhpParser\Node;
+use Microsoft\PhpParser\Node\Expression\CallExpression;
+use Microsoft\PhpParser\Node\Expression\ObjectCreationExpression;
 use Microsoft\PhpParser\Node\QualifiedName;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\RecordReference;
@@ -15,7 +17,7 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
 {
     public function canIndex(Node $node): bool
     {
-        return $node instanceof QualifiedName;
+        return $node instanceof QualifiedName && !$node->parent instanceof CallExpression;
     }
 
     public function beforeParse(Index $index, SplFileInfo $info): void
@@ -42,6 +44,10 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
         $name = $node->getResolvedName() ? $node->getResolvedName() : null;
 
         if (null === $name) {
+            return;
+        }
+
+        if (in_array((string)$name, ['static', 'parent', 'self'])) {
             return;
         }
 
