@@ -19,6 +19,7 @@ class IndexedReferenceFinderTest extends IntegrationTestCase
     /**
      * @dataProvider provideClasses
      * @dataProvider provideFunctions
+     * @dataProvider provideUnknown
      */
     public function testFinder(string $manifest, int $expectedLocationCount): void
     {
@@ -93,6 +94,21 @@ hello_world();
 EOT
         ,
             3
+        ];
+    }
+
+    /**
+     * @return Generator<mixed>
+     */
+    public function provideUnknown(): Generator
+    {
+        yield 'function references' => [
+            <<<'EOT'
+// File: project/subject.php
+<?php $a<>sd;
+EOT
+        ,
+            0
         ];
     }
 }

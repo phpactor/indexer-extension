@@ -45,6 +45,10 @@ class IndexedReferenceFinder implements ReferenceFinder
 
         $record = $this->resolveRecord($symbolContext);
 
+        if ($record === null) {
+            return new Locations([]);
+        }
+
         $locations = [];
 
         assert($record instanceof ClassRecord || $record instanceof FunctionRecord);
@@ -61,7 +65,7 @@ class IndexedReferenceFinder implements ReferenceFinder
         return new Locations($locations);
     }
 
-    private function resolveRecord(SymbolContext $symbolContext): Record
+    private function resolveRecord(SymbolContext $symbolContext): ?Record
     {
         if ($symbolContext->symbol()->symbolType() === Symbol::CLASS_) {
             return $this->index->get(ClassRecord::fromName($symbolContext->type()->__toString()));
@@ -71,9 +75,6 @@ class IndexedReferenceFinder implements ReferenceFinder
             return $this->index->get(FunctionRecord::fromName($symbolContext->symbol()->name()));
         }
 
-        throw new RuntimeException(sprintf(
-            'Do not know how to find references for %s',
-            $symbolContext->type()->__toString()
-        ));
+        return null;
     }
 }
