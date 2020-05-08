@@ -211,9 +211,6 @@ EOT
 class Foobar
 {
 }
-// File: project/test2.php
-<?php
-new Foobar();
 EOT
             , 'Foobar',
             function (ClassRecord $record) {
@@ -244,7 +241,7 @@ EOT
             , 'Foobar',
             function (ClassRecord $record) {
                 // there is one file reference per class
-                self::assertCount(2, $record->references());
+                self::assertCount(3, $record->references());
             }
         ];
 
@@ -273,7 +270,7 @@ EOT
             , 'Foobar\Foobar',
             function (ClassRecord $record) {
                 // there is one file reference per class
-                self::assertCount(2, $record->references());
+                self::assertCount(3, $record->references());
             }
         ];
 
@@ -307,7 +304,7 @@ EOT
             , 'Test\Something',
             function (ClassRecord $record) {
                 // there is one file reference per class
-                self::assertCount(1, $record->references());
+                self::assertCount(2, $record->references());
             }
         ];
 
@@ -326,7 +323,7 @@ EOT
             , 'Foobar',
             function (ClassRecord $record) {
                 // there is one file reference per class
-                self::assertCount(1, $record->references());
+                self::assertCount(2, $record->references());
             }
         ];
     }
@@ -533,19 +530,5 @@ EOT
     {
         $this->workspace()->reset();
         $this->workspace()->loadManifest(file_get_contents(__DIR__ . '/Manifest/buildIndex.php.test'));
-    }
-
-    private function buildIndex(?Index $index = null): Index
-    {
-        if (null === $index) {
-            $repository = new FileRepository($this->workspace()->path('index'));
-            $index = new SerializedIndex($repository);
-        }
-
-        $provider = $this->fileListProvider();
-        $indexer = new Indexer($this->createBuilder($index), $index, $provider);
-        $indexer->getJob()->run();
-
-        return $index;
     }
 }

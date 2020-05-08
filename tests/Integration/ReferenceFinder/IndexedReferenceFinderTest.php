@@ -20,6 +20,7 @@ class IndexedReferenceFinderTest extends IntegrationTestCase
 
     /**
      * @dataProvider provideClasses
+     * @dataProvider provideFunctions
      */
     public function testFinder(string $manifest, int $expectedLocationCount): void
     {
@@ -47,6 +48,15 @@ class IndexedReferenceFinderTest extends IntegrationTestCase
      */
     public function provideClasses(): Generator
     {
+        yield 'single class' => [
+            <<<'EOT'
+// File: project/subject.php
+<?php class Fo<>o {}
+EOT
+        ,
+            1
+        ];
+
         yield 'class references' => [
             <<<'EOT'
 // File: project/subject.php
@@ -61,7 +71,30 @@ new Foo();
 Foo::bar();
 EOT
         ,
-            2
+            3
+        ];
+    }
+
+    /**
+     * @return Generator<mixed>
+     */
+    public function provideFunctions(): Generator
+    {
+        yield 'function references' => [
+            <<<'EOT'
+// File: project/subject.php
+<?php fuction he<>llo_world() {}
+// File: project/class1.php
+<?php
+
+hello_world();
+// File: project/class2.php
+<?php
+
+hello_world();
+EOT
+        ,
+            3
         ];
     }
 }

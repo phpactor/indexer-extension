@@ -60,9 +60,9 @@ class IntegrationTestCase extends TestCase
         return new SerializedIndex($repository);
     }
 
-    protected function buildIndex(): Index
+    protected function buildIndex(?Index $index = null): Index
     {
-        $index = $this->createIndex();
+        $index = $index ?: $this->createIndex();
         $indexBuilder = $this->createTestBuilder($index);
         $fileList = $this->fileListProvider();
         $indexer = new Indexer($indexBuilder, $index, $fileList);
