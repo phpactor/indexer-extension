@@ -3,10 +3,16 @@
 namespace Phpactor\Indexer\Model\Record;
 
 use Phpactor\Indexer\Model\Record;
+use Phpactor\Indexer\Model\RecordReference;
 use SplFileInfo;
 
 class FileRecord extends Record
 {
+    /**
+     * @var array<array{string,string,int}>
+     */
+    private $references = [];
+
     public function __construct(string $filePath)
     {
         $this->setFilePath($filePath);
@@ -25,8 +31,34 @@ class FileRecord extends Record
         return new self($info->getPathname());
     }
 
+    public static function fromPath(string $path): self
+    {
+        return new self($path);
+    }
+
     public function identifier(): string
     {
         return $this->filePath();
+    }
+
+    public function addReference(RecordReference $reference): self
+    {
+        $this->references[] = [
+            $reference->type(),
+            $reference->identifier(),
+            $reference->offset()
+        ];
+
+        return $this;
+    }
+
+    /**
+     * @return array<RecordReference>
+     */
+    public function references(): array
+    {
+        return array_map(function (array $reference) {
+            return new RecordReference(...$reference);
+        }, $this->references);
     }
 }

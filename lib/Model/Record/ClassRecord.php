@@ -11,7 +11,7 @@ final class ClassRecord extends Record
 {
     use FullyQualifiedReferenceTrait;
 
-    private const RECORD_TYPE = 'class';
+    public const RECORD_TYPE = 'class';
 
     /**
      * @var array<string>
@@ -121,6 +121,17 @@ final class ClassRecord extends Record
     public function addReference(string $path): self
     {
         $this->references[$path] = true;
+
+        return $this;
+    }
+
+    public function removeReference(string $path): self
+    {
+        if (!isset($this->references[$path])) {
+            return $this;
+        }
+
+        unset($this->references[$path]);
 
         return $this;
     }
