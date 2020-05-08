@@ -15,6 +15,11 @@ use function Safe\mkdir;
 class FileRepository
 {
     /**
+     * Flush to the filesystem after BATCH_SIZE updates
+     */
+    private const BATCH_SIZE = 10000;
+
+    /**
      * @var string
      */
     private $path;
@@ -29,6 +34,16 @@ class FileRepository
      */
     private $logger;
 
+    /**
+     * @var array<string,Record>
+     */
+    private $buffer = [];
+
+    /**
+     * @var int
+     */
+    private $counter = 0;
+
     public function __construct(string $path, ?LoggerInterface $logger = null)
     {
         $this->path = $path;
@@ -38,7 +53,11 @@ class FileRepository
 
     public function put(Record $record): void
     {
-        $this->serializeRecord($record);
+        $this->buffer[$this->bufferKey($record)] = $record;
+
+        if (++$this->counter % self::BATCH_SIZE === 0) {
+            $this->flush();
+        }
     }
 
     /**
@@ -48,7 +67,49 @@ class FileRepository
      */
     public function get(Record $record): ?Record
     {
-        return $this->deserializeRecord($record);
+        $bufferKey = $this->bufferKey($record);
+
+        if (isset($this->buffer[$bufferKey])) {
+            return $this->buffer[$bufferKey];
+        }
+        
+        $path = $this->pathFor($record);
+
+        if (!file_exists($path)) {
+            return null;
+        }
+        
+        $contents = file_get_contents($path);
+        
+        try {
+            $deserialized = @unserialize($contents);
+        } catch (CorruptedRecord $corruption) {
+            $this->logger->warning(sprintf(
+                'Cache entry file "%s" is corrupted: %s',
+                $path,
+                $corruption->getMessage()
+            ));
+            return null;
+        }
+        
+        if (!$deserialized) {
+            $this->logger->warning(sprintf(
+                'Cache entry file "%s" is empty after deserialization',
+                $path
+            ));
+            return null;
+        }
+        
+        if (!$deserialized instanceof $record) {
+            $this->logger->warning(sprintf(
+                'Invalid cache entry file: "%s", got instance of "%s"',
+                $path,
+                is_object($deserialized) ? get_class($deserialized):gettype($deserialized)
+            ));
+            return null;
+        }
+        
+        return $deserialized;
     }
 
     private function ensureDirectoryExists(string $path): void
@@ -92,16 +153,9 @@ class FileRepository
         $this->putTimestamp(0);
     }
 
-    private function serializeRecord(Record $record): void
-    {
-        $path = $this->pathFor($record);
-        $this->ensureDirectoryExists(dirname($path));
-        file_put_contents($path, serialize($record));
-    }
-
     private function pathFor(Record $record): string
     {
-        $hash = md5($record->fqn()->__toString());
+        $hash = md5($record->identifier());
         return sprintf(
             '%s/%s_%s/%s/%s.cache',
             $this->path,
@@ -110,47 +164,6 @@ class FileRepository
             substr($hash, 1, 1),
             $hash
         );
-    }
-
-    private function deserializeRecord(Record $record): ?Record
-    {
-        $path = $this->pathFor($record);
-        
-        if (!file_exists($path)) {
-            return null;
-        }
-        
-        $contents = file_get_contents($path);
-        
-        try {
-            $deserialized = @unserialize($contents);
-        } catch (CorruptedRecord $corruption) {
-            $this->logger->warning(sprintf(
-                'Cache entry file "%s" is corrupted: %s',
-                $path,
-                $corruption->getMessage()
-            ));
-            return null;
-        }
-        
-        if (!$deserialized) {
-            $this->logger->warning(sprintf(
-                'Cache entry file "%s" is empty after deserialization',
-                $path
-            ));
-            return null;
-        }
-        
-        if (!$deserialized instanceof $record) {
-            $this->logger->warning(sprintf(
-                'Invalid cache entry file: "%s", got instance of "%s"',
-                $path,
-                is_object($deserialized) ? get_class($deserialized):gettype($deserialized)
-            ));
-            return null;
-        }
-        
-        return $deserialized;
     }
 
     public function remove(ClassRecord $classRecord): void
@@ -168,5 +181,20 @@ class FileRepository
             'Could not remove index file "%s"',
             $path
         ));
+    }
+
+    public function flush(): void
+    {
+        foreach ($this->buffer as $record) {
+            $path = $this->pathFor($record);
+            $this->ensureDirectoryExists(dirname($path));
+            file_put_contents($path, serialize($record));
+        }
+        $this->buffer = [];
+    }
+
+    private function bufferKey(Record $record): string
+    {
+        return $record->recordType().$record->identifier();
     }
 }

@@ -7,7 +7,9 @@ use Phpactor\Name\FullyQualifiedName;
 
 final class ClassRecord extends Record
 {
-    private const RECORD_TYPE = 'class';
+    use FullyQualifiedReferenceTrait;
+
+    public const RECORD_TYPE = 'class';
 
     /**
      * @var array<string>
@@ -57,6 +59,15 @@ final class ClassRecord extends Record
         }
     }
 
+    public function removeImplementation(FullyQualifiedName $name): bool
+    {
+        if (!isset($this->implementations[(string)$name])) {
+            return false;
+        }
+        unset($this->implementations[(string)$name]);
+        return true;
+    }
+
     /**
      * @return array<string>
      */
@@ -71,15 +82,6 @@ final class ClassRecord extends Record
     public function implements(): array
     {
         return $this->implements;
-    }
-
-    public function removeImplementation(FullyQualifiedName $name): bool
-    {
-        if (!isset($this->implementations[(string)$name])) {
-            return false;
-        }
-        unset($this->implementations[(string)$name]);
-        return true;
     }
 
     public function type(): ?string

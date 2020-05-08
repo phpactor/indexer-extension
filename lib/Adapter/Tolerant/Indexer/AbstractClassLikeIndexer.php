@@ -13,7 +13,7 @@ use Phpactor\TextDocument\ByteOffset;
 use Phpactor\Indexer\Model\Index;
 use SplFileInfo;
 
-abstract class ClassLikeIndexer implements TolerantIndexer
+abstract class AbstractClassLikeIndexer implements TolerantIndexer
 {
     protected function removeImplementations(Index $index, ClassRecord $record): void
     {
@@ -48,10 +48,16 @@ abstract class ClassLikeIndexer implements TolerantIndexer
         }
     }
 
-    protected function getClassLikeRecord(string $type, Node $node, Index $index, SplFileInfo $info): ClassRecord
+    protected function getClassLikeRecord(string $type, Node $node, Index $index, SplFileInfo $info): ?ClassRecord
     {
         assert($node instanceof NamespacedNameInterface);
-        $record = $index->get(ClassRecord::fromName($node->getNamespacedName()->getFullyQualifiedNameText()));
+        $name = $node->getNamespacedName()->getFullyQualifiedNameText();
+
+        if (empty($name)) {
+            return null;
+        }
+
+        $record = $index->get(ClassRecord::fromName($name));
         assert($record instanceof ClassRecord);
         $record->setLastModified($info->getCTime());
         $record->setStart(ByteOffset::fromInt($node->getStart()));
@@ -59,5 +65,9 @@ abstract class ClassLikeIndexer implements TolerantIndexer
         $record->setType($type);
 
         return $record;
+    }
+
+    public function beforeParse(Index $index, SplFileInfo $info): void
+    {
     }
 }

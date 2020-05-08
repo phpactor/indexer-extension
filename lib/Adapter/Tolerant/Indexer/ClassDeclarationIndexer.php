@@ -9,7 +9,7 @@ use Microsoft\PhpParser\Node\Statement\ClassDeclaration;
 use SplFileInfo;
 use Phpactor\Indexer\Model\Index;
 
-class ClassDeclarationIndexer extends ClassLikeIndexer
+class ClassDeclarationIndexer extends AbstractClassLikeIndexer
 {
     public function canIndex(Node $node): bool
     {

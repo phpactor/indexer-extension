@@ -5,7 +5,9 @@ namespace Phpactor\Indexer\Adapter\Tolerant;
 use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Parser;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\ClassDeclarationIndexer;
+use Phpactor\Indexer\Adapter\Tolerant\Indexer\ClassLikeReferenceIndexer;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\FunctionDeclarationIndexer;
+use Phpactor\Indexer\Adapter\Tolerant\Indexer\FunctionReferenceIndexer;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\InterfaceDeclarationIndexer;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\TraitDeclarationIndexer;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\TraitUseClauseIndexer;
@@ -53,6 +55,8 @@ final class TolerantIndexBuilder implements IndexBuilder
                 new InterfaceDeclarationIndexer(),
                 new TraitDeclarationIndexer(),
                 new TraitUseClauseIndexer(),
+                new ClassLikeReferenceIndexer(),
+                new FunctionReferenceIndexer(),
             ]
         );
     }
@@ -65,13 +69,17 @@ final class TolerantIndexBuilder implements IndexBuilder
             return;
         }
 
+        foreach ($this->indexers as $indexer) {
+            $indexer->beforeParse($this->index, $info);
+        }
+
         $node = $this->parser->parseSourceFile($contents, $info->getPathname());
         $this->indexNode($info, $node);
     }
 
     public function done(): void
     {
-        $this->index->updateTimestamp();
+        $this->index->done();
     }
 
     private function indexNode(SplFileInfo $info, Node $node): void

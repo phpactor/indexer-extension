@@ -4,13 +4,11 @@ namespace Phpactor\Indexer\Tests\Integration;
 
 use Closure;
 use Generator;
-use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
-use Phpactor\Indexer\Adapter\Php\Serialized\SerializedIndex;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexBuilder;
-use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
 use Phpactor\Name\FullyQualifiedName;
 use function Safe\file_get_contents;
@@ -21,13 +19,12 @@ abstract class IndexBuilderIndexTestCase extends IntegrationTestCase
 
     /**
      * @dataProvider provideIndexesClassLike
+     * @dataProvider provideIndexesReferences
      */
-    public function testIndexesClassLike(string $source, string $name, Closure $assertions): void
+    public function testIndexClass(string $source, string $name, Closure $assertions): void
     {
         $this->workspace()->loadManifest($source);
-
         $index = $this->buildIndex();
-
         $class = $index->query()->class(
             FullyQualifiedName::fromString($name)
         );
@@ -199,6 +196,194 @@ EOT
         ];
     }
 
+    /**
+     * @return Generator<string, array>
+     */
+    public function provideIndexesReferences(): Generator
+    {
+        yield 'single reference' => [
+            <<<'EOT'
+// File: project/test1.php
+<?php
+class Foobar
+{
+}
+// File: project/test2.php
+<?php
+new Foobar();
+EOT
+            , 'Foobar',
+            function (ClassRecord $record) {
+                self::assertCount(1, $record->references());
+            }
+        ];
+
+        yield 'multiple references' => [
+            <<<'EOT'
+// File: project/test1.php
+<?php
+class Foobar
+{
+}
+
+// File: project/test2.php
+<?php
+new Foobar();
+new Foobar();
+new Foobar();
+
+// File: project/test3.php
+<?php
+new Foobar();
+new Foobar();
+new Foobar();
+EOT
+            , 'Foobar',
+            function (ClassRecord $record) {
+                // there is one file reference per class
+                self::assertCount(2, $record->references());
+            }
+        ];
+
+        yield 'incoming namespaced references' => [
+            <<<'EOT'
+// File: project/test1.php
+<?php
+
+namespace Foobar;
+
+class Foobar
+{
+}
+
+// File: project/test2.php
+<?php
+
+new Foobar\Foobar();
+
+// File: project/test3.php
+<?php
+
+use Foobar\Foobar;
+new Foobar();
+EOT
+            , 'Foobar\Foobar',
+            function (ClassRecord $record) {
+                // there is one file reference per class
+                self::assertCount(2, $record->references());
+            }
+        ];
+
+        yield 'outgoing namespaced references' => [
+            <<<'EOT'
+// File: project/test1.php
+<?php
+
+namespace Foobar;
+
+use Test\Something;
+
+class Foobar
+{
+    public function something()
+    {
+        new Something();
+    }
+}
+
+// File: project/test2.php
+<?php
+
+namespace Test;
+
+class Something
+{
+}
+
+EOT
+            , 'Test\Something',
+            function (ClassRecord $record) {
+                // there is one file reference per class
+                self::assertCount(1, $record->references());
+            }
+        ];
+
+        yield 'static call reference' => [
+            <<<'EOT'
+// File: project/test1.php
+<?php
+class Foobar
+{
+}
+
+// File: project/test2.php
+<?php
+Foobar::foobar();
+EOT
+            , 'Foobar',
+            function (ClassRecord $record) {
+                // there is one file reference per class
+                self::assertCount(1, $record->references());
+            }
+        ];
+    }
+
+    /**
+     * @dataProvider provideIndexesFunctions
+     */
+    public function testIndexFunction(string $source, string $name, Closure $assertions): void
+    {
+        $this->workspace()->loadManifest($source);
+        $index = $this->buildIndex();
+        $class = $index->query()->function(
+            FullyQualifiedName::fromString($name)
+        );
+
+        self::assertNotNull($class, 'Function was found');
+
+        $assertions($class);
+    }
+
+    /**
+     * @return Generator<mixed>
+     */
+    public function provideIndexesFunctions(): Generator
+    {
+        yield 'function' => [
+            <<<'EOT'
+// File: project/test1.php
+<?php function foobar();
+
+// File: project/test2.php
+<?php
+foobar();
+EOT
+            , 'foobar',
+            function (FunctionRecord $record) {
+                // there is one file reference per class
+                self::assertCount(1, $record->references());
+            }
+        ];
+
+        yield 'namespaced function' => [
+            <<<'EOT'
+// File: project/test1.php
+<?php 
+namespace Barfoos;
+function foobar();
+
+// File: project/test2.php
+<?php
+Barfoos\foobar();
+EOT
+            , 'Barfoos\foobar',
+            function (FunctionRecord $record) {
+                // there is one file reference per class
+                self::assertCount(1, $record->references());
+            }
+        ];
+    }
+
     public function testInterfaceImplementations(): void
     {
         $index = $this->buildIndex();
@@ -262,7 +447,7 @@ EOT
         self::assertCount(3, $references);
     }
 
-    public function testRemovesExistingReferences(): void
+    public function testRemovesExistingImplementationReferences(): void
     {
         $index = $this->buildIndex();
 
@@ -345,19 +530,5 @@ EOT
     {
         $this->workspace()->reset();
         $this->workspace()->loadManifest(file_get_contents(__DIR__ . '/Manifest/buildIndex.php.test'));
-    }
-
-    private function buildIndex(?Index $index = null): Index
-    {
-        if (null === $index) {
-            $repository = new FileRepository($this->workspace()->path('index'));
-            $index = new SerializedIndex($repository);
-        }
-
-        $provider = $this->fileListProvider();
-        $indexer = new Indexer($this->createBuilder($index), $index, $provider);
-        $indexer->getJob()->run();
-
-        return $index;
     }
 }

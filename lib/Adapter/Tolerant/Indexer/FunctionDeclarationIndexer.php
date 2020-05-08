@@ -27,4 +27,8 @@ class FunctionDeclarationIndexer implements TolerantIndexer
         $record->setFilePath($info->getPathname());
         $index->write($record);
     }
+
+    public function beforeParse(Index $index, SplFileInfo $info): void
+    {
+    }
 }

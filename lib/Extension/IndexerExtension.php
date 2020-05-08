@@ -29,15 +29,13 @@ use Phpactor\Filesystem\Domain\FilePath;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Adapter\Worse\IndexerClassSourceLocator;
 use Phpactor\Indexer\Adapter\Worse\IndexerFunctionSourceLocator;
-use Phpactor\Indexer\Extension\Command\IndexQueryFunctionCommand;
 use Phpactor\MapResolver\Resolver;
 use Phpactor\Indexer\Adapter\Filesystem\FilesystemFileListProvider;
 use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
 use Phpactor\Indexer\Adapter\Php\Serialized\SerializedIndex;
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedImplementationFinder;
-use Phpactor\Indexer\Extension\Command\IndexQueryClassCommand;
+use Phpactor\Indexer\Extension\Command\IndexQueryCommand;
 use Phpactor\Indexer\Extension\Command\IndexBuildCommand;
-use Phpactor\Indexer\Adapter\Worse\WorseIndexBuilder;
 use Phpactor\Indexer\Extension\Rpc\IndexHandler;
 use Phpactor\Indexer\Model\FileListProvider;
 use Phpactor\Indexer\Model\Index;
@@ -135,14 +133,6 @@ class IndexerExtension implements Extension
     private function registerWorseAdapters(ContainerBuilder $container): void
     {
         $container->register(IndexBuilder::class, function (Container $container) {
-            if ($container->getParameter(self::PARAM_INDEXER) === self::INDEXER_WORSE) {
-                return new WorseIndexBuilder(
-                    $container->get(Index::class),
-                    $this->createReflector($container),
-                    $container->get(LoggingExtension::SERVICE_LOGGER)
-                );
-            }
-
             if ($container->getParameter(self::PARAM_INDEXER) === self::INDEXER_TOLERANT) {
                 return TolerantIndexBuilder::create($container->get(Index::class));
             }
@@ -177,13 +167,9 @@ class IndexerExtension implements Extension
             );
         }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:build']]);
         
-        $container->register(IndexQueryClassCommand::class, function (Container $container) {
-            return new IndexQueryClassCommand($container->get(IndexQuery::class));
-        }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:query:class']]);
-
-        $container->register(IndexQueryFunctionCommand::class, function (Container $container) {
-            return new IndexQueryFunctionCommand($container->get(IndexQuery::class));
-        }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:query:function']]);
+        $container->register(IndexQueryCommand::class, function (Container $container) {
+            return new IndexQueryCommand($container->get(IndexQuery::class));
+        }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:query']]);
     }
 
     private function registerModel(ContainerBuilder $container): void

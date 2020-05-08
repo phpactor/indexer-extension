@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Adapter\Php\Serialized;
 
 use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\IndexQuery;
@@ -43,5 +44,10 @@ class SerializedQuery implements IndexQuery
     public function function(FullyQualifiedName $name): ?FunctionRecord
     {
         return $this->repository->get(FunctionRecord::fromName($name));
+    }
+
+    public function file(string $path): ?FileRecord
+    {
+        return $this->repository->get(FileRecord::fromPath($path));
     }
 }

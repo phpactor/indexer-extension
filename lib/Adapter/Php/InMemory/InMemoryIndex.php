@@ -92,7 +92,7 @@ class InMemoryIndex implements Index
         return $this->repository->lastUpdate !== 0;
     }
 
-    public function updateTimestamp(): void
+    public function done(): void
     {
         $this->repository->lastUpdate = time();
     }

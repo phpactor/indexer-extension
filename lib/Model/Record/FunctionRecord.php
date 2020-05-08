@@ -7,7 +7,9 @@ use Phpactor\Name\FullyQualifiedName;
 
 final class FunctionRecord extends Record
 {
-    private const RECORD_TYPE = 'function';
+    use FullyQualifiedReferenceTrait;
+
+    public const RECORD_TYPE = 'function';
 
     public static function fromName(string $name): self
     {

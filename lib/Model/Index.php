@@ -19,7 +19,7 @@ interface Index
 
     public function exists(): bool;
 
-    public function updateTimestamp(): void;
+    public function done(): void;
 
     /**
      * Return the indexed version of Record, if it doesn't exist in the index,

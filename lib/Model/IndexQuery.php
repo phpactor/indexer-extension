@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Model;
 
 use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Name\FullyQualifiedName;
 
@@ -16,4 +17,6 @@ interface IndexQuery
     public function class(FullyQualifiedName $name): ?ClassRecord;
 
     public function function(FullyQualifiedName $fullyQualifiedName): ?FunctionRecord;
+
+    public function file(string $path): ?FileRecord;
 }
