@@ -35,7 +35,7 @@ use Phpactor\Indexer\Adapter\Filesystem\FilesystemFileListProvider;
 use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
 use Phpactor\Indexer\Adapter\Php\Serialized\SerializedIndex;
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedImplementationFinder;
-use Phpactor\Indexer\Extension\Command\IndexQueryClassCommand;
+use Phpactor\Indexer\Extension\Command\IndexQueryCommand;
 use Phpactor\Indexer\Extension\Command\IndexBuildCommand;
 use Phpactor\Indexer\Extension\Rpc\IndexHandler;
 use Phpactor\Indexer\Model\FileListProvider;
@@ -168,13 +168,9 @@ class IndexerExtension implements Extension
             );
         }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:build']]);
         
-        $container->register(IndexQueryClassCommand::class, function (Container $container) {
-            return new IndexQueryClassCommand($container->get(IndexQuery::class));
-        }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:query:class']]);
-
-        $container->register(IndexQueryFunctionCommand::class, function (Container $container) {
-            return new IndexQueryFunctionCommand($container->get(IndexQuery::class));
-        }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:query:function']]);
+        $container->register(IndexQueryCommand::class, function (Container $container) {
+            return new IndexQueryCommand($container->get(IndexQuery::class));
+        }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:query']]);
     }
 
     private function registerModel(ContainerBuilder $container): void

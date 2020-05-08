@@ -3,6 +3,8 @@
 namespace Phpactor\Indexer\Extension\Command;
 
 use Phpactor\Indexer\Model\RecordReference;
+use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\IndexQuery;
 use Phpactor\Indexer\Util\Cast;
@@ -11,7 +13,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class IndexQueryClassCommand extends Command
+class IndexQueryCommand extends Command
 {
     const ARG_FQN = 'fqn';
 
@@ -33,10 +35,31 @@ class IndexQueryClassCommand extends Command
                 Cast::toString($input->getArgument(self::ARG_FQN))
             )
         );
-        if (!$class) {
-            $output->writeln('Class not found');
-            return 1;
+
+        if ($class) {
+            $this->renderClass($output, $class);
         }
+
+        $function = $this->query->function(
+            FullyQualifiedName::fromString(
+                Cast::toString($input->getArgument(self::ARG_FQN))
+            )
+        );
+
+        if ($function) {
+            $this->renderFunction($output, $function);
+        }
+
+        return 0;
+    }
+
+    protected function configure(): void
+    {
+        $this->addArgument(self::ARG_FQN, InputArgument::REQUIRED, 'Fully qualified name');
+    }
+
+    private function renderClass(OutputInterface $output, ClassRecord $class): void
+    {
         $output->writeln('<info>Class:</>'.$class->fqn());
         $output->writeln('<info>Path:</>'.$class->filePath());
         $output->writeln('<info>Last modified:</>'.$class->lastModified());
@@ -55,11 +78,19 @@ class IndexQueryClassCommand extends Command
                 return $reference->offset();
             }, $file->referencesTo($class)))));
         }
-        return 0;
     }
 
-    protected function configure(): void
+    private function renderFunction(OutputInterface $output, FunctionRecord $function): void
     {
-        $this->addArgument(self::ARG_FQN, InputArgument::REQUIRED, 'Fully qualified name');
+        $output->writeln('<info>Function:</>'.$function->fqn());
+        $output->writeln('<info>Path:</>'.$function->filePath());
+        $output->writeln('<info>Last modified:</>'.$function->lastModified());
+        $output->writeln('<info>Referenced by</>:');
+        foreach ($function->references() as $path) {
+            $file = $this->query->file($path);
+            $output->writeln(sprintf('- %s:%s', $path, implode(', ', array_map(function (RecordReference $reference) {
+                return $reference->offset();
+            }, $file->referencesTo($function)))));
+        }
     }
 }

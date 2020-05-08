@@ -46,7 +46,7 @@ class FunctionReferenceIndexer extends AbstractClassLikeIndexer
         $name = $node->getResolvedName() ? $node->getResolvedName() : null;
 
         if (null === $name) {
-            return;
+            $name = (string)$node;
         }
 
         $targetRecord = $index->get(FunctionRecord::fromName($name));
@@ -59,7 +59,7 @@ class FunctionReferenceIndexer extends AbstractClassLikeIndexer
 
         $fileRecord = $index->get(FileRecord::fromFileInfo($info));
         assert($fileRecord instanceof FileRecord);
-        $fileRecord->addReference(new RecordReference('class', $targetRecord->identifier(), $node->getStart()));
+        $fileRecord->addReference(new RecordReference(FunctionRecord::RECORD_TYPE, $targetRecord->identifier(), $node->getStart()));
         $index->write($fileRecord);
     }
 }
