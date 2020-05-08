@@ -118,8 +118,10 @@ final class ClassRecord extends Record
         return array_keys($this->references);
     }
 
-    public function addReference(string $path): void
+    public function addReference(string $path): self
     {
         $this->references[$path] = true;
+
+        return $this;
     }
 }
