@@ -37,7 +37,6 @@ use Phpactor\Indexer\Adapter\Php\Serialized\SerializedIndex;
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedImplementationFinder;
 use Phpactor\Indexer\Extension\Command\IndexQueryClassCommand;
 use Phpactor\Indexer\Extension\Command\IndexBuildCommand;
-use Phpactor\Indexer\Adapter\Worse\WorseIndexBuilder;
 use Phpactor\Indexer\Extension\Rpc\IndexHandler;
 use Phpactor\Indexer\Model\FileListProvider;
 use Phpactor\Indexer\Model\Index;
@@ -135,14 +134,6 @@ class IndexerExtension implements Extension
     private function registerWorseAdapters(ContainerBuilder $container): void
     {
         $container->register(IndexBuilder::class, function (Container $container) {
-            if ($container->getParameter(self::PARAM_INDEXER) === self::INDEXER_WORSE) {
-                return new WorseIndexBuilder(
-                    $container->get(Index::class),
-                    $this->createReflector($container),
-                    $container->get(LoggingExtension::SERVICE_LOGGER)
-                );
-            }
-
             if ($container->getParameter(self::PARAM_INDEXER) === self::INDEXER_TOLERANT) {
                 return TolerantIndexBuilder::create($container->get(Index::class));
             }

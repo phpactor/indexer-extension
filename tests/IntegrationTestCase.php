@@ -15,6 +15,7 @@ use Phpactor\Extension\Console\ConsoleExtension;
 use Phpactor\Container\PhpactorContainer;
 use Phpactor\Filesystem\Adapter\Simple\SimpleFileListProvider;
 use Phpactor\Filesystem\Domain\FilePath;
+use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Extension\IndexerExtension;
 use Phpactor\Container\Container;
 use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
@@ -58,17 +59,7 @@ class IntegrationTestCase extends TestCase
 
     protected function createTestBuilder(Index $index): IndexBuilder
     {
-        return new WorseIndexBuilder(
-            $index,
-            ReflectorBuilder::create()->addLocator(
-                new StubSourceLocator(
-                    ReflectorBuilder::create()->build(),
-                    $this->workspace()->path('/'),
-                    $this->workspace()->path('/')
-                )
-            )->build(),
-            new NullLogger()
-        );
+        return TolerantIndexBuilder::create($index);
     }
 
     protected function fileListProvider(): FileListProvider
