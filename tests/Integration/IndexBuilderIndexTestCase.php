@@ -271,7 +271,7 @@ new Foobar\Foobar();
 use Foobar\Foobar;
 new Foobar();
 EOT
-            , 'Foobar',
+            , 'Foobar\Foobar',
             function (ClassRecord $record) {
                 // there is one file reference per class
                 self::assertCount(2, $record->references());

@@ -29,7 +29,6 @@ use Phpactor\Filesystem\Domain\FilePath;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Adapter\Worse\IndexerClassSourceLocator;
 use Phpactor\Indexer\Adapter\Worse\IndexerFunctionSourceLocator;
-use Phpactor\Indexer\Extension\Command\IndexQueryFunctionCommand;
 use Phpactor\MapResolver\Resolver;
 use Phpactor\Indexer\Adapter\Filesystem\FilesystemFileListProvider;
 use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;

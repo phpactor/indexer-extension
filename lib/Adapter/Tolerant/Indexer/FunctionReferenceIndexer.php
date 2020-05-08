@@ -4,11 +4,9 @@ namespace Phpactor\Indexer\Adapter\Tolerant\Indexer;
 
 use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\Expression\CallExpression;
-use Microsoft\PhpParser\Node\Expression\ObjectCreationExpression;
 use Microsoft\PhpParser\Node\QualifiedName;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\RecordReference;
-use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\TextDocument\ByteOffset;
