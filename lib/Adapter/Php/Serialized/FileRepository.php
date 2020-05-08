@@ -15,7 +15,7 @@ use function Safe\mkdir;
 class FileRepository
 {
     /**
-     * Flush to the filesystem after N updates
+     * Flush to the filesystem after BATCH_SIZE updates
      */
     private const BATCH_SIZE = 10000;
 
@@ -53,7 +53,7 @@ class FileRepository
 
     public function put(Record $record): void
     {
-        $this->buffer[$this->pathFor($record)] = $record;
+        $this->buffer[$this->bufferKey($record)] = $record;
 
         if (++$this->counter % self::BATCH_SIZE === 0) {
             $this->flush();
@@ -67,12 +67,14 @@ class FileRepository
      */
     public function get(Record $record): ?Record
     {
-        $path = $this->pathFor($record);
+        $bufferKey = $this->bufferKey($record);
 
-        if (isset($this->buffer[$path])) {
-            return $this->buffer[$path];
+        if (isset($this->buffer[$bufferKey])) {
+            return $this->buffer[$bufferKey];
         }
         
+        $path = $this->pathFor($record);
+
         if (!file_exists($path)) {
             return null;
         }
@@ -183,10 +185,16 @@ class FileRepository
 
     public function flush(): void
     {
-        foreach ($this->buffer as $path => $record) {
+        foreach ($this->buffer as $record) {
+            $path = $this->pathFor($record);
             $this->ensureDirectoryExists(dirname($path));
             file_put_contents($path, serialize($record));
         }
         $this->buffer = [];
+    }
+
+    private function bufferKey(Record $record): string
+    {
+        return $record->recordType().$record->identifier();
     }
 }
