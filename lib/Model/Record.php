@@ -7,12 +7,12 @@ abstract class Record
     /**
      * @var int
      */
-    private $lastModified;
+    protected $lastModified;
 
     /**
      * @var string
      */
-    private $filePath;
+    protected $filePath;
 
     /**
      * Return string which is unique to this record (used for namespacing),

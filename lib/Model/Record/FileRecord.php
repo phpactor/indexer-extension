@@ -2,6 +2,7 @@
 
 namespace Phpactor\Indexer\Model\Record;
 
+use Phpactor\Indexer\Model\Exception\CorruptedRecord;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\RecordReference;
 use SplFileInfo;
@@ -70,5 +71,14 @@ class FileRecord extends Record
         return array_filter($this->references(), function (RecordReference $reference) use ($record) {
             return $reference->type() === $record->recordType() && $reference->identifier() === $record->identifier();
         });
+    }
+
+    public function __wakeup(): void
+    {
+        if (null === $this->filePath) {
+            throw new CorruptedRecord(sprintf(
+                'Record was corrupted'
+            ));
+        }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Phpactor\Indexer\Model\Record;
 
+use Phpactor\Indexer\Model\Exception\CorruptedRecord;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\Name\FullyQualifiedName;
 
@@ -75,5 +76,14 @@ trait FullyQualifiedReferenceTrait
     public function references(): array
     {
         return array_keys($this->references);
+    }
+
+    public function __wakeup(): void
+    {
+        if (null === $this->fqn) {
+            throw new CorruptedRecord(sprintf(
+                'Record was corrupted'
+            ));
+        }
     }
 }

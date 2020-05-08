@@ -15,7 +15,6 @@ use Phpactor\TextDocument\TextDocument;
 use Phpactor\WorseReflection\Core\Inference\Symbol;
 use Phpactor\WorseReflection\Core\Inference\SymbolContext;
 use Phpactor\WorseReflection\Reflector;
-use RuntimeException;
 
 class IndexedReferenceFinder implements ReferenceFinder
 {
