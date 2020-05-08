@@ -15,6 +15,8 @@ use Phpactor\Extension\Console\ConsoleExtension;
 use Phpactor\Container\PhpactorContainer;
 use Phpactor\Filesystem\Adapter\Simple\SimpleFileListProvider;
 use Phpactor\Filesystem\Domain\FilePath;
+use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
+use Phpactor\Indexer\Adapter\Php\Serialized\SerializedIndex;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Extension\IndexerExtension;
 use Phpactor\Container\Container;
@@ -51,10 +53,10 @@ class IntegrationTestCase extends TestCase
         $process->mustRun();
     }
 
-    protected function createInMemoryIndex(): Index
+    protected function createIndex(): Index
     {
-        $repository = new InMemoryRepository();
-        return new InMemoryIndex($repository);
+        $repository = new FileRepository($this->workspace()->path('repo'));
+        return new SerializedIndex($repository);
     }
 
     protected function createTestBuilder(Index $index): IndexBuilder

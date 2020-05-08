@@ -27,7 +27,7 @@ class IndexedImplementationFinderTest extends IntegrationTestCase
         [ $source, $offset ] = ExtractOffset::fromSource($this->workspace()->getContents('project/subject.php'));
         $this->workspace()->put('project/subject.php', $source);
 
-        $index = $this->createInMemoryIndex();
+        $index = $this->createIndex();
         $indexBuilder = $this->createTestBuilder($index);
         $fileList = $this->fileListProvider();
         $indexer = new Indexer($indexBuilder, $index, $fileList);
