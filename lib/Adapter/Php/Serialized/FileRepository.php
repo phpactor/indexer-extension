@@ -14,6 +14,8 @@ use function Safe\mkdir;
 
 class FileRepository
 {
+    const BATCH_SIZE = 50;
+
     /**
      * @var string
      */
@@ -30,9 +32,14 @@ class FileRepository
     private $logger;
 
     /**
-     * @var array
+     * @var array<string,Record>
      */
-    private $buffer;
+    private $buffer = [];
+
+    /**
+     * @var int
+     */
+    private $counter = 0;
 
     public function __construct(string $path, ?LoggerInterface $logger = null)
     {
@@ -100,6 +107,10 @@ class FileRepository
     private function serializeRecord(Record $record): void
     {
         $this->buffer[$this->pathFor($record)] = $record;
+
+        if ($this->counter % self::BATCH_SIZE) {
+            $this->flush();
+        }
     }
 
     private function pathFor(Record $record): string
@@ -118,6 +129,10 @@ class FileRepository
     private function deserializeRecord(Record $record): ?Record
     {
         $path = $this->pathFor($record);
+
+        if (isset($this->buffer[$path])) {
+            return $this->buffer[$path];
+        }
         
         if (!file_exists($path)) {
             return null;
@@ -176,9 +191,9 @@ class FileRepository
     public function flush(): void
     {
         foreach ($this->buffer as $path => $record) {
-            $path = $this->pathFor($record);
             $this->ensureDirectoryExists(dirname($path));
             file_put_contents($path, serialize($record));
         }
+        $this->buffer = [];
     }
 }

@@ -77,7 +77,7 @@ final class TolerantIndexBuilder implements IndexBuilder
 
     public function done(): void
     {
-        $this->index->updateTimestamp();
+        $this->index->done();
     }
 
     private function indexNode(SplFileInfo $info, Node $node): void

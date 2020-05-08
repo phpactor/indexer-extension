@@ -61,4 +61,14 @@ class FileRecord extends Record
             return new RecordReference(...$reference);
         }, $this->references);
     }
+
+    /**
+     * @return array<RecordReference>
+     */
+    public function referencesTo(Record $record): array
+    {
+        return array_filter($this->references(), function (RecordReference $reference) use ($record) {
+            return $reference->type() === $record->recordType() && $reference->identifier() === $record->identifier();
+        });
+    }
 }

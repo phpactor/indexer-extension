@@ -2,6 +2,7 @@
 
 namespace Phpactor\Indexer\Extension\Command;
 
+use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\IndexQuery;
 use Phpactor\Indexer\Util\Cast;
@@ -46,6 +47,13 @@ class IndexQueryClassCommand extends Command
         $output->writeln('<info>Implementations</>:');
         foreach ($class->implementations() as $fqn) {
             $output->writeln(' - ' . (string)$fqn);
+        }
+        $output->writeln('<info>Referenced by</>:');
+        foreach ($class->references() as $path) {
+            $file = $this->query->file($path);
+            $output->writeln(sprintf('- %s:%s', $path, implode(', ', array_map(function (RecordReference $reference) {
+                return $reference->offset();
+            }, $file->referencesTo($class)))));
         }
         return 0;
     }
