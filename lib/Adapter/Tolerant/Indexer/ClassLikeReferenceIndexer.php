@@ -2,20 +2,14 @@
 
 namespace Phpactor\Indexer\Adapter\Tolerant\Indexer;
 
-use Microsoft\PhpParser\ClassLike;
-use Microsoft\PhpParser\NamespacedNameInterface;
 use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\Expression\CallExpression;
 use Microsoft\PhpParser\Node\QualifiedName;
-use Microsoft\PhpParser\Node\Statement\TraitDeclaration;
-use Microsoft\PhpParser\Node\Statement\InterfaceDeclaration;
-use Microsoft\PhpParser\Node\Statement\ClassDeclaration;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\TextDocument\ByteOffset;
-use RuntimeException;
 use SplFileInfo;
 
 class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
@@ -24,12 +18,7 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
     {
         // its hard to tell what is a class and what is not but all function
         // calls have parent that is instanceof CallExpression
-        return 
-            (
-                $node instanceof QualifiedName ||
-                $node instanceof ClassLike
-            )
-            && !$node->parent instanceof CallExpression;
+        return $node instanceof QualifiedName && !$node->parent instanceof CallExpression;
     }
 
     public function beforeParse(Index $index, SplFileInfo $info): void
@@ -51,7 +40,9 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
 
     public function index(Index $index, SplFileInfo $info, Node $node): void
     {
-        $name = $this->resolveName($node);
+        assert($node instanceof QualifiedName);
+
+        $name = $node->getResolvedName() ? $node->getResolvedName() : null;
 
         if (null === $name) {
             return;
@@ -66,6 +57,7 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
         $targetRecord->setLastModified($info->getCTime());
         $targetRecord->setStart(ByteOffset::fromInt($node->getStart()));
         $targetRecord->setFilePath($info->getPathname());
+        $targetRecord->setType(ClassRecord::RECORD_TYPE);
         $targetRecord->addReference($info->getPathname());
 
         $index->write($targetRecord);
@@ -74,21 +66,5 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
         assert($fileRecord instanceof FileRecord);
         $fileRecord->addReference(new RecordReference(ClassRecord::RECORD_TYPE, $targetRecord->identifier(), $node->getStart()));
         $index->write($fileRecord);
-    }
-
-    private function resolveName(Node $node): ?string
-    {
-        if ($node instanceof QualifiedName) {
-            return $node->getResolvedName() ? $node->getResolvedName() : null;
-        }
-
-        if ($node instanceof NamespacedNameInterface) {
-            return $node->getNamespacedName();
-        }
-
-        throw new RuntimeException(sprintf(
-            'Do not know how to get name for class "%s"',
-            get_class($node)
-        ));
     }
 }

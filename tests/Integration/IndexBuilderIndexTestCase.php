@@ -4,11 +4,8 @@ namespace Phpactor\Indexer\Tests\Integration;
 
 use Closure;
 use Generator;
-use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
-use Phpactor\Indexer\Adapter\Php\Serialized\SerializedIndex;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexBuilder;
-use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
@@ -211,6 +208,9 @@ EOT
 class Foobar
 {
 }
+// File: project/test2.php
+<?php
+new Foobar();
 EOT
             , 'Foobar',
             function (ClassRecord $record) {
@@ -241,7 +241,7 @@ EOT
             , 'Foobar',
             function (ClassRecord $record) {
                 // there is one file reference per class
-                self::assertCount(3, $record->references());
+                self::assertCount(2, $record->references());
             }
         ];
 
@@ -270,7 +270,7 @@ EOT
             , 'Foobar\Foobar',
             function (ClassRecord $record) {
                 // there is one file reference per class
-                self::assertCount(3, $record->references());
+                self::assertCount(2, $record->references());
             }
         ];
 
@@ -304,7 +304,7 @@ EOT
             , 'Test\Something',
             function (ClassRecord $record) {
                 // there is one file reference per class
-                self::assertCount(2, $record->references());
+                self::assertCount(1, $record->references());
             }
         ];
 
@@ -323,7 +323,7 @@ EOT
             , 'Foobar',
             function (ClassRecord $record) {
                 // there is one file reference per class
-                self::assertCount(2, $record->references());
+                self::assertCount(1, $record->references());
             }
         ];
     }

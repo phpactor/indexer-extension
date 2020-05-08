@@ -3,9 +3,7 @@
 namespace Phpactor\Indexer\Tests\Integration\ReferenceFinder;
 
 use Generator;
-use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedImplementationFinder;
 use Phpactor\Indexer\Integration\ReferenceFinder\IndexedReferenceFinder;
-use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
 use Phpactor\TestUtils\ExtractOffset;
 use Phpactor\TextDocument\ByteOffset;
@@ -51,7 +49,7 @@ class IndexedReferenceFinderTest extends IntegrationTestCase
         yield 'single class' => [
             <<<'EOT'
 // File: project/subject.php
-<?php class Fo<>o {}
+<?php new Fo<>o();
 EOT
         ,
             1
@@ -71,7 +69,7 @@ new Foo();
 Foo::bar();
 EOT
         ,
-            3
+            2
         ];
     }
 

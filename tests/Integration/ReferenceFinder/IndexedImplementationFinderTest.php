@@ -4,7 +4,6 @@ namespace Phpactor\Indexer\Tests\Integration\ReferenceFinder;
 
 use Generator;
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedImplementationFinder;
-use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
 use Phpactor\TestUtils\ExtractOffset;
 use Phpactor\TextDocument\ByteOffset;

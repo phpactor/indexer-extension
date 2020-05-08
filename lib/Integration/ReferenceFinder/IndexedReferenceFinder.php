@@ -6,17 +6,12 @@ use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
-use Phpactor\Indexer\Model\TRecord;
-use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Index;
-use Phpactor\ReferenceFinder\ClassImplementationFinder;
 use Phpactor\ReferenceFinder\ReferenceFinder;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\Location;
 use Phpactor\TextDocument\Locations;
 use Phpactor\TextDocument\TextDocument;
-use Phpactor\TextDocument\TextDocumentUri;
-use Phpactor\WorseReflection\Core\Exception\NotFound;
 use Phpactor\WorseReflection\Core\Inference\Symbol;
 use Phpactor\WorseReflection\Core\Inference\SymbolContext;
 use Phpactor\WorseReflection\Reflector;
@@ -78,7 +73,7 @@ class IndexedReferenceFinder implements ReferenceFinder
 
         throw new RuntimeException(sprintf(
             'Do not know how to find references for %s',
-$symbolContext->type()->__toString()
+            $symbolContext->type()->__toString()
         ));
     }
 }
