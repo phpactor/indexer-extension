@@ -29,6 +29,11 @@ class FileRepository
      */
     private $logger;
 
+    /**
+     * @var array
+     */
+    private $buffer;
+
     public function __construct(string $path, ?LoggerInterface $logger = null)
     {
         $this->path = $path;
@@ -94,9 +99,7 @@ class FileRepository
 
     private function serializeRecord(Record $record): void
     {
-        $path = $this->pathFor($record);
-        $this->ensureDirectoryExists(dirname($path));
-        file_put_contents($path, serialize($record));
+        $this->buffer[$this->pathFor($record)] = $record;
     }
 
     private function pathFor(Record $record): string
@@ -168,5 +171,14 @@ class FileRepository
             'Could not remove index file "%s"',
             $path
         ));
+    }
+
+    public function flush(): void
+    {
+        foreach ($this->buffer as $path => $record) {
+            $path = $this->pathFor($record);
+            $this->ensureDirectoryExists(dirname($path));
+            file_put_contents($path, serialize($record));
+        }
     }
 }
