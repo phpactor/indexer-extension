@@ -11,6 +11,7 @@ use Phpactor\Indexer\Model\IndexBuilder;
 use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
 use Phpactor\Name\FullyQualifiedName;
 use function Safe\file_get_contents;
@@ -23,12 +24,10 @@ abstract class IndexBuilderIndexTestCase extends IntegrationTestCase
      * @dataProvider provideIndexesClassLike
      * @dataProvider provideIndexesReferences
      */
-    public function testIndex(string $source, string $name, Closure $assertions): void
+    public function testIndexClass(string $source, string $name, Closure $assertions): void
     {
         $this->workspace()->loadManifest($source);
-
         $index = $this->buildIndex();
-
         $class = $index->query()->class(
             FullyQualifiedName::fromString($name)
         );
@@ -326,6 +325,62 @@ Foobar::foobar();
 EOT
             , 'Foobar',
             function (ClassRecord $record) {
+                // there is one file reference per class
+                self::assertCount(1, $record->references());
+            }
+        ];
+    }
+
+    /**
+     * @dataProvider provideIndexesFunctions
+     */
+    public function testIndexFunction(string $source, string $name, Closure $assertions): void
+    {
+        $this->workspace()->loadManifest($source);
+        $index = $this->buildIndex();
+        $class = $index->query()->function(
+            FullyQualifiedName::fromString($name)
+        );
+
+        self::assertNotNull($class, 'Function was found');
+
+        $assertions($class);
+    }
+
+    /**
+     * @return Generator<mixed>
+     */
+    public function provideIndexesFunctions(): Generator
+    {
+        yield 'function' => [
+            <<<'EOT'
+// File: project/test1.php
+<?php function foobar();
+
+// File: project/test2.php
+<?php
+foobar();
+EOT
+            , 'foobar',
+            function (FunctionRecord $record) {
+                // there is one file reference per class
+                self::assertCount(1, $record->references());
+            }
+        ];
+
+        yield 'namespaced function' => [
+            <<<'EOT'
+// File: project/test1.php
+<?php 
+namespace Barfoos;
+function foobar();
+
+// File: project/test2.php
+<?php
+Barfoos\foobar();
+EOT
+            , 'Barfoos\foobar',
+            function (FunctionRecord $record) {
                 // there is one file reference per class
                 self::assertCount(1, $record->references());
             }
