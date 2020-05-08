@@ -45,5 +45,6 @@ class InMemoryQuery implements IndexQuery
 
     public function file(string $path): ?FileRecord
     {
+        return null;
     }
 }

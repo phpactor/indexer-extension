@@ -2,10 +2,6 @@
 
 namespace Phpactor\Indexer\Model;
 
-use Phpactor\Indexer\Model\Exception\CorruptedRecord;
-use Phpactor\Name\FullyQualifiedName;
-use Phpactor\TextDocument\ByteOffset;
-
 abstract class Record
 {
     /**

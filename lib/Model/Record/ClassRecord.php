@@ -4,8 +4,6 @@ namespace Phpactor\Indexer\Model\Record;
 
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\Indexer\Model\Record\FullyQualifiedReferenceTrait;
-use Phpactor\TextDocument\Location;
 
 final class ClassRecord extends Record
 {
