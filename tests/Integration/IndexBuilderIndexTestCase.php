@@ -221,6 +221,60 @@ EOT
                 self::assertCount(1, $record->references());
             }
         ];
+
+        yield 'multiple references' => [
+            <<<'EOT'
+// File: project/test1.php
+<?php
+class Foobar
+{
+}
+
+// File: project/test2.php
+<?php
+new Foobar();
+new Foobar();
+new Foobar();
+
+// File: project/test3.php
+<?php
+new Foobar();
+new Foobar();
+new Foobar();
+EOT
+            , 'Foobar',
+            function (ClassRecord $record) {
+                // there is one file reference per class
+                self::assertCount(2, $record->references());
+            }
+        ];
+
+        yield 'namespaced references' => [
+            <<<'EOT'
+// File: project/test1.php
+<?php
+namespace Foobar
+{
+    class Foobar
+    {
+    }
+}
+
+// File: project/test2.php
+<?php
+new Foobar\Foobar();
+
+// File: project/test3.php
+<?php
+use Foobar\Foobar;
+new Foobar();
+EOT
+            , 'Foobar',
+            function (ClassRecord $record) {
+                // there is one file reference per class
+                self::assertCount(2, $record->references());
+            }
+        ];
     }
 
     public function testInterfaceImplementations(): void
@@ -286,7 +340,7 @@ EOT
         self::assertCount(3, $references);
     }
 
-    public function testRemovesExistingReferences(): void
+    public function testRemovesExistingImplementationReferences(): void
     {
         $index = $this->buildIndex();
 

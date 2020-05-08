@@ -6,6 +6,7 @@ use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\QualifiedName;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexer;
 use Phpactor\Indexer\Model\Index;
+use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\TextDocument\Location;
 use SplFileInfo;
 
@@ -18,6 +19,7 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
 
     public function beforeParse(Index $index, SplFileInfo $info): void
     {
+        $fileRecord = $index->get(FileRecord::fromFileInfo($info));
     }
 
     public function index(Index $index, SplFileInfo $info, Node $node): void
@@ -28,11 +30,8 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
             return;
         }
 
-        if (false === $index->hasModified($targetRecord)) {
-            $targetRecord->removeReferences();
-        }
+        $targetRecord->addReference($info->getPathname());
 
-        $targetRecord->addReference(Location::fromPathAndOffset($info->getPathname(), $node->getStart()));
         $index->write($targetRecord);
     }
 }

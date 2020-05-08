@@ -46,14 +46,5 @@ abstract class Record
         return $this->filePath;
     }
 
-    public function __wakeup(): void
-    {
-        if (null === $this->lastModified) {
-            throw new CorruptedRecord(sprintf(
-                'Record was corrupted'
-            ));
-        }
-    }
-
     abstract public function identifier(): string;
 }

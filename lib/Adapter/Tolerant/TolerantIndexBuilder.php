@@ -5,6 +5,7 @@ namespace Phpactor\Indexer\Adapter\Tolerant;
 use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Parser;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\ClassDeclarationIndexer;
+use Phpactor\Indexer\Adapter\Tolerant\Indexer\ClassLikeReferenceIndexer;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\FunctionDeclarationIndexer;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\InterfaceDeclarationIndexer;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\TraitDeclarationIndexer;
@@ -53,6 +54,7 @@ final class TolerantIndexBuilder implements IndexBuilder
                 new InterfaceDeclarationIndexer(),
                 new TraitDeclarationIndexer(),
                 new TraitUseClauseIndexer(),
+                new ClassLikeReferenceIndexer(),
             ]
         );
     }
@@ -63,6 +65,10 @@ final class TolerantIndexBuilder implements IndexBuilder
 
         if (false === $contents) {
             return;
+        }
+
+        foreach ($this->indexers as $indexer) {
+            $indexer->beforeParse($this->index, $info);
         }
 
         $node = $this->parser->parseSourceFile($contents, $info->getPathname());
