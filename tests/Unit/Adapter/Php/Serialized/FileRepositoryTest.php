@@ -29,6 +29,7 @@ class FileRepositoryTest extends IntegrationTestCase
     {
         $repo = new FileRepository($this->workspace()->path('index'));
         $repo->put(ClassRecord::fromName('Foobar'));
+        $repo->flush();
         self::assertNotNull($repo->get(ClassRecord::fromName('Foobar')));
         $repo->remove(ClassRecord::fromName('Foobar'));
         self::assertNull($repo->get(ClassRecord::fromName('Foobar')));

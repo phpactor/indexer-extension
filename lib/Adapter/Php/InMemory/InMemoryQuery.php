@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Adapter\Php\InMemory;
 
 use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\IndexQuery;
@@ -40,5 +41,9 @@ class InMemoryQuery implements IndexQuery
     public function function(FullyQualifiedName $name): ?FunctionRecord
     {
         return $this->repository->getFunction($name->__toString());
+    }
+
+    public function file(string $path): ?FileRecord
+    {
     }
 }
