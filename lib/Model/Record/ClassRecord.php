@@ -20,6 +20,11 @@ final class ClassRecord extends Record
     private $implements = [];
 
     /**
+     * @var array<string>
+     */
+    private $references = [];
+
+    /**
      * Type of "class": class, interface or trait
      *
      * @var string
@@ -57,6 +62,15 @@ final class ClassRecord extends Record
         }
     }
 
+    public function removeImplementation(FullyQualifiedName $name): bool
+    {
+        if (!isset($this->implementations[(string)$name])) {
+            return false;
+        }
+        unset($this->implementations[(string)$name]);
+        return true;
+    }
+
     /**
      * @return array<string>
      */
@@ -71,15 +85,6 @@ final class ClassRecord extends Record
     public function implements(): array
     {
         return $this->implements;
-    }
-
-    public function removeImplementation(FullyQualifiedName $name): bool
-    {
-        if (!isset($this->implementations[(string)$name])) {
-            return false;
-        }
-        unset($this->implementations[(string)$name]);
-        return true;
     }
 
     public function type(): ?string
@@ -99,5 +104,13 @@ final class ClassRecord extends Record
     public function recordType(): string
     {
         return self::RECORD_TYPE;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function references(): array
+    {
+        return $this->references;
     }
 }
