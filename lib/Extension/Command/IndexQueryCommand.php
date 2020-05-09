@@ -73,7 +73,6 @@ class IndexQueryCommand extends Command
     {
         $output->writeln('<info>Class:</>'.$class->fqn());
         $output->writeln('<info>Path:</>'.$class->filePath());
-        $output->writeln('<info>Last modified:</>'.$class->lastModified());
         $output->writeln('<info>Implements</>:');
         foreach ($class->implements() as $fqn) {
             $output->writeln(' - ' . (string)$fqn);
@@ -95,7 +94,6 @@ class IndexQueryCommand extends Command
     {
         $output->writeln('<info>Function:</>'.$function->fqn());
         $output->writeln('<info>Path:</>'.$function->filePath());
-        $output->writeln('<info>Last modified:</>'.$function->lastModified());
         $output->writeln('<info>Referenced by</>:');
         foreach ($function->references() as $path) {
             $file = $this->query->file($path);
@@ -109,7 +107,6 @@ class IndexQueryCommand extends Command
     {
         $output->writeln('<info>Member:</>'.$member->memberName());
         $output->writeln('<info>Member Type:</>'.$member->type());
-        $output->writeln('<info>Last modified:</>'.$member->lastModified());
         $output->writeln('<info>Referenced by</>:');
         foreach ($member->references() as $path) {
             $file = $this->query->file($path);

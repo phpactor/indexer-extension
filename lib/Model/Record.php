@@ -26,17 +26,6 @@ abstract class Record
         return $this;
     }
 
-    public function setLastModified(int $mtime): self
-    {
-        $this->lastModified = $mtime;
-        return $this;
-    }
-
-    public function lastModified(): int
-    {
-        return $this->lastModified;
-    }
-
     public function filePath(): ?string
     {
         return $this->filePath;

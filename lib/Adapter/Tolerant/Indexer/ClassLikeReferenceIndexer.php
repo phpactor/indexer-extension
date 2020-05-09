@@ -54,7 +54,6 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
 
         $targetRecord = $index->get(ClassRecord::fromName($name));
         assert($targetRecord instanceof ClassRecord);
-        $targetRecord->setLastModified($info->getCTime());
         $targetRecord->setStart(ByteOffset::fromInt($node->getStart()));
         $targetRecord->setFilePath($info->getPathname());
         $targetRecord->setType(ClassRecord::RECORD_TYPE);
