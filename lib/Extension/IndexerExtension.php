@@ -29,6 +29,7 @@ use Phpactor\Filesystem\Domain\FilePath;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Adapter\Worse\IndexerClassSourceLocator;
 use Phpactor\Indexer\Adapter\Worse\IndexerFunctionSourceLocator;
+use Phpactor\Indexer\Integration\ReferenceFinder\IndexedReferenceFinder;
 use Phpactor\MapResolver\Resolver;
 use Phpactor\Indexer\Adapter\Filesystem\FilesystemFileListProvider;
 use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
@@ -231,6 +232,13 @@ class IndexerExtension implements Extension
                 $container->get(WorseReflectionExtension::SERVICE_REFLECTOR)
             );
         }, [ ReferenceFinderExtension::TAG_IMPLEMENTATION_FINDER => []]);
+
+        $container->register(IndexedReferenceFinder::class, function (Container $container) {
+            return new IndexedReferenceFinder(
+                $container->get(Index::class),
+                $container->get(WorseReflectionExtension::SERVICE_REFLECTOR)
+            );
+        }, [ ReferenceFinderExtension::TAG_REFERENCE_FINDER => []]);
     }
 
     private function registerRpc(ContainerBuilder $container): void

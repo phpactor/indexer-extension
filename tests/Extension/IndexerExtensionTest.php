@@ -22,6 +22,8 @@ use Phpactor\Container\PhpactorContainer;
 use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
 use Phpactor\ReferenceFinder\ChainImplementationFinder;
+use Phpactor\ReferenceFinder\ChainReferenceFinder;
+use Phpactor\ReferenceFinder\ReferenceFinder;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionClass;
 use Phpactor\WorseReflection\Reflector;
 use RuntimeException;
@@ -38,6 +40,13 @@ class IndexerExtensionTest extends IntegrationTestCase
         $container = $this->container();
         $finder = $container->get(ReferenceFinderExtension::SERVICE_IMPLEMENTATION_FINDER);
         self::assertInstanceOf(ChainImplementationFinder::class, $finder);
+    }
+
+    public function testReturnsReferenceFinder(): void
+    {
+        $container = $this->container();
+        $finder = $container->get(ReferenceFinder::class);
+        self::assertInstanceOf(ChainReferenceFinder::class, $finder);
     }
 
     public function testBuildIndex()
