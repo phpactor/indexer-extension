@@ -87,7 +87,7 @@ class MemberIndexer implements TolerantIndexer
             return 'constant';
         }
 
-        return 'property';
+        return 'unknown';
     }
 
     private function resolveName(ScopedPropertyAccessExpression $node): string

@@ -30,7 +30,8 @@ class MemberIndexerTest extends TolerantIndexerTestCase
     }
 
     /**
-     * @dataProvider provideStaticMembers
+     * @dataProvider provideStaticAccess
+     * @dataProvider provideInstanceAccess
      */
     public function testMembers(string $manifest, MemberReference $memberReference, int $expectedCount): void
     {
@@ -62,7 +63,7 @@ class MemberIndexerTest extends TolerantIndexerTestCase
     /**
      * @return Generator<mixed>
      */
-    public function provideStaticMembers(): Generator
+    public function provideStaticAccess(): Generator
     {
         yield 'single ref' => [
             "// File: src/file1.php\n<?php Foobar::static()",
@@ -85,6 +86,18 @@ class MemberIndexerTest extends TolerantIndexerTestCase
         yield 'property' => [
             "// File: src/file1.php\n<?php Foobar::\$foobar;",
             MemberReference::create('property', 'Foobar', '$foobar'),
+            1
+        ];
+    }
+
+    /**
+     * @return Generator<mixed>
+     */
+    public function provideInstanceAccess(): Generator
+    {
+        yield 'single ref' => [
+            "// File: src/file1.php\n<?php \$foobar->hello();",
+            MemberReference::create('method', 'Foobar', 'hello'),
             1
         ];
     }
