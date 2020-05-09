@@ -12,6 +12,7 @@ use Phpactor\Indexer\Model\MemberReference;
 use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
+use Phpactor\Indexer\Model\Record\MemberRecord;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
 use SplFileInfo;
 

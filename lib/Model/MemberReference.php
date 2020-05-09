@@ -32,4 +32,19 @@ class MemberReference
     {
         return new self($type, FullyQualifiedName::fromString($containerFqn), $memberName);
     }
+
+    public function type(): string
+    {
+        return $this->type;
+    }
+
+    public function containerFqn(): FullyQualifiedName
+    {
+        return $this->name;
+    }
+
+    public function memberName(): string
+    {
+        return $this->memberName;
+    }
 }
