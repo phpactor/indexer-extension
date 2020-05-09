@@ -10,12 +10,12 @@ class MemberRecord extends Record implements HasFileReferences
 {
     use HasFileReferencesTrait;
 
-    const RECORD_TYPE = 'member';
-    const ID_DELIMITER = '#';
+    public const RECORD_TYPE = 'member';
+    public const TYPE_METHOD = 'method';
+    public const TYPE_CONSTANT = 'constant';
+    public const TYPE_PROPERTY = 'property';
 
-    const TYPE_METHOD = 'method';
-    const TYPE_CONSTANT = 'constant';
-    const TYPE_PROPERTY = 'property';
+    private const ID_DELIMITER = '#';
 
     /**
      * @var string

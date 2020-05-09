@@ -8,8 +8,10 @@ use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\RecordReferences;
 use SplFileInfo;
 
-class FileRecord extends Record
+class FileRecord extends Record implements HasPath
 {
+    use HasPathTrait;
+
     /**
      * @var array<array{string,string,int}>
      */
