@@ -8,14 +8,11 @@ use Microsoft\PhpParser\Node\Expression\MemberAccessExpression;
 use Microsoft\PhpParser\Node\Expression\ScopedPropertyAccessExpression;
 use Microsoft\PhpParser\Node\Expression\Variable;
 use Microsoft\PhpParser\Node\QualifiedName;
-use Microsoft\PhpParser\Node\Statement\ExpressionStatement;
 use Microsoft\PhpParser\Token;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexer;
-use Phpactor\Indexer\Adapter\Tolerant\Util\ReferenceRemover;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\MemberReference;
 use Phpactor\Indexer\Model\RecordReference;
-use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\MemberRecord;
 use SplFileInfo;
@@ -87,11 +84,7 @@ class MemberIndexer implements TolerantIndexer
             return 'property';
         }
 
-        if ($node->parent instanceof ExpressionStatement) {
-            return 'constant';
-        }
-
-        return 'unknown';
+        return 'constant';
     }
 
     private function resolveMemberAccessType(MemberAccessExpression $node): string

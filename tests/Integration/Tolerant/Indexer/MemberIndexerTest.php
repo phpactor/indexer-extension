@@ -42,21 +42,21 @@ class MemberIndexerTest extends TolerantIndexerTestCase
         $memberRecord = $index->get(MemberRecord::fromMemberReference($memberReference));
         assert($memberRecord instanceof MemberRecord);
 
-        $positionedReferences = [];
-        $resolvedPositionedReferences = [];
+        $unconfirmedReferences = [];
+        $confirmedReferences = [];
         foreach ($memberRecord->references() as $reference) {
             $fileRecord = $index->get(FileRecord::fromPath($reference));
             assert($fileRecord instanceof FileRecord);
             foreach ($fileRecord->referencesTo($memberRecord) as $positionedReference) {
-                $positionedReferences[] = $positionedReference;
+                $unconfirmedReferences[] = $positionedReference;
             }
             foreach ($fileRecord->referencesTo($memberRecord)->forContainerType($memberReference->containerFqn()) as $positionedReference) {
-                $resolvedPositionedReferences[] = $positionedReference;
+                $confirmedReferences[] = $positionedReference;
             }
         }
 
-        self::assertCount($expectedCount, $positionedReferences);
-        self::assertCount($expectedResolvedCount, $resolvedPositionedReferences);
+        self::assertCount($expectedCount, $unconfirmedReferences, 'Unconfirmed references');
+        self::assertCount($expectedResolvedCount, $confirmedReferences, 'Confirmed references');
     }
 
     /**
@@ -88,9 +88,21 @@ class MemberIndexerTest extends TolerantIndexerTestCase
             1, 1
         ];
 
+        yield 'constant in call' => [
+            "// File: src/file1.php\n<?php get(Foobar::FOOBAR);",
+            MemberReference::create('constant', 'Foobar', 'FOOBAR'),
+            1, 1
+        ];
+
         yield 'property' => [
             "// File: src/file1.php\n<?php Foobar::\$foobar;",
             MemberReference::create('property', 'Foobar', '$foobar'),
+            1, 1
+        ];
+
+        yield 'namespaced static access' => [
+            "// File: src/file1.php\n<?php use Barfoo\\Foobar; Foobar::hello();",
+            MemberReference::create('method', 'Barfoo\\Foobar', 'hello'),
             1, 1
         ];
     }
