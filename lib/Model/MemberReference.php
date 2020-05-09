@@ -12,7 +12,7 @@ class MemberReference
      */
     private $type;
     /**
-     * @var FullyQualifiedName
+     * @var FullyQualifiedName|null
      */
     private $name;
 
@@ -21,16 +21,16 @@ class MemberReference
      */
     private $memberName;
 
-    public function __construct(string $type, FullyQualifiedName $name, string $memberName)
+    public function __construct(string $type, ?FullyQualifiedName $name, string $memberName)
     {
         $this->type = $type;
         $this->name = $name;
         $this->memberName = $memberName;
     }
 
-    public static function create(string $type, string $containerFqn, string $memberName): self
+    public static function create(string $type, ?string $containerFqn, string $memberName): self
     {
-        return new self($type, FullyQualifiedName::fromString($containerFqn), $memberName);
+        return new self($type, $containerFqn ? FullyQualifiedName::fromString($containerFqn) : null, $memberName);
     }
 
     public function type(): string
@@ -38,7 +38,7 @@ class MemberReference
         return $this->type;
     }
 
-    public function containerFqn(): FullyQualifiedName
+    public function containerFqn(): ?FullyQualifiedName
     {
         return $this->name;
     }

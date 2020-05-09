@@ -4,6 +4,7 @@ namespace Phpactor\Indexer\Adapter\Tolerant\Indexer;
 
 use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\Expression\CallExpression;
+use Microsoft\PhpParser\Node\Expression\MemberAccessExpression;
 use Microsoft\PhpParser\Node\Expression\ScopedPropertyAccessExpression;
 use Microsoft\PhpParser\Node\Expression\Variable;
 use Microsoft\PhpParser\Node\QualifiedName;
@@ -23,37 +24,40 @@ class MemberIndexer implements TolerantIndexer
 {
     public function canIndex(Node $node): bool
     {
-        return $node instanceof ScopedPropertyAccessExpression;
+        return $node instanceof ScopedPropertyAccessExpression || $node instanceof MemberAccessExpression;
     }
 
     public function index(Index $index, SplFileInfo $info, Node $node): void
     {
-        assert($node instanceof ScopedPropertyAccessExpression);
+        if ($node instanceof ScopedPropertyAccessExpression) {
+            $this->indexScopedPropertyAccess($index, $info, $node);
+            return;
+        }
 
+        if ($node instanceof MemberAccessExpression) {
+            $this->indexMemberAccessExpression($index, $info, $node);
+            return;
+        }
+    }
+
+    private function indexScopedPropertyAccess(Index $index, SplFileInfo $info, ScopedPropertyAccessExpression $node): void
+    {
         $containerFqn = $node->scopeResolutionQualifier;
+
         if (!$containerFqn instanceof QualifiedName) {
             return;
         }
 
         $containerFqn = (string)$containerFqn->getResolvedName();
-
-        $memberName = $this->resolveName($node);
+        $memberName = $this->resolveScopedPropertyAccessName($node);
 
         if (empty($memberName)) {
             return;
         }
 
-        $record = $index->get(MemberRecord::fromMemberReference(MemberReference::create($this->resolveMemberType($node), $containerFqn, $memberName)));
-        assert($record instanceof MemberRecord);
-        $record->setLastModified($info->getCTime());
-        $record->setFilePath($info->getPathname());
-        $record->addReference($info->getPathname());
-        $index->write($record);
+        $memberType = $this->resolveScopedPropertyAccessMemberType($node);
 
-        $fileRecord = $index->get(FileRecord::fromFileInfo($info));
-        assert($fileRecord instanceof FileRecord);
-        $fileRecord->addReference(new RecordReference(MemberRecord::RECORD_TYPE, $record->identifier(), $node->getStart()));
-        $index->write($fileRecord);
+        $this->writeIndex($index, $memberType, $containerFqn, $memberName, $info, $node);
     }
 
     public function beforeParse(Index $index, SplFileInfo $info): void
@@ -73,7 +77,7 @@ class MemberIndexer implements TolerantIndexer
         }
     }
 
-    private function resolveMemberType(ScopedPropertyAccessExpression $node): string
+    private function resolveScopedPropertyAccessMemberType(ScopedPropertyAccessExpression $node): string
     {
         if ($node->parent instanceof CallExpression) {
             return 'method';
@@ -90,7 +94,16 @@ class MemberIndexer implements TolerantIndexer
         return 'unknown';
     }
 
-    private function resolveName(ScopedPropertyAccessExpression $node): string
+    private function resolveMemberAccessType(MemberAccessExpression $node): string
+    {
+        if ($node->parent instanceof CallExpression) {
+            return 'method';
+        }
+
+        return 'property';
+    }
+
+    private function resolveScopedPropertyAccessName(ScopedPropertyAccessExpression $node): string
     {
         $memberName = $node->memberName;
 
@@ -99,5 +112,40 @@ class MemberIndexer implements TolerantIndexer
         }
 
         return $memberName->getText();
+    }
+
+    private function indexMemberAccessExpression(Index $index, SplFileInfo $info, MemberAccessExpression $node): void
+    {
+        $memberName = $node->memberName;
+
+        /** @phpstan-ignore-next-line Member name could be NULL */
+        if (null === $memberName) {
+            return;
+        }
+
+        $memberName = $memberName->getText($node->getFileContents());
+
+        if (empty($memberName)) {
+            return;
+        }
+
+        $memberType = $this->resolveMemberAccessType($node);
+
+        $this->writeIndex($index, $memberType, null, (string)$memberName, $info, $node);
+    }
+
+    private function writeIndex(Index $index, string $memberType, ?string $containerFqn, string $memberName, SplFileInfo $info, Node $node): void
+    {
+        $record = $index->get(MemberRecord::fromMemberReference(MemberReference::create($memberType, $containerFqn, $memberName)));
+        assert($record instanceof MemberRecord);
+        $record->setLastModified($info->getCTime());
+        $record->setFilePath($info->getPathname());
+        $record->addReference($info->getPathname());
+        $index->write($record);
+        
+        $fileRecord = $index->get(FileRecord::fromFileInfo($info));
+        assert($fileRecord instanceof FileRecord);
+        $fileRecord->addReference(new RecordReference(MemberRecord::RECORD_TYPE, $record->identifier(), $node->getStart()));
+        $index->write($fileRecord);
     }
 }

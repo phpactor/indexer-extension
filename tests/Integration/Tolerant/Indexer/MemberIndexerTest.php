@@ -71,6 +71,12 @@ class MemberIndexerTest extends TolerantIndexerTestCase
             1
         ];
 
+        yield 'ambiguous single ref' => [
+            "// File: src/file1.php\n<?php Foobar::static(); Barfoo::static();",
+            MemberReference::create('method', 'Foobar', 'static'),
+            1
+        ];
+
         yield 'multiple ref' => [
             "// File: src/file1.php\n<?php Foobar::static(); Foobar::static();",
             MemberReference::create('method', 'Foobar', 'static'),
@@ -95,9 +101,15 @@ class MemberIndexerTest extends TolerantIndexerTestCase
      */
     public function provideInstanceAccess(): Generator
     {
-        yield 'single ref' => [
+        yield 'method call' => [
             "// File: src/file1.php\n<?php \$foobar->hello();",
             MemberReference::create('method', 'Foobar', 'hello'),
+            1
+        ];
+
+        yield 'property access' => [
+            "// File: src/file1.php\n<?php \$foobar->hello;",
+            MemberReference::create('property', 'Foobar', 'hello'),
             1
         ];
     }
