@@ -17,8 +17,8 @@ class MemberIndexerTest extends TolerantIndexerTestCase
     {
         $indexer = new MemberIndexer();
         $index = $this->createIndex();
-        $record1 = $index->get(MemberRecord::fromMemberReference(MemberReference::create('method', 'Foobar', 'bar')));
-        $record2 = $index->get(MemberRecord::fromMemberReference(MemberReference::create('method', 'Foobar', 'bar')));
+        $record1 = $index->get(MemberRecord::fromMemberReference(MemberReference::create(MemberRecord::TYPE_METHOD, 'Foobar', 'bar')));
+        $record2 = $index->get(MemberRecord::fromMemberReference(MemberReference::create(MemberRecord::TYPE_METHOD, 'Foobar', 'bar')));
 
         $this->assertRemovesIncomingReferences($indexer, $index, $record1, $record2);
     }
@@ -66,43 +66,43 @@ class MemberIndexerTest extends TolerantIndexerTestCase
     {
         yield 'single ref' => [
             "// File: src/file1.php\n<?php Foobar::static()",
-            MemberReference::create('method', 'Foobar', 'static'),
+            MemberReference::create(MemberRecord::TYPE_METHOD, 'Foobar', 'static'),
             1, 1
         ];
 
         yield 'ambiguous single ref' => [
             "// File: src/file1.php\n<?php Foobar::static(); Barfoo::static();",
-            MemberReference::create('method', 'Foobar', 'static'),
+            MemberReference::create(MemberRecord::TYPE_METHOD, 'Foobar', 'static'),
             2, 1
         ];
 
         yield 'multiple ref' => [
             "// File: src/file1.php\n<?php Foobar::static(); Foobar::static();",
-            MemberReference::create('method', 'Foobar', 'static'),
+            MemberReference::create(MemberRecord::TYPE_METHOD, 'Foobar', 'static'),
             2, 2
         ];
 
-        yield 'constant' => [
+        yield MemberRecord::TYPE_CONSTANT => [
             "// File: src/file1.php\n<?php Foobar::FOOBAR;",
-            MemberReference::create('constant', 'Foobar', 'FOOBAR'),
+            MemberReference::create(MemberRecord::TYPE_CONSTANT, 'Foobar', 'FOOBAR'),
             1, 1
         ];
 
         yield 'constant in call' => [
             "// File: src/file1.php\n<?php get(Foobar::FOOBAR);",
-            MemberReference::create('constant', 'Foobar', 'FOOBAR'),
+            MemberReference::create(MemberRecord::TYPE_CONSTANT, 'Foobar', 'FOOBAR'),
             1, 1
         ];
 
-        yield 'property' => [
+        yield MemberRecord::TYPE_PROPERTY => [
             "// File: src/file1.php\n<?php Foobar::\$foobar;",
-            MemberReference::create('property', 'Foobar', '$foobar'),
+            MemberReference::create(MemberRecord::TYPE_PROPERTY, 'Foobar', '$foobar'),
             1, 1
         ];
 
         yield 'namespaced static access' => [
             "// File: src/file1.php\n<?php use Barfoo\\Foobar; Foobar::hello();",
-            MemberReference::create('method', 'Barfoo\\Foobar', 'hello'),
+            MemberReference::create(MemberRecord::TYPE_METHOD, 'Barfoo\\Foobar', 'hello'),
             1, 1
         ];
     }
@@ -114,13 +114,13 @@ class MemberIndexerTest extends TolerantIndexerTestCase
     {
         yield 'method call' => [
             "// File: src/file1.php\n<?php \$foobar->hello();",
-            MemberReference::create('method', 'Foobar', 'hello'),
+            MemberReference::create(MemberRecord::TYPE_METHOD, 'Foobar', 'hello'),
             1, 0
         ];
 
         yield 'property access' => [
             "// File: src/file1.php\n<?php \$foobar->hello;",
-            MemberReference::create('property', 'Foobar', 'hello'),
+            MemberReference::create(MemberRecord::TYPE_PROPERTY, 'Foobar', 'hello'),
             1, 0
         ];
     }

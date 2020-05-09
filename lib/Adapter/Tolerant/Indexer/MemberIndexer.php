@@ -77,23 +77,23 @@ class MemberIndexer implements TolerantIndexer
     private function resolveScopedPropertyAccessMemberType(ScopedPropertyAccessExpression $node): string
     {
         if ($node->parent instanceof CallExpression) {
-            return 'method';
+            return MemberRecord::TYPE_METHOD;
         }
 
         if ($node->memberName instanceof Variable) {
-            return 'property';
+            return MemberRecord::TYPE_PROPERTY;
         }
 
-        return 'constant';
+        return MemberRecord::TYPE_CONSTANT;
     }
 
     private function resolveMemberAccessType(MemberAccessExpression $node): string
     {
         if ($node->parent instanceof CallExpression) {
-            return 'method';
+            return MemberRecord::TYPE_METHOD;
         }
 
-        return 'property';
+        return MemberRecord::TYPE_PROPERTY;
     }
 
     private function resolveScopedPropertyAccessName(ScopedPropertyAccessExpression $node): string
