@@ -6,7 +6,7 @@ use Phpactor\Indexer\Model\MemberReference;
 use Phpactor\Indexer\Model\Record;
 use RuntimeException;
 
-class MemberRecord extends Record implements HasFileReferences
+class MemberRecord implements HasFileReferences, Record
 {
     use HasFileReferencesTrait;
 

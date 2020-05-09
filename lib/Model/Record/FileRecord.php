@@ -8,7 +8,7 @@ use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\RecordReferences;
 use SplFileInfo;
 
-class FileRecord extends Record implements HasPath
+class FileRecord implements HasPath, Record
 {
     use HasPathTrait;
 
