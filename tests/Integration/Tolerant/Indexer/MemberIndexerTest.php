@@ -14,10 +14,21 @@ use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\MemberRecord;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
+use Phpactor\Indexer\Tests\Integration\Tolerant\TolerantIndexerTestCase;
 use SplFileInfo;
 
-class MemberIndexerTest extends IntegrationTestCase
+class MemberIndexerTest extends TolerantIndexerTestCase
 {
+    public function testRemovesIncomingReferences(): void
+    {
+        $indexer = new MemberIndexer();
+        $index = $this->createIndex();
+        $record1 = $index->get(MemberRecord::fromMemberReference(MemberReference::create('method', 'Foobar', 'bar')));
+        $record2 = $index->get(MemberRecord::fromMemberReference(MemberReference::create('method', 'Foobar', 'bar')));
+
+        $this->assertRemovesIncomingReferences($indexer, $index, $record1, $record2);
+    }
+
     /**
      * @dataProvider provideStaticMembers
      */
