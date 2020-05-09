@@ -76,9 +76,9 @@ class IntegrationTestCase extends TestCase
         return TolerantIndexBuilder::create($index);
     }
 
-    protected function fileListProvider(): FileListProvider
+    protected function fileListProvider(string $projectRoot = 'project'): FileListProvider
     {
-        $path = $this->workspace()->path('/project');
+        $path = $this->workspace()->path($projectRoot);
         $provider = new FilesystemFileListProvider(new SimpleFilesystem($path, new SimpleFileListProvider(FilePath::fromString($path))));
         return $provider;
     }

@@ -29,8 +29,7 @@ class IndexerClassSourceLocatorTest extends TestCase
         $record = ClassRecord::fromName('Foobar')
             ->setType('class')
             ->setStart(ByteOffset::fromInt(0))
-            ->setFilePath('nope.php')
-            ->setLastModified(0);
+            ->setFilePath('nope.php');
 
         $index = new InMemoryIndex();
         $index->write($record);
@@ -43,8 +42,7 @@ class IndexerClassSourceLocatorTest extends TestCase
         $record = ClassRecord::fromName('Foobar')
             ->setType('class')
             ->setStart(ByteOffset::fromInt(0))
-            ->setFilePath(__FILE__)
-            ->setLastModified(0);
+            ->setFilePath(__FILE__);
 
         $index = new InMemoryIndex();
         $index->write($record);

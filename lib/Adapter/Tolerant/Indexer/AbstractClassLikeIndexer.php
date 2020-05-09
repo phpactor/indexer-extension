@@ -59,7 +59,6 @@ abstract class AbstractClassLikeIndexer implements TolerantIndexer
 
         $record = $index->get(ClassRecord::fromName($name));
         assert($record instanceof ClassRecord);
-        $record->setLastModified($info->getCTime());
         $record->setStart(ByteOffset::fromInt($node->getStart()));
         $record->setFilePath($info->getPathname());
         $record->setType($type);

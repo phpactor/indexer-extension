@@ -5,10 +5,13 @@ namespace Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Exception\CorruptedRecord;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\RecordReference;
+use Phpactor\Indexer\Model\RecordReferences;
 use SplFileInfo;
 
-class FileRecord extends Record
+class FileRecord implements HasPath, Record
 {
+    use HasPathTrait;
+
     /**
      * @var array<array{string,string,int}>
      */
@@ -47,7 +50,8 @@ class FileRecord extends Record
         $this->references[] = [
             $reference->type(),
             $reference->identifier(),
-            $reference->offset()
+            $reference->offset(),
+            $reference->contaninerType()
         ];
 
         return $this;
@@ -63,14 +67,11 @@ class FileRecord extends Record
         }, $this->references);
     }
 
-    /**
-     * @return array<RecordReference>
-     */
-    public function referencesTo(Record $record): array
+    public function referencesTo(Record $record): RecordReferences
     {
-        return array_filter($this->references(), function (RecordReference $reference) use ($record) {
+        return new RecordReferences(array_filter($this->references(), function (RecordReference $reference) use ($record) {
             return $reference->type() === $record->recordType() && $reference->identifier() === $record->identifier();
-        });
+        }));
     }
 
     public function __wakeup(): void

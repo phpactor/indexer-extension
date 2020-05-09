@@ -13,7 +13,7 @@ abstract class IndexTestCase extends IntegrationTestCase
     {
         $index = $this->createIndex();
         $builder = $this->createTestBuilder($index);
-        $indexer = new Indexer($builder, $index, $this->fileListProvider($index));
+        $indexer = new Indexer($builder, $index, $this->fileListProvider());
         $indexer->getJob()->run();
         $references = $foo = $index->query()->implementing(
             FullyQualifiedName::fromString('Index')

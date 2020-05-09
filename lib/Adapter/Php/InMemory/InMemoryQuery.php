@@ -5,6 +5,7 @@ namespace Phpactor\Indexer\Adapter\Php\InMemory;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
+use Phpactor\Indexer\Model\Record\MemberRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\IndexQuery;
 
@@ -44,6 +45,11 @@ class InMemoryQuery implements IndexQuery
     }
 
     public function file(string $path): ?FileRecord
+    {
+        return null;
+    }
+
+    public function member(string $name): ?MemberRecord
     {
         return null;
     }
