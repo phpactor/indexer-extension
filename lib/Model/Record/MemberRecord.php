@@ -4,6 +4,7 @@ namespace Phpactor\Indexer\Model\Record;
 
 use Phpactor\Indexer\Model\MemberReference;
 use Phpactor\Indexer\Model\Record;
+use RuntimeException;
 
 class MemberRecord extends Record implements HasFileReferences
 {
@@ -11,6 +12,10 @@ class MemberRecord extends Record implements HasFileReferences
 
     const RECORD_TYPE = 'member';
     const ID_DELIMITER = '#';
+
+    const TYPE_METHOD = 'method';
+    const TYPE_CONSTANT = 'constant';
+    const TYPE_PROPERTY = 'property';
 
     /**
      * @var string
@@ -29,6 +34,17 @@ class MemberRecord extends Record implements HasFileReferences
 
     public function __construct(string $type, string $memberName, string $containerFqn = null)
     {
+        if (!in_array($type, [
+            self::TYPE_PROPERTY,
+            self::TYPE_CONSTANT,
+            self::TYPE_METHOD,
+        ])) {
+            throw new RuntimeException(sprintf(
+                'Invalid member type "%s" use one of MemberType::TYPE_*',
+                $type
+            ));
+        }
+
         $this->type = $type;
         $this->memberName = $memberName;
         $this->containerFqn = $containerFqn;
@@ -55,9 +71,14 @@ class MemberRecord extends Record implements HasFileReferences
     public static function fromIdentifier(string $identifier): self
     {
         $parts = explode(self::ID_DELIMITER, $identifier);
-        if (!isset($parts[1])) {
-            $parts[1] = 'unknown';
+
+        if (count($parts) !== 2) {
+            throw new RuntimeException(sprintf(
+                'Invalid member identifier "%s", must be <type>#<name> e.g. "property#foobar"',
+                $identifier
+            ));
         }
+
         [$type, $memberName] = $parts;
 
         return new self($type, $memberName);
