@@ -30,9 +30,9 @@ class MemberRecord implements HasFileReferences, Record
     /**
      * @var string
      */
-    private $containerFqn;
+    private $containerType;
 
-    public function __construct(string $type, string $memberName, string $containerFqn = null)
+    public function __construct(string $type, string $memberName, string $containerType = null)
     {
         if (!in_array($type, [
             self::TYPE_PROPERTY,
@@ -47,12 +47,12 @@ class MemberRecord implements HasFileReferences, Record
 
         $this->type = $type;
         $this->memberName = $memberName;
-        $this->containerFqn = $containerFqn;
+        $this->containerType = $containerType;
     }
 
     public static function fromMemberReference(MemberReference $memberReference): self
     {
-        return new self($memberReference->type(), $memberReference->memberName(), $memberReference->containerFqn());
+        return new self($memberReference->type(), $memberReference->memberName(), $memberReference->containerType());
     }
 
     /**
@@ -68,17 +68,21 @@ class MemberRecord implements HasFileReferences, Record
         return $this->type . self::ID_DELIMITER . $this->memberName;
     }
 
+    public static function isIdentifier(string $identifier): bool
+    {
+        return count(explode(self::ID_DELIMITER, $identifier)) === 2;
+    }
+
     public static function fromIdentifier(string $identifier): self
     {
-        $parts = explode(self::ID_DELIMITER, $identifier);
-
-        if (count($parts) !== 2) {
+        if (!self::isIdentifier($identifier)) {
             throw new RuntimeException(sprintf(
                 'Invalid member identifier "%s", must be <type>#<name> e.g. "property#foobar"',
                 $identifier
             ));
         }
 
+        $parts = explode(self::ID_DELIMITER, $identifier);
         [$type, $memberName] = $parts;
 
         return new self($type, $memberName);
@@ -89,9 +93,9 @@ class MemberRecord implements HasFileReferences, Record
         return $this->memberName;
     }
 
-    public function containerFqn(): ?string
+    public function containerType(): ?string
     {
-        return $this->containerFqn;
+        return $this->containerType;
     }
 
     public function type(): string

@@ -54,6 +54,10 @@ class SerializedQuery implements IndexQuery
 
     public function member(string $name): ?MemberRecord
     {
+        if (!MemberRecord::isIdentifier($name)) {
+            return null;
+        }
+
         return $this->repository->get(MemberRecord::fromIdentifier($name));
     }
 }

@@ -56,13 +56,13 @@ class MemberIndexer implements TolerantIndexer
 
     private function indexScopedPropertyAccess(Index $index, SplFileInfo $info, ScopedPropertyAccessExpression $node): void
     {
-        $containerFqn = $node->scopeResolutionQualifier;
+        $containerType = $node->scopeResolutionQualifier;
 
-        if (!$containerFqn instanceof QualifiedName) {
+        if (!$containerType instanceof QualifiedName) {
             return;
         }
 
-        $containerFqn = (string)$containerFqn->getResolvedName();
+        $containerType = (string)$containerType->getResolvedName();
         $memberName = $this->resolveScopedPropertyAccessName($node);
 
         if (empty($memberName)) {
@@ -71,7 +71,7 @@ class MemberIndexer implements TolerantIndexer
 
         $memberType = $this->resolveScopedPropertyAccessMemberType($node);
 
-        $this->writeIndex($index, $memberType, $containerFqn, $memberName, $info, $node);
+        $this->writeIndex($index, $memberType, $containerType, $memberName, $info, $node);
     }
 
     private function resolveScopedPropertyAccessMemberType(ScopedPropertyAccessExpression $node): string

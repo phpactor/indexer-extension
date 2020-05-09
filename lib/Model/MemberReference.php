@@ -27,9 +27,9 @@ class MemberReference
         $this->memberName = $memberName;
     }
 
-    public static function create(string $type, ?string $containerFqn, string $memberName): self
+    public static function create(string $type, ?string $containerType, string $memberName): self
     {
-        return new self($type, $containerFqn ? FullyQualifiedName::fromString($containerFqn) : null, $memberName);
+        return new self($type, $containerType ? FullyQualifiedName::fromString($containerType) : null, $memberName);
     }
 
     public function type(): string
@@ -37,7 +37,7 @@ class MemberReference
         return $this->type;
     }
 
-    public function containerFqn(): ?FullyQualifiedName
+    public function containerType(): ?FullyQualifiedName
     {
         return $this->name;
     }

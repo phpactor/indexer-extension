@@ -50,7 +50,7 @@ class MemberIndexerTest extends TolerantIndexerTestCase
             foreach ($fileRecord->referencesTo($memberRecord) as $positionedReference) {
                 $unconfirmedReferences[] = $positionedReference;
             }
-            foreach ($fileRecord->referencesTo($memberRecord)->forContainerType($memberReference->containerFqn()) as $positionedReference) {
+            foreach ($fileRecord->referencesTo($memberRecord)->forContainerType($memberReference->containerType()) as $positionedReference) {
                 $confirmedReferences[] = $positionedReference;
             }
         }

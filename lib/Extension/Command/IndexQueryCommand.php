@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class IndexQueryCommand extends Command
 {
-    const ARG_FQN = 'fqn';
+    const ARG_QUERY = 'query';
 
     /**
      * @var IndexQuery
@@ -29,11 +29,16 @@ class IndexQueryCommand extends Command
         parent::__construct();
     }
 
+    protected function configure(): void
+    {
+        $this->addArgument(self::ARG_QUERY, InputArgument::REQUIRED, 'Query (function name, class name, <memberType>#<memberName>)');
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $class = $this->query->class(
             FullyQualifiedName::fromString(
-                Cast::toString($input->getArgument(self::ARG_FQN))
+                Cast::toString($input->getArgument(self::ARG_QUERY))
             )
         );
 
@@ -43,7 +48,7 @@ class IndexQueryCommand extends Command
 
         $function = $this->query->function(
             FullyQualifiedName::fromString(
-                Cast::toString($input->getArgument(self::ARG_FQN))
+                Cast::toString($input->getArgument(self::ARG_QUERY))
             )
         );
 
@@ -52,9 +57,7 @@ class IndexQueryCommand extends Command
         }
 
         $member = $this->query->member(
-            FullyQualifiedName::fromString(
-                Cast::toString($input->getArgument(self::ARG_FQN))
-            )
+            Cast::toString($input->getArgument(self::ARG_QUERY))
         );
 
         if ($member) {
@@ -62,11 +65,6 @@ class IndexQueryCommand extends Command
         }
 
         return 0;
-    }
-
-    protected function configure(): void
-    {
-        $this->addArgument(self::ARG_FQN, InputArgument::REQUIRED, 'Fully qualified name');
     }
 
     private function renderClass(OutputInterface $output, ClassRecord $class): void
