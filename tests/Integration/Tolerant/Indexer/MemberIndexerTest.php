@@ -8,6 +8,7 @@ use Phpactor\Indexer\Adapter\Tolerant\Indexer\ClassLikeReferenceIndexer;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\MemberIndexer;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Model\Indexer;
+use Phpactor\Indexer\Model\MemberReference;
 use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
@@ -21,11 +22,13 @@ class MemberIndexerTest extends IntegrationTestCase
      */
     public function testMembers(string $manifest, MemberReference $memberReference, int $expectedCount): void
     {
+        $this->workspace()->reset();
+        $this->workspace()->loadManifest($manifest);
         $index = $this->createIndex();
         $indexBuilder = new TolerantIndexBuilder($index, [
             new MemberIndexer()
         ]);
-        $fileList = $this->fileListProvider();
+        $fileList = $this->fileListProvider('src');
         $indexer = new Indexer($indexBuilder, $index, $fileList);
         $indexer->getJob()->run();
 
@@ -45,7 +48,7 @@ class MemberIndexerTest extends IntegrationTestCase
     public function provideStaticMembers(): Generator
     {
         yield [
-            "// File: file1.php\n<?php Foobar::static()",
+            "// File: src/file1.php\n<?php Foobar::static()",
             MemberReference::create('method', 'Foobar', 'static'),
             1
         ];
