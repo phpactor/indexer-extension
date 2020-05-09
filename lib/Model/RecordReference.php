@@ -17,11 +17,17 @@ class RecordReference
      */
     private $offset;
 
-    public function __construct(string $type, string $identifier, int $offset)
+    /**
+     * @var string|null
+     */
+    private $contaninerType;
+
+    public function __construct(string $type, string $identifier, int $offset, ?string $contaninerType = null)
     {
         $this->type = $type;
         $this->identifier = $identifier;
         $this->offset = $offset;
+        $this->contaninerType = $contaninerType;
     }
 
     public function offset(): int
@@ -42,5 +48,15 @@ class RecordReference
     public static function fromRecordAndOffset(Record $record, int $offset): self
     {
         return new self($record->recordType(), $record->identifier(), $offset);
+    }
+
+    public static function fromRecordAndOffsetAndContainerType(Record $record, int $offset, ?string $containerType): self
+    {
+        return new self($record->recordType(), $record->identifier(), $offset, $containerType);
+    }
+
+    public function contaninerType(): ?string
+    {
+        return $this->contaninerType;
     }
 }

@@ -145,7 +145,7 @@ class MemberIndexer implements TolerantIndexer
         
         $fileRecord = $index->get(FileRecord::fromFileInfo($info));
         assert($fileRecord instanceof FileRecord);
-        $fileRecord->addReference(new RecordReference(MemberRecord::RECORD_TYPE, $record->identifier(), $node->getStart()));
+        $fileRecord->addReference(RecordReference::fromRecordAndOffsetAndContainerType($record, $node->getStart(), $containerFqn));
         $index->write($fileRecord);
     }
 }

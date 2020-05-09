@@ -47,7 +47,8 @@ class FileRecord extends Record
         $this->references[] = [
             $reference->type(),
             $reference->identifier(),
-            $reference->offset()
+            $reference->offset(),
+            $reference->contaninerType()
         ];
 
         return $this;

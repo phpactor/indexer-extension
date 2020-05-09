@@ -54,6 +54,7 @@ class MemberIndexerTest extends TolerantIndexerTestCase
             assert($fileRecord instanceof FileRecord);
             foreach ($fileRecord->referencesTo($memberRecord) as $positionedReference) {
                 $positionedReferences[] = $positionedReference;
+                dump($positionedReferences);
             }
         }
 
