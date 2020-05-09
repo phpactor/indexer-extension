@@ -11,9 +11,11 @@ use Microsoft\PhpParser\Node\QualifiedName;
 use Microsoft\PhpParser\Node\Statement\ExpressionStatement;
 use Microsoft\PhpParser\Token;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexer;
+use Phpactor\Indexer\Adapter\Tolerant\Util\ReferenceRemover;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\MemberReference;
 use Phpactor\Indexer\Model\RecordReference;
+use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\MemberRecord;
 use SplFileInfo;
@@ -23,6 +25,23 @@ class MemberIndexer implements TolerantIndexer
     public function canIndex(Node $node): bool
     {
         return $node instanceof ScopedPropertyAccessExpression || $node instanceof MemberAccessExpression;
+    }
+
+    public function beforeParse(Index $index, SplFileInfo $info): void
+    {
+        $fileRecord = $index->get(FileRecord::fromFileInfo($info));
+        assert($fileRecord instanceof FileRecord);
+
+        foreach ($fileRecord->references() as $outgoingReference) {
+            if ($outgoingReference->type() !== MemberRecord::RECORD_TYPE) {
+                continue;
+            }
+
+            $record = $index->get(MemberRecord::fromIdentifier($outgoingReference->identifier()));
+            assert($record instanceof MemberRecord);
+            $record->removeReference($fileRecord->identifier());
+            $index->write($record);
+        }
     }
 
     public function index(Index $index, SplFileInfo $info, Node $node): void
@@ -56,23 +75,6 @@ class MemberIndexer implements TolerantIndexer
         $memberType = $this->resolveScopedPropertyAccessMemberType($node);
 
         $this->writeIndex($index, $memberType, $containerFqn, $memberName, $info, $node);
-    }
-
-    public function beforeParse(Index $index, SplFileInfo $info): void
-    {
-        $fileRecord = $index->get(FileRecord::fromFileInfo($info));
-        assert($fileRecord instanceof FileRecord);
-
-        foreach ($fileRecord->references() as $outgoingReference) {
-            if ($outgoingReference->type() !== MemberRecord::RECORD_TYPE) {
-                continue;
-            }
-
-            $record = $index->get(MemberRecord::fromIdentifier($outgoingReference->identifier()));
-            assert($record instanceof MemberRecord);
-            $record->removeReference($fileRecord->identifier());
-            $index->write($record);
-        }
     }
 
     private function resolveScopedPropertyAccessMemberType(ScopedPropertyAccessExpression $node): string

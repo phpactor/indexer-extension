@@ -103,7 +103,7 @@ EOT
      */
     public function provideMembers(): Generator
     {
-        yield 'staitc members' => [
+        yield 'static members' => [
             <<<'EOT'
 // File: project/subject.php
 <?php Foobar::b<>ar() {}
@@ -112,6 +112,20 @@ EOT
 // File: project/class2.php
 <?php
 <?php Foobar::bar() {}
+EOT
+        ,
+            3
+        ];
+
+        yield 'namespaced static members' => [
+            <<<'EOT'
+// File: project/subject.php
+<?php namespace Bar; Foobar::b<>ar() {}
+// File: project/class1.php
+<?php Bar\Foobar::bar() {}
+// File: project/class2.php
+<?php
+<?php use Bar\Foobar; Foobar::bar() {}
 EOT
         ,
             3

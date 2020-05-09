@@ -19,6 +19,7 @@ class TolerantIndexerTestCase extends IntegrationTestCase
      */
     protected function assertRemovesIncomingReferences(TolerantIndexer $indexer, Index $index, Record $record1, Record $record2): void
     {
+        $this->workspace()->reset();
         $subject = FileRecord::fromPath($this->workspace()->path('test.php'));
         
         $index->write($record1->addReference($subject->filePath()));
