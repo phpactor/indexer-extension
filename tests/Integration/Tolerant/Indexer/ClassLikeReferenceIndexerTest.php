@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\Indexer\Tests\Adapter\Tolerant\Indexer;
+namespace Phpactor\Indexer\Tests\Integration\Tolerant\Indexer;
 
 use PHPUnit\Framework\TestCase;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\ClassLikeReferenceIndexer;
