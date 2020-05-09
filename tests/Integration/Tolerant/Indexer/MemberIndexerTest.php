@@ -33,7 +33,7 @@ class MemberIndexerTest extends TolerantIndexerTestCase
      * @dataProvider provideStaticAccess
      * @dataProvider provideInstanceAccess
      */
-    public function testMembers(string $manifest, MemberReference $memberReference, int $expectedCount): void
+    public function testMembers(string $manifest, MemberReference $memberReference, int $expectedCount, int $expectedResolvedCount): void
     {
         $this->workspace()->reset();
         $this->workspace()->loadManifest($manifest);
@@ -49,16 +49,20 @@ class MemberIndexerTest extends TolerantIndexerTestCase
         assert($memberRecord instanceof MemberRecord);
 
         $positionedReferences = [];
+        $resolvedPositionedReferences = [];
         foreach ($memberRecord->references() as $reference) {
             $fileRecord = $index->get(FileRecord::fromPath($reference));
             assert($fileRecord instanceof FileRecord);
             foreach ($fileRecord->referencesTo($memberRecord) as $positionedReference) {
                 $positionedReferences[] = $positionedReference;
-                dump($positionedReferences);
+            }
+            foreach ($fileRecord->referencesTo($memberRecord)->forContainerType($memberReference->containerFqn()) as $positionedReference) {
+                $resolvedPositionedReferences[] = $positionedReference;
             }
         }
 
         self::assertCount($expectedCount, $positionedReferences);
+        self::assertCount($expectedResolvedCount, $resolvedPositionedReferences);
     }
 
     /**
@@ -69,31 +73,31 @@ class MemberIndexerTest extends TolerantIndexerTestCase
         yield 'single ref' => [
             "// File: src/file1.php\n<?php Foobar::static()",
             MemberReference::create('method', 'Foobar', 'static'),
-            1
+            1, 1
         ];
 
         yield 'ambiguous single ref' => [
             "// File: src/file1.php\n<?php Foobar::static(); Barfoo::static();",
             MemberReference::create('method', 'Foobar', 'static'),
-            1
+            2, 1
         ];
 
         yield 'multiple ref' => [
             "// File: src/file1.php\n<?php Foobar::static(); Foobar::static();",
             MemberReference::create('method', 'Foobar', 'static'),
-            2
+            2, 2
         ];
 
         yield 'constant' => [
             "// File: src/file1.php\n<?php Foobar::FOOBAR;",
             MemberReference::create('constant', 'Foobar', 'FOOBAR'),
-            1
+            1, 1
         ];
 
         yield 'property' => [
             "// File: src/file1.php\n<?php Foobar::\$foobar;",
             MemberReference::create('property', 'Foobar', '$foobar'),
-            1
+            1, 1
         ];
     }
 
@@ -105,13 +109,13 @@ class MemberIndexerTest extends TolerantIndexerTestCase
         yield 'method call' => [
             "// File: src/file1.php\n<?php \$foobar->hello();",
             MemberReference::create('method', 'Foobar', 'hello'),
-            1
+            1, 0
         ];
 
         yield 'property access' => [
             "// File: src/file1.php\n<?php \$foobar->hello;",
             MemberReference::create('property', 'Foobar', 'hello'),
-            1
+            1, 0
         ];
     }
 }
