@@ -45,8 +45,18 @@ class MemberIndexerTest extends TolerantIndexerTestCase
         $indexer->getJob()->run();
 
         $memberRecord = $index->get(MemberRecord::fromMemberReference($memberReference));
+        assert($memberRecord instanceof MemberRecord);
 
-        self::assertCount($expectedCount, $memberRecord->references());
+        $positionedReferences = [];
+        foreach ($memberRecord->references() as $reference) {
+            $fileRecord = $index->get(FileRecord::fromPath($reference));
+            assert($fileRecord instanceof FileRecord);
+            foreach ($fileRecord->referencesTo($memberRecord) as $positionedReference) {
+                $positionedReferences[] = $positionedReference;
+            }
+        }
+
+        self::assertCount($expectedCount, $positionedReferences);
     }
 
     /**
@@ -54,9 +64,27 @@ class MemberIndexerTest extends TolerantIndexerTestCase
      */
     public function provideStaticMembers(): Generator
     {
-        yield [
+        yield 'single ref' => [
             "// File: src/file1.php\n<?php Foobar::static()",
             MemberReference::create('method', 'Foobar', 'static'),
+            1
+        ];
+
+        yield 'multiple ref' => [
+            "// File: src/file1.php\n<?php Foobar::static(); Foobar::static();",
+            MemberReference::create('method', 'Foobar', 'static'),
+            2
+        ];
+
+        yield 'constant' => [
+            "// File: src/file1.php\n<?php Foobar::FOOBAR;",
+            MemberReference::create('constant', 'Foobar', 'FOOBAR'),
+            1
+        ];
+
+        yield 'property' => [
+            "// File: src/file1.php\n<?php Foobar::\$foobar;",
+            MemberReference::create('property', 'Foobar', '$foobar'),
             1
         ];
     }

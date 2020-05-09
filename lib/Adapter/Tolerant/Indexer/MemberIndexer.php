@@ -5,7 +5,9 @@ namespace Phpactor\Indexer\Adapter\Tolerant\Indexer;
 use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\Expression\CallExpression;
 use Microsoft\PhpParser\Node\Expression\ScopedPropertyAccessExpression;
+use Microsoft\PhpParser\Node\Expression\Variable;
 use Microsoft\PhpParser\Node\QualifiedName;
+use Microsoft\PhpParser\Node\Statement\ExpressionStatement;
 use Microsoft\PhpParser\Token;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexer;
 use Phpactor\Indexer\Adapter\Tolerant\Util\ReferenceRemover;
@@ -35,19 +37,13 @@ class MemberIndexer implements TolerantIndexer
 
         $containerFqn = (string)$containerFqn->getResolvedName();
 
-        $memberName = $node->memberName;
-
-        if (!$memberName instanceof Token) {
-            return;
-        }
-
-        $memberName = (string)$memberName->getText($node->getFileContents());
+        $memberName = $this->resolveName($node);
 
         if (empty($memberName)) {
             return;
         }
 
-        $record = $index->get(MemberRecord::fromMemberReference(MemberReference::create('method', $containerFqn, $memberName)));
+        $record = $index->get(MemberRecord::fromMemberReference(MemberReference::create($this->resolveMemberType($node), $containerFqn, $memberName)));
         assert($record instanceof MemberRecord);
         $record->setLastModified($info->getCTime());
         $record->setFilePath($info->getPathname());
@@ -75,5 +71,33 @@ class MemberIndexer implements TolerantIndexer
             $record->removeReference($fileRecord->identifier());
             $index->write($record);
         }
+    }
+
+    private function resolveMemberType(ScopedPropertyAccessExpression $node): string
+    {
+        if ($node->parent instanceof CallExpression) {
+            return 'method';
+        }
+
+        if ($node->memberName instanceof Variable) {
+            return 'property';
+        }
+
+        if ($node->parent instanceof ExpressionStatement) {
+            return 'constant';
+        }
+
+        return 'property';
+    }
+
+    private function resolveName(ScopedPropertyAccessExpression $node): string
+    {
+        $memberName = $node->memberName;
+
+        if ($memberName instanceof Token) {
+            return (string)$memberName->getText($node->getFileContents());
+        }
+
+        return $memberName->getText();
     }
 }
