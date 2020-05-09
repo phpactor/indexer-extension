@@ -2,7 +2,6 @@
 
 namespace Phpactor\Indexer\Tests\Integration\Tolerant;
 
-use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record;

@@ -76,7 +76,7 @@ class IndexQueryCommand extends Command
             $file = $this->query->file($path);
             $output->writeln(sprintf('- %s:%s', $path, implode(', ', array_map(function (RecordReference $reference) {
                 return $reference->offset();
-            }, $file->referencesTo($class)))));
+            }, $file->referencesTo($class)->toArray()))));
         }
     }
 

@@ -3,7 +3,6 @@
 namespace Phpactor\Indexer\Model;
 
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\Name\Name;
 
 class MemberReference
 {

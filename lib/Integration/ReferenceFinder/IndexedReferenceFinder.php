@@ -51,6 +51,7 @@ class IndexedReferenceFinder implements ReferenceFinder
         $locations = [];
 
         assert($record instanceof ClassRecord || $record instanceof FunctionRecord);
+
         foreach ($record->references() as $reference) {
             $fileRecord = $this->index->get(FileRecord::fromPath($reference));
             assert($fileRecord instanceof FileRecord);

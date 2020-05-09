@@ -5,7 +5,6 @@ namespace Phpactor\Indexer\Model;
 use ArrayIterator;
 use Iterator;
 use IteratorAggregate;
-use Phpactor\Name\FullyQualifiedName;
 
 /**
  * @implements IteratorAggregate<RecordReference>
