@@ -35,12 +35,7 @@ class MemberIndexerTest extends IntegrationTestCase
 
         $memberRecord = $index->get(MemberRecord::fromMemberReference($memberReference));
 
-        foreach ($memberRecord->references() as $reference) {
-            $fileRecord = $index->get(FileRecord::fromPath($reference));
-            $candidates = $fileRecord->memberCandidatesFor($memberRecord);
-        }
-
-        self::assertCount($expectedCount, $candidates);
+        self::assertCount($expectedCount, $memberRecord->references());
     }
 
     /**
