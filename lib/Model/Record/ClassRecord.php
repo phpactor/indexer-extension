@@ -5,7 +5,7 @@ namespace Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Name\FullyQualifiedName;
 
-final class ClassRecord extends Record
+final class ClassRecord extends Record implements HasFileReferences
 {
     use FullyQualifiedReferenceTrait;
     use HasFileReferencesTrait;

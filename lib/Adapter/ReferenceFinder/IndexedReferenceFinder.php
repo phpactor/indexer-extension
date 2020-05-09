@@ -1,12 +1,15 @@
 <?php
 
-namespace Phpactor\Indexer\Integration\ReferenceFinder;
+namespace Phpactor\Indexer\Adapter\ReferenceFinder;
 
+use Phpactor\Indexer\Model\MemberReference;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Model\Index;
+use Phpactor\Indexer\Model\Record\HasFileReferences;
+use Phpactor\Indexer\Model\Record\MemberRecord;
 use Phpactor\ReferenceFinder\ReferenceFinder;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\Location;
@@ -34,7 +37,6 @@ class IndexedReferenceFinder implements ReferenceFinder
         $this->reflector = $reflector;
     }
 
-
     public function findReferences(TextDocument $document, ByteOffset $byteOffset): Locations
     {
         $symbolContext = $this->reflector->reflectOffset(
@@ -50,7 +52,7 @@ class IndexedReferenceFinder implements ReferenceFinder
 
         $locations = [];
 
-        assert($record instanceof ClassRecord || $record instanceof FunctionRecord);
+        assert($record instanceof HasFileReferences);
 
         foreach ($record->references() as $reference) {
             $fileRecord = $this->index->get(FileRecord::fromPath($reference));
@@ -73,6 +75,20 @@ class IndexedReferenceFinder implements ReferenceFinder
 
         if ($symbolContext->symbol()->symbolType() === Symbol::FUNCTION) {
             return $this->index->get(FunctionRecord::fromName($symbolContext->symbol()->name()));
+        }
+
+        if (in_array($symbolContext->symbol()->symbolType(), [
+            Symbol::METHOD,
+            Symbol::CONSTANT,
+            Symbol::PROPERTY
+        ])) {
+            return $this->index->get(MemberRecord::fromMemberReference(
+                MemberReference::create(
+                    $symbolContext->symbol()->symbolType(),
+                    $symbolContext->type(),
+                    $symbolContext->symbol()->name()
+                )
+            ));
         }
 
         return null;

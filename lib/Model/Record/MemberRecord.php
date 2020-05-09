@@ -10,7 +10,7 @@ class MemberRecord extends Record implements HasFileReferences
     use HasFileReferencesTrait;
 
     const RECORD_TYPE = 'member';
-    const ID_DELIMITER = ':';
+    const ID_DELIMITER = '#';
 
     /**
      * @var string
@@ -54,8 +54,27 @@ class MemberRecord extends Record implements HasFileReferences
 
     public static function fromIdentifier(string $identifier): self
     {
-        [$type, $memberName] = explode(self::ID_DELIMITER, $identifier);
+        $parts = explode(self::ID_DELIMITER, $identifier);
+        if (!isset($parts[1])) {
+            $parts[1] = 'unknown';
+        }
+        [$type, $memberName] = $parts;
 
         return new self($type, $memberName);
+    }
+
+    public function memberName(): string
+    {
+        return $this->memberName;
+    }
+
+    public function containerFqn(): ?string
+    {
+        return $this->containerFqn;
+    }
+
+    public function type(): string
+    {
+        return $this->type;
     }
 }

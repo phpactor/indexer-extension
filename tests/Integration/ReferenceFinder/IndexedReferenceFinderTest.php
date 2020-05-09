@@ -3,7 +3,7 @@
 namespace Phpactor\Indexer\Tests\Integration\ReferenceFinder;
 
 use Generator;
-use Phpactor\Indexer\Integration\ReferenceFinder\IndexedReferenceFinder;
+use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedReferenceFinder;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
 use Phpactor\TestUtils\ExtractOffset;
 use Phpactor\TextDocument\ByteOffset;
@@ -19,6 +19,7 @@ class IndexedReferenceFinderTest extends IntegrationTestCase
     /**
      * @dataProvider provideClasses
      * @dataProvider provideFunctions
+     * @dataProvider provideMembers
      * @dataProvider provideUnknown
      */
     public function testFinder(string $manifest, int $expectedLocationCount): void
@@ -91,6 +92,26 @@ hello_world();
 <?php
 
 hello_world();
+EOT
+        ,
+            3
+        ];
+    }
+
+    /**
+     * @return Generator<mixed>
+     */
+    public function provideMembers(): Generator
+    {
+        yield 'staitc members' => [
+            <<<'EOT'
+// File: project/subject.php
+<?php Foobar::b<>ar() {}
+// File: project/class1.php
+<?php Foobar::bar() {}
+// File: project/class2.php
+<?php
+<?php Foobar::bar() {}
 EOT
         ,
             3

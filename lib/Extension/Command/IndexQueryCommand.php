@@ -5,6 +5,7 @@ namespace Phpactor\Indexer\Extension\Command;
 use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
+use Phpactor\Indexer\Model\Record\MemberRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\IndexQuery;
 use Phpactor\Indexer\Util\Cast;
@@ -50,6 +51,16 @@ class IndexQueryCommand extends Command
             $this->renderFunction($output, $function);
         }
 
+        $member = $this->query->member(
+            FullyQualifiedName::fromString(
+                Cast::toString($input->getArgument(self::ARG_FQN))
+            )
+        );
+
+        if ($member) {
+            $this->renderMember($output, $member);
+        }
+
         return 0;
     }
 
@@ -91,6 +102,24 @@ class IndexQueryCommand extends Command
             $output->writeln(sprintf('- %s:%s', $path, implode(', ', array_map(function (RecordReference $reference) {
                 return $reference->offset();
             }, $file->referencesTo($function)->toArray()))));
+        }
+    }
+
+    private function renderMember(OutputInterface $output, MemberRecord $member): void
+    {
+        $output->writeln('<info>Member:</>'.$member->memberName());
+        $output->writeln('<info>Member Type:</>'.$member->type());
+        $output->writeln('<info>Last modified:</>'.$member->lastModified());
+        $output->writeln('<info>Referenced by</>:');
+        foreach ($member->references() as $path) {
+            $file = $this->query->file($path);
+            $output->writeln(sprintf('- %s:%s', $path, implode(', ', array_map(function (RecordReference $reference) {
+                return sprintf(
+                    '[<comment>%s</>:<info>%s</>]',
+                    $reference->contaninerType() ?: '???',
+                    $reference->offset()
+                );
+            }, $file->referencesTo($member)->toArray()))));
         }
     }
 }
