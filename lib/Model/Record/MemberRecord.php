@@ -7,6 +7,8 @@ use Phpactor\Indexer\Model\Record;
 
 class MemberRecord extends Record
 {
+    use HasFileReferencesTrait;
+
     const RECORD_TYPE = 'member';
 
     /**
@@ -34,6 +36,9 @@ class MemberRecord extends Record
         return new self($memberReference->type(), $memberReference->containerFqn(), $memberReference->memberName());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function recordType(): string
     {
         return self::RECORD_TYPE;

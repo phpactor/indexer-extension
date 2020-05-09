@@ -8,6 +8,7 @@ use Phpactor\Name\FullyQualifiedName;
 final class ClassRecord extends Record
 {
     use FullyQualifiedReferenceTrait;
+    use HasFileReferencesTrait;
 
     public const RECORD_TYPE = 'class';
 
