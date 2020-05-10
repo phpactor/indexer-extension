@@ -7,7 +7,6 @@ use Phpactor\Indexer\Model\IndexQueryAgent;
 use Phpactor\ReferenceFinder\ReferenceFinder;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\Location;
-use Phpactor\TextDocument\Locations;
 use Phpactor\TextDocument\TextDocument;
 use Phpactor\WorseReflection\Core\Inference\Symbol;
 use Phpactor\WorseReflection\Core\Inference\SymbolContext;
@@ -31,21 +30,17 @@ class IndexedReferenceFinder implements ReferenceFinder
         $this->query = $query;
     }
 
-    public function findReferences(TextDocument $document, ByteOffset $byteOffset): Locations
+    /**
+     * @return Generator<Location>
+     */
+    public function findReferences(TextDocument $document, ByteOffset $byteOffset): Generator
     {
         $symbolContext = $this->reflector->reflectOffset(
             $document->__toString(),
             $byteOffset->toInt()
         )->symbolContext();
 
-        $references = $this->resolveReferences($symbolContext);
-
-        $locations = [];
-        foreach ($references as $reference) {
-            $locations[] = $reference;
-        }
-
-        return new Locations($locations);
+        yield from $this->resolveReferences($symbolContext);
     }
 
     /**
