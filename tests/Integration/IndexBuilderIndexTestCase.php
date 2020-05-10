@@ -10,7 +10,6 @@ use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
-use Phpactor\Name\FullyQualifiedName;
 use function Safe\file_get_contents;
 
 abstract class IndexBuilderIndexTestCase extends IntegrationTestCase
@@ -333,8 +332,8 @@ EOT
     {
         $this->workspace()->loadManifest($source);
         $index = $this->buildIndex();
-        $class = $this->indexQuery($index)->function(
-            FullyQualifiedName::fromString($name)
+        $class = $this->indexQuery($index)->function()->get(
+            $name
         );
 
         self::assertNotNull($class, 'Function was found');
@@ -395,8 +394,8 @@ EOT
     {
         $index = $this->buildIndex();
 
-        $function = $this->indexQuery($index)->function(
-            FullyQualifiedName::fromString('Hello\world')
+        $function = $this->indexQuery($index)->function()->get(
+            'Hello\world'
         );
 
         self::assertInstanceOf(Record::class, $function);

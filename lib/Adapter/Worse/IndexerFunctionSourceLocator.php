@@ -3,7 +3,6 @@
 namespace Phpactor\Indexer\Adapter\Worse;
 
 use Phpactor\Indexer\Model\IndexQueryAgent;
-use Phpactor\Name\FullyQualifiedName;
 use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
 use Phpactor\WorseReflection\Core\Name;
 use Phpactor\WorseReflection\Core\SourceCode;
@@ -30,8 +29,8 @@ class IndexerFunctionSourceLocator implements SourceCodeLocator
             throw new SourceNotFound('Name is empty');
         }
 
-        $record = $this->query->function(
-            FullyQualifiedName::fromString($name->__toString())
+        $record = $this->query->function()->get(
+            $name->__toString()
         );
 
         if (null === $record) {

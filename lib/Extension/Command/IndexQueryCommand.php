@@ -6,7 +6,6 @@ use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Model\Record\MemberRecord;
-use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\IndexQueryAgent;
 use Phpactor\Indexer\Util\Cast;
 use Symfony\Component\Console\Command\Command;
@@ -42,10 +41,8 @@ class IndexQueryCommand extends Command
             $this->renderClass($output, $class);
         }
 
-        $function = $this->query->function(
-            FullyQualifiedName::fromString(
-                Cast::toString($input->getArgument(self::ARG_QUERY))
-            )
+        $function = $this->query->function()->get(
+            Cast::toString($input->getArgument(self::ARG_QUERY))
         );
 
         if ($function) {

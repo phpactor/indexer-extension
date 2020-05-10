@@ -3,10 +3,9 @@
 namespace Phpactor\Indexer\Model;
 
 use Phpactor\Indexer\Model\Query\ClassQuery;
+use Phpactor\Indexer\Model\Query\FunctionQuery;
 use Phpactor\Indexer\Model\Record\FileRecord;
-use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Model\Record\MemberRecord;
-use Phpactor\Name\FullyQualifiedName;
 
 class IndexQueryAgent
 {
@@ -20,11 +19,16 @@ class IndexQueryAgent
      */
     private $classQuery;
 
+    /**
+     * @var FunctionQuery
+     */
+    private $functionQuery;
 
     public function __construct(Index $index)
     {
         $this->index = $index;
         $this->classQuery = new ClassQuery($index);
+        $this->functionQuery = new FunctionQuery($index);
     }
 
     public function class(): ClassQuery
@@ -32,9 +36,9 @@ class IndexQueryAgent
         return $this->classQuery;
     }
 
-    public function function(FullyQualifiedName $name): ?FunctionRecord
+    public function function(): FunctionQuery
     {
-        return $this->index->get(FunctionRecord::fromName($name));
+        return $this->functionQuery;
     }
 
     public function file(string $path): ?FileRecord
