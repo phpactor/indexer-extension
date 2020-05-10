@@ -5,6 +5,7 @@ namespace Phpactor\Indexer\Model\Query;
 use Generator;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexQuery;
+use Phpactor\Indexer\Model\LocationConfidence;
 use Phpactor\Indexer\Model\RecordReferenceEnhancer;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\TextDocument\Location;
@@ -44,7 +45,7 @@ class MemberQuery implements IndexQuery
     }
 
     /**
-     * @return Generator<Location>
+     * @return Generator<LocationConfidence>
      */
     public function referencesTo(string $type, string $memberName, ?string $containerType = null): Generator
     {
@@ -61,13 +62,24 @@ class MemberQuery implements IndexQuery
             assert($fileRecord instanceof FileRecord);
 
             foreach ($fileRecord->references()->to($record) as $memberReference) {
-                $memberReference = $this->enhancer->enhance($fileRecord, $memberReference);
+                if ($containerType && null === $memberReference->contaninerType()) {
+                    $memberReference = $this->enhancer->enhance($fileRecord, $memberReference);
+                }
 
-                if ($containerType && $containerType !== $memberReference->contaninerType()) {
+                $location = Location::fromPathAndOffset($fileRecord->filePath(), $memberReference->offset());
+
+                if (null === $memberReference->contaninerType()) {
+                    yield LocationConfidence::maybe($location);
                     continue;
                 }
 
-                yield Location::fromPathAndOffset($fileRecord->filePath(), $memberReference->offset());
+                if ($containerType && $containerType !== $memberReference->contaninerType()) {
+                    yield LocationConfidence::not($location);
+                    continue;
+                }
+
+
+                yield LocationConfidence::surely($location);
             }
         }
     }

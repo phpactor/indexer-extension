@@ -5,6 +5,7 @@ namespace Phpactor\Indexer\Model\Query;
 use Generator;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexQuery;
+use Phpactor\Indexer\Model\LocationConfidence;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Name\FullyQualifiedName;
@@ -42,7 +43,7 @@ class ClassQuery implements IndexQuery
     }
 
     /**
-     * @return Generator<Location>
+     * @return Generator<LocationConfidence>
      */
     public function referencesTo(string $identifier): Generator
     {
@@ -54,7 +55,9 @@ class ClassQuery implements IndexQuery
             assert($fileRecord instanceof FileRecord);
 
             foreach ($fileRecord->references()->to($record) as $classReference) {
-                yield Location::fromPathAndOffset($fileRecord->filePath(), $classReference->offset());
+                yield LocationConfidence::surely(
+                    Location::fromPathAndOffset($fileRecord->filePath(), $classReference->offset())
+                );
             }
         }
     }

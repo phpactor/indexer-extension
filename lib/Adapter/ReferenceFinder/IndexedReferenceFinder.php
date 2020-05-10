@@ -4,9 +4,10 @@ namespace Phpactor\Indexer\Adapter\ReferenceFinder;
 
 use Generator;
 use Phpactor\Indexer\Model\IndexQueryAgent;
+use Phpactor\Indexer\Model\LocationConfidence;
+use Phpactor\ReferenceFinder\PotentialLocation;
 use Phpactor\ReferenceFinder\ReferenceFinder;
 use Phpactor\TextDocument\ByteOffset;
-use Phpactor\TextDocument\Location;
 use Phpactor\TextDocument\TextDocument;
 use Phpactor\WorseReflection\Core\Inference\Symbol;
 use Phpactor\WorseReflection\Core\Inference\SymbolContext;
@@ -31,7 +32,7 @@ class IndexedReferenceFinder implements ReferenceFinder
     }
 
     /**
-     * @return Generator<Location>
+     * @return Generator<PotentialLocation>
      */
     public function findReferences(TextDocument $document, ByteOffset $byteOffset): Generator
     {
@@ -40,11 +41,13 @@ class IndexedReferenceFinder implements ReferenceFinder
             $byteOffset->toInt()
         )->symbolContext();
 
-        yield from $this->resolveReferences($symbolContext);
+        foreach ($this->resolveReferences($symbolContext) as $locationConfidence) {
+            yield new PotentialLocation($locationConfidence->location(), $locationConfidence->isSurely());
+        }
     }
 
     /**
-     * @return Generator<Location>
+     * @return Generator<LocationConfidence>
      */
     private function resolveReferences(SymbolContext $symbolContext): Generator
     {

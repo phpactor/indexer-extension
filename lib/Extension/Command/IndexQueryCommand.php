@@ -100,8 +100,8 @@ class IndexQueryCommand extends Command
         foreach ($this->query->member()->referencesTo($member->type(), $member->memberName()) as $location) {
             $output->writeln(sprintf(
                 '- %s:%s',
-                $location->uri()->path(),
-                $location->offset()->toInt(),
+                $location->location()->uri()->path(),
+                $location->location()->offset()->toInt(),
             ));
         }
     }
