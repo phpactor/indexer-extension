@@ -2,8 +2,10 @@
 
 namespace Phpactor\Indexer\Adapter\ReferenceFinder;
 
+use Generator;
 use Phpactor\Indexer\Model\IndexQueryAgent;
 use Phpactor\Indexer\Model\Record;
+use Phpactor\Indexer\Model\RecordReferences;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\HasFileReferences;
 use Phpactor\ReferenceFinder\ReferenceFinder;
@@ -40,37 +42,26 @@ class IndexedReferenceFinder implements ReferenceFinder
             $byteOffset->toInt()
         )->symbolContext();
 
-        $record = $this->resolveRecord($symbolContext);
-
-        if ($record === null) {
-            return new Locations([]);
-        }
+        $references = $this->resolveReferences($symbolContext);
 
         $locations = [];
-
-        assert($record instanceof HasFileReferences);
-
-        foreach ($record->references() as $reference) {
-            $fileRecord = $this->query->file()->get($reference);
-            assert($fileRecord instanceof FileRecord);
-            $references = $fileRecord->references()->to($record);
-
-            foreach ($references as $reference) {
-                $locations[] = Location::fromPathAndOffset($fileRecord->filePath(), $reference->offset());
-            }
+        foreach ($references as $reference) {
+            $locations[] = $reference;
         }
 
         return new Locations($locations);
     }
 
-    private function resolveRecord(SymbolContext $symbolContext): ?Record
+    private function resolveReferences(SymbolContext $symbolContext): Generator
     {
         if ($symbolContext->symbol()->symbolType() === Symbol::CLASS_) {
-            return $this->query->class()->get($symbolContext->type()->__toString());
+            yield from $this->query->class()->referencesTo($symbolContext->type()->__toString());
+            return;
         }
 
         if ($symbolContext->symbol()->symbolType() === Symbol::FUNCTION) {
-            return $this->query->function()->get($symbolContext->type()->__toString());
+            yield from $this->query->function()->referencesTo($symbolContext->type()->__toString());
+            return;
         }
 
         if (in_array($symbolContext->symbol()->symbolType(), [
@@ -78,12 +69,11 @@ class IndexedReferenceFinder implements ReferenceFinder
             Symbol::CONSTANT,
             Symbol::PROPERTY
         ])) {
-            return $this->query->member()->getByTypeAndName(
+            yield from $this->query->member()->referencesTo(
                 $symbolContext->symbol()->symbolType(),
                 $symbolContext->symbol()->name()
             );
+            return;
         }
-
-        return null;
     }
 }

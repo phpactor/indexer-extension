@@ -33,6 +33,9 @@ class RecordReferences implements IteratorAggregate
         $this->file = $file;
     }
 
+    /**
+     * @return RecordReferences<RecordReference>
+     */
     public function to(Record $record): RecordReferences
     {
         return new self($this->file, array_filter($this->references, function (RecordReference $reference) use ($record) {

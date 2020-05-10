@@ -2,10 +2,13 @@
 
 namespace Phpactor\Indexer\Model\Query;
 
+use Generator;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexQuery;
 use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Name\FullyQualifiedName;
+use Phpactor\TextDocument\Location;
 
 class ClassQuery implements IndexQuery
 {
@@ -35,5 +38,23 @@ class ClassQuery implements IndexQuery
         return array_map(function (string $fqn) {
             return FullyQualifiedName::fromString($fqn);
         }, $record->implementations());
+    }
+
+    /**
+     * @return Generator<Location>
+     */
+    public function referencesTo(string $identifier): Generator
+    {
+        $record = $this->index->get(ClassRecord::fromName($identifier));
+        assert($record instanceof ClassRecord);
+
+        foreach ($record->references() as $fileReference) {
+            $fileRecord = $this->index->get(FileRecord::fromPath($fileReference));
+            assert($fileRecord instanceof FileRecord);
+
+            foreach ($fileRecord->references()->to($record) as $classReference) {
+                yield Location::fromPathAndOffset($fileRecord->filePath(), $classReference->offset());
+            }
+        }
     }
 }
