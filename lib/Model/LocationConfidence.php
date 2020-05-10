@@ -59,4 +59,9 @@ class LocationConfidence
     {
         return $this->location;
     }
+
+    public function __toString(): string
+    {
+        return $this->confidence;
+    }
 }

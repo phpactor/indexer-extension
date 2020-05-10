@@ -23,8 +23,9 @@ class IndexedReferenceFinderTest extends IntegrationTestCase
      * @dataProvider provideMembers
      * @dataProvider provideUnknown
      */
-    public function testFinder(string $manifest, int $expectedLocationCount): void
+    public function testFinder(string $manifest, int $expectedConfirmed, ?int $expectedTotal = 0): void
     {
+        $expectedTotal = $expectedTotal ?: $expectedConfirmed;
         $this->workspace()->reset();
         $this->workspace()->loadManifest($manifest);
         [ $source, $offset ] = ExtractOffset::fromSource($this->workspace()->getContents('project/subject.php'));
@@ -42,11 +43,13 @@ class IndexedReferenceFinderTest extends IntegrationTestCase
             ByteOffset::fromInt((int)$offset)
         );
 
-        $locations = array_filter(iterator_to_array($locations), function (PotentialLocation $location) {
+        $locations = iterator_to_array($locations);
+        $sureLocations = array_filter($locations, function (PotentialLocation $location) {
             return $location->isSurely();
         });
 
-        self::assertCount($expectedLocationCount, $locations);
+        self::assertCount($expectedConfirmed, $sureLocations);
+        self::assertCount($expectedTotal, $locations);
     }
 
     /**
@@ -147,7 +150,7 @@ EOT
 
 EOT
         ,
-            1
+            1, 1
         ];
     }
 

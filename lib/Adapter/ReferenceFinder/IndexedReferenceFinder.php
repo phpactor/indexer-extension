@@ -9,6 +9,7 @@ use Phpactor\ReferenceFinder\PotentialLocation;
 use Phpactor\ReferenceFinder\ReferenceFinder;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\TextDocument;
+use Phpactor\WorseReflection\Core\Exception\NotFound;
 use Phpactor\WorseReflection\Core\Inference\Symbol;
 use Phpactor\WorseReflection\Core\Inference\SymbolContext;
 use Phpactor\WorseReflection\Reflector;
@@ -36,18 +37,24 @@ class IndexedReferenceFinder implements ReferenceFinder
      */
     public function findReferences(TextDocument $document, ByteOffset $byteOffset): Generator
     {
-        $symbolContext = $this->reflector->reflectOffset(
-            $document->__toString(),
-            $byteOffset->toInt()
-        )->symbolContext();
+        try {
+            $symbolContext = $this->reflector->reflectOffset(
+                $document->__toString(),
+                $byteOffset->toInt()
+            )->symbolContext();
+        } catch (NotFound $notFound) {
+            return;
+        }
 
         foreach ($this->resolveReferences($symbolContext) as $locationConfidence) {
             if ($locationConfidence->isSurely()) {
                 yield PotentialLocation::surely($locationConfidence->location());
+                continue;
             }
 
             if ($locationConfidence->isMaybe()) {
                 yield PotentialLocation::maybe($locationConfidence->location());
+                continue;
             }
 
             yield PotentialLocation::not($locationConfidence->location());
