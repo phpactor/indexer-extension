@@ -53,7 +53,7 @@ class IndexedReferenceFinder implements ReferenceFinder
         foreach ($record->references() as $reference) {
             $fileRecord = $this->query->file()->get($reference);
             assert($fileRecord instanceof FileRecord);
-            $references = $fileRecord->referencesTo($record);
+            $references = $fileRecord->references()->to($record);
 
             foreach ($references as $reference) {
                 $locations[] = Location::fromPathAndOffset($fileRecord->filePath(), $reference->offset());

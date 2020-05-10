@@ -26,6 +26,13 @@ class RecordReferences implements IteratorAggregate
         }
     }
 
+    public function to(Record $record): RecordReferences
+    {
+        return new self(array_filter($this->references, function (RecordReference $reference) use ($record) {
+            return $reference->type() === $record->recordType() && $reference->identifier() === $record->identifier();
+        }));
+    }
+
     private function add(RecordReference $reference): void
     {
         $this->references[] = $reference;
