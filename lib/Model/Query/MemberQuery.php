@@ -5,6 +5,7 @@ namespace Phpactor\Indexer\Model\Query;
 use Generator;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexQuery;
+use Phpactor\Indexer\Model\RecordReferenceEnhancer;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\TextDocument\Location;
 use Phpactor\Indexer\Model\Record\MemberRecord;
@@ -16,9 +17,15 @@ class MemberQuery implements IndexQuery
      */
     private $index;
 
-    public function __construct(Index $index)
+    /**
+     * @var RecordReferenceEnhancer
+     */
+    private $enhancer;
+
+    public function __construct(Index $index, RecordReferenceEnhancer $enhancer)
     {
         $this->index = $index;
+        $this->enhancer = $enhancer;
     }
 
     public function get(string $identifier): ?MemberRecord
@@ -27,7 +34,13 @@ class MemberQuery implements IndexQuery
             return null;
         }
 
-        return $this->index->get(MemberRecord::fromIdentifier($identifier));
+        $prototype = MemberRecord::fromIdentifier($identifier);
+
+        if (false === $this->index->has($prototype)) {
+            return null;
+        }
+
+        return $this->index->get($prototype);
     }
 
     public function getByTypeAndName(string $type, string $name): ?MemberRecord
@@ -47,8 +60,14 @@ class MemberQuery implements IndexQuery
             $fileRecord = $this->index->get(FileRecord::fromPath($fileReference));
             assert($fileRecord instanceof FileRecord);
 
-            foreach ($fileRecord->references()->to($record) as $classReference) {
-                yield Location::fromPathAndOffset($fileRecord->filePath(), $classReference->offset());
+            foreach ($fileRecord->references()->to($record) as $memberReference) {
+                $memberReference = $this->enhancer->enhance($fileRecord, $memberReference);
+
+                if (null === $memberReference->contaninerType()) {
+                    continue;
+                }
+
+                yield Location::fromPathAndOffset($fileRecord->filePath(), $memberReference->offset());
             }
         }
     }

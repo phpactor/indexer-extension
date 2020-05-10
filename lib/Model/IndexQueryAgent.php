@@ -6,6 +6,7 @@ use Phpactor\Indexer\Model\Query\ClassQuery;
 use Phpactor\Indexer\Model\Query\FileQuery;
 use Phpactor\Indexer\Model\Query\FunctionQuery;
 use Phpactor\Indexer\Model\Query\MemberQuery;
+use Phpactor\Indexer\Model\RecordReferenceEnhancer\NullRecordReferenceEnhancer;
 
 class IndexQueryAgent
 {
@@ -29,12 +30,14 @@ class IndexQueryAgent
      */
     private $memberQuery;
 
-    public function __construct(Index $index)
+    public function __construct(Index $index, ?RecordReferenceEnhancer $enhancer = null)
     {
+        $enhancer = $enhancer ?: new NullRecordReferenceEnhancer();
+
         $this->classQuery = new ClassQuery($index);
         $this->functionQuery = new FunctionQuery($index);
         $this->fileQuery = new FileQuery($index);
-        $this->memberQuery = new MemberQuery($index);
+        $this->memberQuery = new MemberQuery($index, $enhancer);
     }
 
     public function class(): ClassQuery

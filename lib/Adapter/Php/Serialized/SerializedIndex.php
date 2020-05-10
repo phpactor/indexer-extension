@@ -61,4 +61,9 @@ class SerializedIndex implements Index
         $this->repository->flush();
         $this->repository->putTimestamp();
     }
+
+    public function has(Record $record): bool
+    {
+        return $this->repository->get($record) ? true : false;
+    }
 }

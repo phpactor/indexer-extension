@@ -34,4 +34,6 @@ interface Index
      * @return TRecord
      */
     public function get(Record $record): Record;
+
+    public function has(Record $record): bool;
 }

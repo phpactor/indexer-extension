@@ -23,7 +23,8 @@ class FunctionQuery implements IndexQuery
 
     public function get(string $identifier): ?FunctionRecord
     {
-        return $this->index->get(FunctionRecord::fromName($identifier));
+        $prototype = FunctionRecord::fromName($identifier);
+        return $this->index->has($prototype) ? $this->index->get($prototype) : null;
     }
 
     /**

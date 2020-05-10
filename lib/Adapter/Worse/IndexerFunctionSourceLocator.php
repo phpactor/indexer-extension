@@ -2,7 +2,8 @@
 
 namespace Phpactor\Indexer\Adapter\Worse;
 
-use Phpactor\Indexer\Model\IndexQueryAgent;
+use Phpactor\Indexer\Model\Index;
+use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
 use Phpactor\WorseReflection\Core\Name;
 use Phpactor\WorseReflection\Core\SourceCode;
@@ -11,13 +12,13 @@ use Phpactor\WorseReflection\Core\SourceCodeLocator;
 class IndexerFunctionSourceLocator implements SourceCodeLocator
 {
     /**
-     * @var IndexQueryAgent
+     * @var Index
      */
-    private $query;
+    private $index;
 
-    public function __construct(IndexQueryAgent $query)
+    public function __construct(Index $index)
     {
-        $this->query = $query;
+        $this->index = $index;
     }
 
     /**
@@ -29,16 +30,9 @@ class IndexerFunctionSourceLocator implements SourceCodeLocator
             throw new SourceNotFound('Name is empty');
         }
 
-        $record = $this->query->function()->get(
-            $name->__toString()
+        $record = $this->index->get(
+            FunctionRecord::fromName($name->__toString())
         );
-
-        if (null === $record) {
-            throw new SourceNotFound(sprintf(
-                'Function "%s" not in index',
-                $name->full()
-            ));
-        }
 
         $filePath = $record->filePath();
 

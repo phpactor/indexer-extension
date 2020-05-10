@@ -97,15 +97,12 @@ class IndexQueryCommand extends Command
         $output->writeln('<info>Member:</>'.$member->memberName());
         $output->writeln('<info>Member Type:</>'.$member->type());
         $output->writeln('<info>Referenced by</>:');
-        foreach ($member->references() as $path) {
-            $file = $this->query->file()->get($path);
-            $output->writeln(sprintf('- %s:%s', $path, implode(', ', array_map(function (RecordReference $reference) {
-                return sprintf(
-                    '[<comment>%s</>:<info>%s</>]',
-                    $reference->contaninerType() ?: '???',
-                    $reference->offset()
-                );
-            }, $file->references()->to($member)->toArray()))));
+        foreach ($this->query->member()->referencesTo($member->type(), $member->memberName()) as $location) {
+            $output->writeln(sprintf(
+                '- %s:%s',
+                $location->uri()->path(),
+                $location->offset()->toInt(),
+            ));
         }
     }
 }

@@ -24,7 +24,8 @@ class ClassQuery implements IndexQuery
 
     public function get(string $identifier): ?ClassRecord
     {
-        return $this->index->get(ClassRecord::fromName($identifier));
+        $prototype = ClassRecord::fromName($identifier);
+        return $this->index->has($prototype) ? $this->index->get($prototype) : null;
     }
 
     /**

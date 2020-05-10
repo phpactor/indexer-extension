@@ -20,6 +20,7 @@ class FileQuery implements IndexQuery
 
     public function get(string $identifier): ?FileRecord
     {
-        return $this->index->get(FileRecord::fromPath($identifier));
+        $prototype = FileRecord::fromPath($identifier);
+        return $this->index->has($prototype) ? $this->index->get($prototype) : null;
     }
 }

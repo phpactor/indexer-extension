@@ -30,6 +30,7 @@ use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Adapter\Worse\IndexerClassSourceLocator;
 use Phpactor\Indexer\Adapter\Worse\IndexerFunctionSourceLocator;
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedReferenceFinder;
+use Phpactor\Indexer\Adapter\Worse\WorseRecordReferenceEnhancer;
 use Phpactor\MapResolver\Resolver;
 use Phpactor\Indexer\Adapter\Filesystem\FilesystemFileListProvider;
 use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
@@ -147,13 +148,13 @@ class IndexerExtension implements Extension
         });
         
         $container->register(IndexerClassSourceLocator::class, function (Container $container) {
-            return new IndexerClassSourceLocator($container->get(IndexQueryAgent::class));
+            return new IndexerClassSourceLocator($container->get(Index::class));
         }, [
             WorseReflectionExtension::TAG_SOURCE_LOCATOR => []
         ]);
 
         $container->register(IndexerFunctionSourceLocator::class, function (Container $container) {
-            return new IndexerFunctionSourceLocator($container->get(IndexQueryAgent::class));
+            return new IndexerFunctionSourceLocator($container->get(Index::class));
         }, [
             WorseReflectionExtension::TAG_SOURCE_LOCATOR => []
         ]);
@@ -218,7 +219,10 @@ class IndexerExtension implements Extension
         });
         
         $container->register(IndexQueryAgent::class, function (Container $container) {
-            return new IndexQueryAgent($container->get(Index::class));
+            return new IndexQueryAgent(
+                $container->get(Index::class),
+                new WorseRecordReferenceEnhancer($container->get(WorseReflectionExtension::SERVICE_REFLECTOR)),
+            );
         });
     }
 
@@ -234,7 +238,7 @@ class IndexerExtension implements Extension
         $container->register(IndexedReferenceFinder::class, function (Container $container) {
             return new IndexedReferenceFinder(
                 $container->get(IndexQueryAgent::class),
-                $container->get(WorseReflectionExtension::SERVICE_REFLECTOR)
+                $container->get(WorseReflectionExtension::SERVICE_REFLECTOR),
             );
         }, [ ReferenceFinderExtension::TAG_REFERENCE_FINDER => []]);
     }

@@ -35,7 +35,6 @@ class WorseRecordReferenceEnhancerTest extends IntegrationTestCase
      */
     public function provideEnhance(): Generator
     {
-
         yield [
             <<<'EOT'
 <?php
