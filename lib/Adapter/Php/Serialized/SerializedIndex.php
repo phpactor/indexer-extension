@@ -7,6 +7,7 @@ use Phpactor\Indexer\Model\IndexQuery;
 use Phpactor\Indexer\Model\Record;
 use RuntimeException;
 use SplFileInfo;
+use Phpactor\Indexer\Model\SerializedQuery;
 
 class SerializedIndex implements Index
 {
@@ -27,7 +28,7 @@ class SerializedIndex implements Index
 
     public function query(): IndexQuery
     {
-        return new SerializedQuery($this->repository);
+        return new SerializedQuery($this);
     }
 
     public function get(Record $record): Record

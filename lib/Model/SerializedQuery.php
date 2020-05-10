@@ -1,24 +1,23 @@
 <?php
 
-namespace Phpactor\Indexer\Adapter\Php\Serialized;
+namespace Phpactor\Indexer\Model;
 
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Model\Record\MemberRecord;
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\Indexer\Model\IndexQuery;
 
 class SerializedQuery implements IndexQuery
 {
     /**
-     * @var FileRepository
+     * @var Index
      */
-    private $repository;
+    private $index;
 
-    public function __construct(FileRepository $repository)
+    public function __construct(Index $index)
     {
-        $this->repository = $repository;
+        $this->index = $index;
     }
 
     /**
@@ -26,11 +25,8 @@ class SerializedQuery implements IndexQuery
      */
     public function implementing(FullyQualifiedName $name): array
     {
-        $record = $this->repository->get(ClassRecord::fromName($name));
-
-        if (!$record) {
-            return [];
-        }
+        $record = $this->index->get(ClassRecord::fromName($name));
+        assert($record instanceof ClassRecord);
 
         return array_map(function (string $fqn) {
             return FullyQualifiedName::fromString($fqn);
@@ -39,17 +35,17 @@ class SerializedQuery implements IndexQuery
 
     public function class(FullyQualifiedName $name): ?ClassRecord
     {
-        return $this->repository->get(ClassRecord::fromName($name));
+        return $this->index->get(ClassRecord::fromName($name));
     }
 
     public function function(FullyQualifiedName $name): ?FunctionRecord
     {
-        return $this->repository->get(FunctionRecord::fromName($name));
+        return $this->index->get(FunctionRecord::fromName($name));
     }
 
     public function file(string $path): ?FileRecord
     {
-        return $this->repository->get(FileRecord::fromPath($path));
+        return $this->index->get(FileRecord::fromPath($path));
     }
 
     public function member(string $name): ?MemberRecord
@@ -58,6 +54,6 @@ class SerializedQuery implements IndexQuery
             return null;
         }
 
-        return $this->repository->get(MemberRecord::fromIdentifier($name));
+        return $this->index->get(MemberRecord::fromIdentifier($name));
     }
 }
