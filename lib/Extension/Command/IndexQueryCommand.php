@@ -36,11 +36,7 @@ class IndexQueryCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $class = $this->query->class(
-            FullyQualifiedName::fromString(
-                Cast::toString($input->getArgument(self::ARG_QUERY))
-            )
-        );
+        $class = $this->query->class()->get(Cast::toString($input->getArgument(self::ARG_QUERY)));
 
         if ($class) {
             $this->renderClass($output, $class);

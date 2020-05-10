@@ -2,6 +2,7 @@
 
 namespace Phpactor\Indexer\Model;
 
+use Phpactor\Indexer\Model\Query\ClassQuery;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
@@ -15,9 +16,16 @@ class IndexQueryAgent
      */
     private $index;
 
+    /**
+     * @var ClassQuery
+     */
+    private $classQuery;
+
+
     public function __construct(Index $index)
     {
         $this->index = $index;
+        $this->classQuery = new ClassQuery($index);
     }
 
     /**
@@ -33,9 +41,9 @@ class IndexQueryAgent
         }, $record->implementations());
     }
 
-    public function class(FullyQualifiedName $name): ?ClassRecord
+    public function class(): ClassQuery
     {
-        return $this->index->get(ClassRecord::fromName($name));
+        return $this->classQuery;
     }
 
     public function function(FullyQualifiedName $name): ?FunctionRecord

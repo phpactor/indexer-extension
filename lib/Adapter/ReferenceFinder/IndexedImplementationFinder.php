@@ -48,7 +48,7 @@ class IndexedImplementationFinder implements ClassImplementationFinder
         }
 
         return new Locations(array_map(function (FullyQualifiedName $name) {
-            $record = $this->query->class($name);
+            $record = $this->query->class()->get($name);
 
             return new Location(
                 TextDocumentUri::fromString($record->filePath()),
@@ -82,7 +82,7 @@ class IndexedImplementationFinder implements ClassImplementationFinder
         $locations = [];
 
         foreach ($implementations as $implementation) {
-            $record = $this->query->class($implementation);
+            $record = $this->query->class()->get($implementation);
             try {
                 $reflection = $this->reflector->reflectClassLike($implementation->__toString());
                 $method = $reflection->methods()->get($methodName);

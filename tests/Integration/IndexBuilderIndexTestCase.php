@@ -25,9 +25,7 @@ abstract class IndexBuilderIndexTestCase extends IntegrationTestCase
     {
         $this->workspace()->loadManifest($source);
         $index = $this->buildIndex();
-        $class = $this->indexQuery($index)->class(
-            FullyQualifiedName::fromString($name)
-        );
+        $class = $this->indexQuery($index)->class()->get($name);
 
         self::assertNotNull($class, 'Class was found');
 

@@ -30,9 +30,7 @@ class IndexerClassSourceLocator implements SourceCodeLocator
             throw new SourceNotFound('Name is empty');
         }
 
-        $record = $this->query->class(
-            FullyQualifiedName::fromString($name->__toString())
-        );
+        $record = $this->query->class()->get(FullyQualifiedName::fromString($name->__toString()));
 
         if (null === $record) {
             throw new SourceNotFound(sprintf(
