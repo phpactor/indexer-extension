@@ -9,8 +9,6 @@ interface Index
 {
     public function lastUpdate(): int;
 
-    public function query(): IndexQuery;
-
     public function write(Record $record): void;
 
     public function isFresh(SplFileInfo $fileInfo): bool;

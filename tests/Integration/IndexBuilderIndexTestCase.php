@@ -25,7 +25,7 @@ abstract class IndexBuilderIndexTestCase extends IntegrationTestCase
     {
         $this->workspace()->loadManifest($source);
         $index = $this->buildIndex();
-        $class = $index->query()->class(
+        $class = $this->indexQuery($index)->class(
             FullyQualifiedName::fromString($name)
         );
 
@@ -335,7 +335,7 @@ EOT
     {
         $this->workspace()->loadManifest($source);
         $index = $this->buildIndex();
-        $class = $index->query()->function(
+        $class = $this->indexQuery($index)->function(
             FullyQualifiedName::fromString($name)
         );
 
@@ -388,7 +388,7 @@ EOT
     {
         $index = $this->buildIndex();
 
-        $references = $index->query()->implementing(
+        $references = $this->indexQuery($index)->implementing(
             FullyQualifiedName::fromString('Index')
         );
 
@@ -399,7 +399,7 @@ EOT
     {
         $index = $this->buildIndex();
 
-        $function = $index->query()->function(
+        $function = $this->indexQuery($index)->function(
             FullyQualifiedName::fromString('Hello\world')
         );
 
@@ -411,7 +411,7 @@ EOT
     {
         $index = $this->buildIndex();
 
-        $references = $index->query()->implementing(
+        $references = $this->indexQuery($index)->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
 
@@ -422,7 +422,7 @@ EOT
     {
         $index = $this->buildIndex();
 
-        $references = $index->query()->implementing(
+        $references = $this->indexQuery($index)->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
         self::assertCount(2, $references);
@@ -440,7 +440,7 @@ EOT
 
         $this->buildIndex($index);
 
-        $references = $index->query()->implementing(
+        $references = $this->indexQuery($index)->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
 
@@ -451,7 +451,7 @@ EOT
     {
         $index = $this->buildIndex();
 
-        $references = $index->query()->implementing(
+        $references = $this->indexQuery($index)->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
         self::assertCount(2, $references);
@@ -469,7 +469,7 @@ EOT
 
         $index = $this->buildIndex($index);
 
-        $references = $index->query()->implementing(
+        $references = $this->indexQuery($index)->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
 
@@ -501,7 +501,7 @@ EOT
 
         $index = $this->buildIndex();
 
-        $references = $index->query()->implementing(
+        $references = $this->indexQuery($index)->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
         self::assertCount(4, $references);
@@ -519,7 +519,7 @@ EOT
 
         $index = $this->buildIndex($index);
 
-        $references = $index->query()->implementing(
+        $references = $this->indexQuery($index)->implementing(
             FullyQualifiedName::fromString('AbstractClass')
         );
 

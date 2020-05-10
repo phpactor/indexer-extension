@@ -26,11 +26,6 @@ class SerializedIndex implements Index
         return $this->repository->lastUpdate();
     }
 
-    public function query(): IndexQuery
-    {
-        return new IndexQuery($this);
-    }
-
     public function get(Record $record): Record
     {
         return $this->repository->get($record) ?? $record;
