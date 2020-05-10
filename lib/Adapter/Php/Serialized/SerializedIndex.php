@@ -28,7 +28,7 @@ class SerializedIndex implements Index
 
     public function query(): IndexQuery
     {
-        return new SerializedQuery($this);
+        return new IndexQuery($this);
     }
 
     public function get(Record $record): Record

@@ -35,7 +35,7 @@ class InMemoryIndex implements Index
 
     public function query(): IndexQuery
     {
-        return new InMemoryQuery($this->repository);
+        return new IndexQuery($this);
     }
 
     public function write(Record $record): void
