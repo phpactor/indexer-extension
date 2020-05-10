@@ -5,7 +5,7 @@ namespace Phpactor\Indexer\Model;
 use Phpactor\Indexer\Model\Query\ClassQuery;
 use Phpactor\Indexer\Model\Query\FileQuery;
 use Phpactor\Indexer\Model\Query\FunctionQuery;
-use Phpactor\Indexer\Model\Record\MemberRecord;
+use Phpactor\Indexer\Model\Query\MemberQuery;
 
 class IndexQueryAgent
 {
@@ -29,12 +29,18 @@ class IndexQueryAgent
      */
     private $fileQuery;
 
+    /**
+     * @var MemberQuery
+     */
+    private $memberQuery;
+
     public function __construct(Index $index)
     {
         $this->index = $index;
         $this->classQuery = new ClassQuery($index);
         $this->functionQuery = new FunctionQuery($index);
         $this->fileQuery = new FileQuery($index);
+        $this->memberQuery = new MemberQuery($index);
     }
 
     public function class(): ClassQuery
@@ -52,12 +58,8 @@ class IndexQueryAgent
         return $this->fileQuery;
     }
 
-    public function member(string $name): ?MemberRecord
+    public function member(): MemberQuery
     {
-        if (!MemberRecord::isIdentifier($name)) {
-            return null;
-        }
-
-        return $this->index->get(MemberRecord::fromIdentifier($name));
+        return $this->memberQuery;
     }
 }

@@ -49,9 +49,7 @@ class IndexQueryCommand extends Command
             $this->renderFunction($output, $function);
         }
 
-        $member = $this->query->member(
-            Cast::toString($input->getArgument(self::ARG_QUERY))
-        );
+        $member = $this->query->member()->get(Cast::toString($input->getArgument(self::ARG_QUERY)));
 
         if ($member) {
             $this->renderMember($output, $member);
