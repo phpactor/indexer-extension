@@ -2,6 +2,7 @@
 
 namespace Phpactor\Indexer\Adapter\Worse;
 
+use Phpactor\Indexer\Model\IndexQuery;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
@@ -12,13 +13,13 @@ use Phpactor\WorseReflection\Core\SourceCodeLocator;
 class IndexerClassSourceLocator implements SourceCodeLocator
 {
     /**
-     * @var Index
+     * @var IndexQuery
      */
-    private $index;
+    private $query;
 
-    public function __construct(Index $index)
+    public function __construct(IndexQuery $query)
     {
-        $this->index = $index;
+        $this->query = $query;
     }
 
     /**
@@ -30,7 +31,7 @@ class IndexerClassSourceLocator implements SourceCodeLocator
             throw new SourceNotFound('Name is empty');
         }
 
-        $record = $this->index->query()->class(
+        $record = $this->query->class(
             FullyQualifiedName::fromString($name->__toString())
         );
 

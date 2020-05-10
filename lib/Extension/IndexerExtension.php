@@ -147,13 +147,13 @@ class IndexerExtension implements Extension
         });
         
         $container->register(IndexerClassSourceLocator::class, function (Container $container) {
-            return new IndexerClassSourceLocator($container->get(Index::class));
+            return new IndexerClassSourceLocator($container->get(IndexQuery::class));
         }, [
             WorseReflectionExtension::TAG_SOURCE_LOCATOR => []
         ]);
 
         $container->register(IndexerFunctionSourceLocator::class, function (Container $container) {
-            return new IndexerFunctionSourceLocator($container->get(Index::class));
+            return new IndexerFunctionSourceLocator($container->get(IndexQuery::class));
         }, [
             WorseReflectionExtension::TAG_SOURCE_LOCATOR => []
         ]);
@@ -218,9 +218,7 @@ class IndexerExtension implements Extension
         });
         
         $container->register(IndexQuery::class, function (Container $container) {
-            $index = $container->get(Index::class);
-            assert($index instanceof Index);
-            return $index->query();
+            return new IndexQuery($container->get(Index::class));
         });
     }
 
@@ -228,7 +226,7 @@ class IndexerExtension implements Extension
     {
         $container->register(IndexedImplementationFinder::class, function (Container $container) {
             return new IndexedImplementationFinder(
-                $container->get(Index::class),
+                $container->get(IndexQuery::class),
                 $container->get(WorseReflectionExtension::SERVICE_REFLECTOR)
             );
         }, [ ReferenceFinderExtension::TAG_IMPLEMENTATION_FINDER => []]);

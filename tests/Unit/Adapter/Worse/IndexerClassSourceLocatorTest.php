@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Tests\Unit\Adapter\Worse;
 
 use PHPUnit\Framework\TestCase;
+use Phpactor\Indexer\Model\IndexQuery;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\TextDocument\ByteOffset;
@@ -18,7 +19,7 @@ class IndexerClassSourceLocatorTest extends TestCase
     {
         $this->expectException(SourceNotFound::class);
         $index = new InMemoryIndex();
-        $locator = new IndexerClassSourceLocator($index);
+        $locator = $this->createLocator($index);
         $locator->locate(Name::fromString('Foobar'));
     }
 
@@ -33,7 +34,7 @@ class IndexerClassSourceLocatorTest extends TestCase
 
         $index = new InMemoryIndex();
         $index->write($record);
-        $locator = new IndexerClassSourceLocator($index);
+        $locator = $this->createLocator($index);
         $locator->locate(Name::fromString('Foobar'));
     }
 
@@ -46,8 +47,13 @@ class IndexerClassSourceLocatorTest extends TestCase
 
         $index = new InMemoryIndex();
         $index->write($record);
-        $locator = new IndexerClassSourceLocator($index);
+        $locator = $this->createLocator($index);
         $sourceCode = $locator->locate(Name::fromString('Foobar'));
         $this->assertEquals(__FILE__, $sourceCode->path());
+    }
+
+    private function createLocator(InMemoryIndex $index): IndexerClassSourceLocator
+    {
+        return new IndexerClassSourceLocator(new IndexQuery($index));
     }
 }

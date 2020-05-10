@@ -23,6 +23,7 @@ use Phpactor\Container\Container;
 use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
 use Phpactor\Filesystem\Domain\MappedFilesystemRegistry;
 use Phpactor\Indexer\Model\FileListProvider;
+use Phpactor\Indexer\Model\IndexQuery;
 use Phpactor\Indexer\Model\Indexer;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\TestUtils\Workspace;
@@ -92,6 +93,11 @@ class IntegrationTestCase extends TestCase
                 $this->workspace()->path('/')
             )
         )->build();
+    }
+
+    protected function indexQuery(Index $index): IndexQuery
+    {
+        return new IndexQuery($index);
     }
 
     protected function container(array $config = []): Container
