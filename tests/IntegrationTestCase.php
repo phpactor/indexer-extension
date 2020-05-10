@@ -18,11 +18,13 @@ use Phpactor\Filesystem\Domain\FilePath;
 use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
 use Phpactor\Indexer\Adapter\Php\Serialized\SerializedIndex;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
+use Phpactor\Indexer\Adapter\Worse\WorseRecordReferenceEnhancer;
 use Phpactor\Indexer\Extension\IndexerExtension;
 use Phpactor\Container\Container;
 use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
 use Phpactor\Filesystem\Domain\MappedFilesystemRegistry;
 use Phpactor\Indexer\Model\FileListProvider;
+use Phpactor\Indexer\Model\IndexQueryAgent;
 use Phpactor\Indexer\Model\Indexer;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\TestUtils\Workspace;
@@ -92,6 +94,14 @@ class IntegrationTestCase extends TestCase
                 $this->workspace()->path('/')
             )
         )->build();
+    }
+
+    protected function indexQuery(Index $index): IndexQueryAgent
+    {
+        return new IndexQueryAgent(
+            $index,
+            new WorseRecordReferenceEnhancer($this->createReflector())
+        );
     }
 
     protected function container(array $config = []): Container

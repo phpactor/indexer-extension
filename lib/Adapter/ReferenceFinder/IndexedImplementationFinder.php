@@ -2,8 +2,8 @@
 
 namespace Phpactor\Indexer\Adapter\ReferenceFinder;
 
+use Phpactor\Indexer\Model\IndexQueryAgent;
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\Indexer\Model\Index;
 use Phpactor\ReferenceFinder\ClassImplementationFinder;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\Location;
@@ -18,19 +18,19 @@ use Phpactor\WorseReflection\Reflector;
 class IndexedImplementationFinder implements ClassImplementationFinder
 {
     /**
-     * @var Index
-     */
-    private $index;
-
-    /**
      * @var Reflector
      */
     private $reflector;
 
-    public function __construct(Index $index, Reflector $reflector)
+    /**
+     * @var IndexQueryAgent
+     */
+    private $query;
+
+    public function __construct(IndexQueryAgent $query, Reflector $reflector)
     {
-        $this->index = $index;
         $this->reflector = $reflector;
+        $this->query = $query;
     }
 
     /**
@@ -48,16 +48,14 @@ class IndexedImplementationFinder implements ClassImplementationFinder
         }
 
         return new Locations(array_map(function (FullyQualifiedName $name) {
-            $record = $this->index->query()->class($name);
+            $record = $this->query->class()->get($name);
 
             return new Location(
                 TextDocumentUri::fromString($record->filePath()),
                 $record->start()
             );
-        }, $this->index->query()->implementing(
-            FullyQualifiedName::fromString(
-                $symbolContext->type()->__toString()
-            )
+        }, $this->query->class()->implementing(
+            $symbolContext->type()->__toString()
         )));
     }
 
@@ -72,17 +70,15 @@ class IndexedImplementationFinder implements ClassImplementationFinder
             return new Locations([]);
         }
 
-        $implementations = $this->index->query()->implementing(
-            FullyQualifiedName::fromString(
-                $container->__toString()
-            )
+        $implementations = $this->query->class()->implementing(
+            $container->__toString()
         );
 
         $methodName = $symbolContext->symbol()->name();
         $locations = [];
 
         foreach ($implementations as $implementation) {
-            $record = $this->index->query()->class($implementation);
+            $record = $this->query->class()->get($implementation);
             try {
                 $reflection = $this->reflector->reflectClassLike($implementation->__toString());
                 $method = $reflection->methods()->get($methodName);

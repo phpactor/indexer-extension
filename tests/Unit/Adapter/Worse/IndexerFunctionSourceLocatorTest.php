@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Tests\Unit\Adapter\Worse;
 
 use PHPUnit\Framework\TestCase;
+use Phpactor\Indexer\Model\IndexQueryAgent;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryIndex;
@@ -17,7 +18,7 @@ class IndexerFunctionSourceLocatorTest extends TestCase
     {
         $this->expectException(SourceNotFound::class);
         $index = new InMemoryIndex();
-        $locator = new IndexerFunctionSourceLocator($index);
+        $locator = $this->createLocator($index);
         $locator->locate(Name::fromString('Foobar'));
     }
 
@@ -31,7 +32,7 @@ class IndexerFunctionSourceLocatorTest extends TestCase
         $record->setFilePath('nope.php');
         $index = new InMemoryIndex();
         $index->write($record);
-        $locator = new IndexerFunctionSourceLocator($index);
+        $locator = $this->createLocator($index);
         $locator->locate(Name::fromString('Foobar'));
     }
 
@@ -43,8 +44,13 @@ class IndexerFunctionSourceLocatorTest extends TestCase
         $record->setFilePath(__FILE__);
         $index = new InMemoryIndex();
         $index->write($record);
-        $locator = new IndexerFunctionSourceLocator($index);
+        $locator = $this->createLocator($index);
         $sourceCode = $locator->locate(Name::fromString('Foobar'));
         $this->assertEquals(__FILE__, $sourceCode->path());
+    }
+
+    private function createLocator(InMemoryIndex $index): IndexerFunctionSourceLocator
+    {
+        return new IndexerFunctionSourceLocator($index);
     }
 }

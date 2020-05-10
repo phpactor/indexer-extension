@@ -9,7 +9,6 @@ use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
-use Phpactor\TextDocument\ByteOffset;
 use SplFileInfo;
 
 class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
@@ -54,9 +53,6 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
 
         $targetRecord = $index->get(ClassRecord::fromName($name));
         assert($targetRecord instanceof ClassRecord);
-        $targetRecord->setStart(ByteOffset::fromInt($node->getStart()));
-        $targetRecord->setFilePath($info->getPathname());
-        $targetRecord->setType(ClassRecord::RECORD_TYPE);
         $targetRecord->addReference($info->getPathname());
 
         $index->write($targetRecord);

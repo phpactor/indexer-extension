@@ -2,8 +2,8 @@
 
 namespace Phpactor\Indexer\Adapter\Worse;
 
-use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Index;
+use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
 use Phpactor\WorseReflection\Core\Name;
 use Phpactor\WorseReflection\Core\SourceCode;
@@ -30,16 +30,9 @@ class IndexerFunctionSourceLocator implements SourceCodeLocator
             throw new SourceNotFound('Name is empty');
         }
 
-        $record = $this->index->query()->function(
-            FullyQualifiedName::fromString($name->__toString())
+        $record = $this->index->get(
+            FunctionRecord::fromName($name->__toString())
         );
-
-        if (null === $record) {
-            throw new SourceNotFound(sprintf(
-                'Function "%s" not in index',
-                $name->full()
-            ));
-        }
 
         $filePath = $record->filePath();
 

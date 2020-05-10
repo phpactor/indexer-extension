@@ -10,7 +10,6 @@ use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
-use Phpactor\Name\FullyQualifiedName;
 use function Safe\file_get_contents;
 
 abstract class IndexBuilderIndexTestCase extends IntegrationTestCase
@@ -25,9 +24,7 @@ abstract class IndexBuilderIndexTestCase extends IntegrationTestCase
     {
         $this->workspace()->loadManifest($source);
         $index = $this->buildIndex();
-        $class = $index->query()->class(
-            FullyQualifiedName::fromString($name)
-        );
+        $class = $this->indexQuery($index)->class()->get($name);
 
         self::assertNotNull($class, 'Class was found');
 
@@ -335,8 +332,8 @@ EOT
     {
         $this->workspace()->loadManifest($source);
         $index = $this->buildIndex();
-        $class = $index->query()->function(
-            FullyQualifiedName::fromString($name)
+        $class = $this->indexQuery($index)->function()->get(
+            $name
         );
 
         self::assertNotNull($class, 'Function was found');
@@ -388,9 +385,7 @@ EOT
     {
         $index = $this->buildIndex();
 
-        $references = $index->query()->implementing(
-            FullyQualifiedName::fromString('Index')
-        );
+        $references = $this->indexQuery($index)->class()->implementing('Index');
 
         self::assertCount(2, $references);
     }
@@ -399,8 +394,8 @@ EOT
     {
         $index = $this->buildIndex();
 
-        $function = $index->query()->function(
-            FullyQualifiedName::fromString('Hello\world')
+        $function = $this->indexQuery($index)->function()->get(
+            'Hello\world'
         );
 
         self::assertInstanceOf(Record::class, $function);
@@ -411,8 +406,8 @@ EOT
     {
         $index = $this->buildIndex();
 
-        $references = $index->query()->implementing(
-            FullyQualifiedName::fromString('AbstractClass')
+        $references = $this->indexQuery($index)->class()->implementing(
+            'AbstractClass'
         );
 
         self::assertCount(2, $references);
@@ -422,8 +417,8 @@ EOT
     {
         $index = $this->buildIndex();
 
-        $references = $index->query()->implementing(
-            FullyQualifiedName::fromString('AbstractClass')
+        $references = $this->indexQuery($index)->class()->implementing(
+            'AbstractClass'
         );
         self::assertCount(2, $references);
 
@@ -440,8 +435,8 @@ EOT
 
         $this->buildIndex($index);
 
-        $references = $index->query()->implementing(
-            FullyQualifiedName::fromString('AbstractClass')
+        $references = $this->indexQuery($index)->class()->implementing(
+            'AbstractClass'
         );
 
         self::assertCount(3, $references);
@@ -451,8 +446,8 @@ EOT
     {
         $index = $this->buildIndex();
 
-        $references = $index->query()->implementing(
-            FullyQualifiedName::fromString('AbstractClass')
+        $references = $this->indexQuery($index)->class()->implementing(
+            'AbstractClass'
         );
         self::assertCount(2, $references);
 
@@ -469,8 +464,8 @@ EOT
 
         $index = $this->buildIndex($index);
 
-        $references = $index->query()->implementing(
-            FullyQualifiedName::fromString('AbstractClass')
+        $references = $this->indexQuery($index)->class()->implementing(
+            'AbstractClass'
         );
 
         self::assertCount(1, $references);
@@ -501,8 +496,8 @@ EOT
 
         $index = $this->buildIndex();
 
-        $references = $index->query()->implementing(
-            FullyQualifiedName::fromString('AbstractClass')
+        $references = $this->indexQuery($index)->class()->implementing(
+            'AbstractClass'
         );
         self::assertCount(4, $references);
 
@@ -519,8 +514,8 @@ EOT
 
         $index = $this->buildIndex($index);
 
-        $references = $index->query()->implementing(
-            FullyQualifiedName::fromString('AbstractClass')
+        $references = $this->indexQuery($index)->class()->implementing(
+            'AbstractClass'
         );
 
         self::assertCount(3, $references);

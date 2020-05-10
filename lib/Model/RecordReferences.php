@@ -5,6 +5,7 @@ namespace Phpactor\Indexer\Model;
 use ArrayIterator;
 use Iterator;
 use IteratorAggregate;
+use Phpactor\Indexer\Model\Record\FileRecord;
 
 /**
  * @implements IteratorAggregate<RecordReference>
@@ -17,13 +18,29 @@ class RecordReferences implements IteratorAggregate
     private $references = [];
 
     /**
+     * @var FileRecord
+     */
+    private $file;
+
+    /**
      * @param array<RecordReference> $references
      */
-    public function __construct(array $references)
+    public function __construct(FileRecord $file, array $references)
     {
         foreach ($references as $reference) {
             $this->add($reference);
         }
+        $this->file = $file;
+    }
+
+    /**
+     * @return RecordReferences<RecordReference>
+     */
+    public function to(Record $record): RecordReferences
+    {
+        return new self($this->file, array_filter($this->references, function (RecordReference $reference) use ($record) {
+            return $reference->type() === $record->recordType() && $reference->identifier() === $record->identifier();
+        }));
     }
 
     private function add(RecordReference $reference): void
@@ -49,8 +66,13 @@ class RecordReferences implements IteratorAggregate
 
     public function forContainerType(string $fullyQualifiedName): self
     {
-        return new self(array_filter($this->references, function (RecordReference $reference) use ($fullyQualifiedName) {
+        return new self($this->file, array_filter($this->references, function (RecordReference $reference) use ($fullyQualifiedName) {
             return $fullyQualifiedName === $reference->contaninerType();
         }));
+    }
+
+    public function file(): FileRecord
+    {
+        return $this->file;
     }
 }

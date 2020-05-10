@@ -2,14 +2,8 @@
 
 namespace Phpactor\Indexer\Adapter\ReferenceFinder;
 
-use Phpactor\Indexer\Model\MemberReference;
-use Phpactor\Indexer\Model\Record;
-use Phpactor\Indexer\Model\Record\ClassRecord;
-use Phpactor\Indexer\Model\Record\FileRecord;
-use Phpactor\Indexer\Model\Record\FunctionRecord;
-use Phpactor\Indexer\Model\Index;
-use Phpactor\Indexer\Model\Record\HasFileReferences;
-use Phpactor\Indexer\Model\Record\MemberRecord;
+use Generator;
+use Phpactor\Indexer\Model\IndexQueryAgent;
 use Phpactor\ReferenceFinder\ReferenceFinder;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\Location;
@@ -22,19 +16,19 @@ use Phpactor\WorseReflection\Reflector;
 class IndexedReferenceFinder implements ReferenceFinder
 {
     /**
-     * @var Index
-     */
-    private $index;
-
-    /**
      * @var Reflector
      */
     private $reflector;
 
-    public function __construct(Index $index, Reflector $reflector)
+    /**
+     * @var IndexQueryAgent
+     */
+    private $query;
+
+    public function __construct(IndexQueryAgent $query, Reflector $reflector)
     {
-        $this->index = $index;
         $this->reflector = $reflector;
+        $this->query = $query;
     }
 
     public function findReferences(TextDocument $document, ByteOffset $byteOffset): Locations
@@ -44,37 +38,30 @@ class IndexedReferenceFinder implements ReferenceFinder
             $byteOffset->toInt()
         )->symbolContext();
 
-        $record = $this->resolveRecord($symbolContext);
-
-        if ($record === null) {
-            return new Locations([]);
-        }
+        $references = $this->resolveReferences($symbolContext);
 
         $locations = [];
-
-        assert($record instanceof HasFileReferences);
-
-        foreach ($record->references() as $reference) {
-            $fileRecord = $this->index->get(FileRecord::fromPath($reference));
-            assert($fileRecord instanceof FileRecord);
-            $references = $fileRecord->referencesTo($record);
-
-            foreach ($references as $reference) {
-                $locations[] = Location::fromPathAndOffset($fileRecord->filePath(), $reference->offset());
-            }
+        foreach ($references as $reference) {
+            $locations[] = $reference;
         }
 
         return new Locations($locations);
     }
 
-    private function resolveRecord(SymbolContext $symbolContext): ?Record
+    /**
+     * @return Generator<Location>
+     */
+    private function resolveReferences(SymbolContext $symbolContext): Generator
     {
-        if ($symbolContext->symbol()->symbolType() === Symbol::CLASS_) {
-            return $this->index->get(ClassRecord::fromName($symbolContext->type()->__toString()));
+        $symbolType = $symbolContext->symbol()->symbolType();
+        if ($symbolType === Symbol::CLASS_) {
+            yield from $this->query->class()->referencesTo($symbolContext->type()->__toString());
+            return;
         }
 
-        if ($symbolContext->symbol()->symbolType() === Symbol::FUNCTION) {
-            return $this->index->get(FunctionRecord::fromName($symbolContext->symbol()->name()));
+        if ($symbolType === Symbol::FUNCTION) {
+            yield from $this->query->function()->referencesTo($symbolContext->symbol()->name());
+            return;
         }
 
         if (in_array($symbolContext->symbol()->symbolType(), [
@@ -82,15 +69,12 @@ class IndexedReferenceFinder implements ReferenceFinder
             Symbol::CONSTANT,
             Symbol::PROPERTY
         ])) {
-            return $this->index->get(MemberRecord::fromMemberReference(
-                MemberReference::create(
-                    $symbolContext->symbol()->symbolType(),
-                    $symbolContext->type(),
-                    $symbolContext->symbol()->name()
-                )
-            ));
+            yield from $this->query->member()->referencesTo(
+                $symbolContext->symbol()->symbolType(),
+                $symbolContext->symbol()->name(),
+                $symbolContext->containerType()
+            );
+            return;
         }
-
-        return null;
     }
 }

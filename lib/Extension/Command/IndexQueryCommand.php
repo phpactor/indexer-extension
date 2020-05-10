@@ -6,8 +6,7 @@ use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Model\Record\MemberRecord;
-use Phpactor\Name\FullyQualifiedName;
-use Phpactor\Indexer\Model\IndexQuery;
+use Phpactor\Indexer\Model\IndexQueryAgent;
 use Phpactor\Indexer\Util\Cast;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -19,11 +18,11 @@ class IndexQueryCommand extends Command
     const ARG_QUERY = 'query';
 
     /**
-     * @var IndexQuery
+     * @var IndexQueryAgent
      */
     private $query;
 
-    public function __construct(IndexQuery $query)
+    public function __construct(IndexQueryAgent $query)
     {
         $this->query = $query;
         parent::__construct();
@@ -36,29 +35,21 @@ class IndexQueryCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $class = $this->query->class(
-            FullyQualifiedName::fromString(
-                Cast::toString($input->getArgument(self::ARG_QUERY))
-            )
-        );
+        $class = $this->query->class()->get(Cast::toString($input->getArgument(self::ARG_QUERY)));
 
         if ($class) {
             $this->renderClass($output, $class);
         }
 
-        $function = $this->query->function(
-            FullyQualifiedName::fromString(
-                Cast::toString($input->getArgument(self::ARG_QUERY))
-            )
+        $function = $this->query->function()->get(
+            Cast::toString($input->getArgument(self::ARG_QUERY))
         );
 
         if ($function) {
             $this->renderFunction($output, $function);
         }
 
-        $member = $this->query->member(
-            Cast::toString($input->getArgument(self::ARG_QUERY))
-        );
+        $member = $this->query->member()->get(Cast::toString($input->getArgument(self::ARG_QUERY)));
 
         if ($member) {
             $this->renderMember($output, $member);
@@ -81,10 +72,10 @@ class IndexQueryCommand extends Command
         }
         $output->writeln('<info>Referenced by</>:');
         foreach ($class->references() as $path) {
-            $file = $this->query->file($path);
+            $file = $this->query->file()->get($path);
             $output->writeln(sprintf('- %s:%s', $path, implode(', ', array_map(function (RecordReference $reference) {
                 return $reference->offset();
-            }, $file->referencesTo($class)->toArray()))));
+            }, $file->references()->to($class)->toArray()))));
         }
     }
 
@@ -94,10 +85,10 @@ class IndexQueryCommand extends Command
         $output->writeln('<info>Path:</>'.$function->filePath());
         $output->writeln('<info>Referenced by</>:');
         foreach ($function->references() as $path) {
-            $file = $this->query->file($path);
+            $file = $this->query->file()->get($path);
             $output->writeln(sprintf('- %s:%s', $path, implode(', ', array_map(function (RecordReference $reference) {
                 return $reference->offset();
-            }, $file->referencesTo($function)->toArray()))));
+            }, $file->references()->to($function)->toArray()))));
         }
     }
 
@@ -106,15 +97,12 @@ class IndexQueryCommand extends Command
         $output->writeln('<info>Member:</>'.$member->memberName());
         $output->writeln('<info>Member Type:</>'.$member->type());
         $output->writeln('<info>Referenced by</>:');
-        foreach ($member->references() as $path) {
-            $file = $this->query->file($path);
-            $output->writeln(sprintf('- %s:%s', $path, implode(', ', array_map(function (RecordReference $reference) {
-                return sprintf(
-                    '[<comment>%s</>:<info>%s</>]',
-                    $reference->contaninerType() ?: '???',
-                    $reference->offset()
-                );
-            }, $file->referencesTo($member)->toArray()))));
+        foreach ($this->query->member()->referencesTo($member->type(), $member->memberName()) as $location) {
+            $output->writeln(sprintf(
+                '- %s:%s',
+                $location->uri()->path(),
+                $location->offset()->toInt(),
+            ));
         }
     }
 }

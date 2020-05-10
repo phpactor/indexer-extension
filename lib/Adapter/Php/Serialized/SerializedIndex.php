@@ -3,7 +3,6 @@
 namespace Phpactor\Indexer\Adapter\Php\Serialized;
 
 use Phpactor\Indexer\Model\Index;
-use Phpactor\Indexer\Model\IndexQuery;
 use Phpactor\Indexer\Model\Record;
 use RuntimeException;
 use SplFileInfo;
@@ -23,11 +22,6 @@ class SerializedIndex implements Index
     public function lastUpdate(): int
     {
         return $this->repository->lastUpdate();
-    }
-
-    public function query(): IndexQuery
-    {
-        return new SerializedQuery($this->repository);
     }
 
     public function get(Record $record): Record
@@ -66,5 +60,10 @@ class SerializedIndex implements Index
     {
         $this->repository->flush();
         $this->repository->putTimestamp();
+    }
+
+    public function has(Record $record): bool
+    {
+        return $this->repository->get($record) ? true : false;
     }
 }

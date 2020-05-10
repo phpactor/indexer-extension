@@ -29,7 +29,7 @@ class IndexedImplementationFinderTest extends IntegrationTestCase
         $index = $this->buildIndex();
 
         $implementationFinder = new IndexedImplementationFinder(
-            $index,
+            $this->indexQuery($index),
             $this->createReflector()
         );
 
