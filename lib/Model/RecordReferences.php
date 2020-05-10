@@ -67,4 +67,9 @@ class RecordReferences implements IteratorAggregate
             return $fullyQualifiedName === $reference->contaninerType();
         }));
     }
+
+    public function file(): FileRecord
+    {
+        return $this->file;
+    }
 }
