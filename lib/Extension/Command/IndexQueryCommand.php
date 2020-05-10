@@ -74,7 +74,7 @@ class IndexQueryCommand extends Command
         }
         $output->writeln('<info>Referenced by</>:');
         foreach ($class->references() as $path) {
-            $file = $this->query->file($path);
+            $file = $this->query->file()->get($path);
             $output->writeln(sprintf('- %s:%s', $path, implode(', ', array_map(function (RecordReference $reference) {
                 return $reference->offset();
             }, $file->referencesTo($class)->toArray()))));
@@ -87,7 +87,7 @@ class IndexQueryCommand extends Command
         $output->writeln('<info>Path:</>'.$function->filePath());
         $output->writeln('<info>Referenced by</>:');
         foreach ($function->references() as $path) {
-            $file = $this->query->file($path);
+            $file = $this->query->file()->get($path);
             $output->writeln(sprintf('- %s:%s', $path, implode(', ', array_map(function (RecordReference $reference) {
                 return $reference->offset();
             }, $file->referencesTo($function)->toArray()))));
@@ -100,7 +100,7 @@ class IndexQueryCommand extends Command
         $output->writeln('<info>Member Type:</>'.$member->type());
         $output->writeln('<info>Referenced by</>:');
         foreach ($member->references() as $path) {
-            $file = $this->query->file($path);
+            $file = $this->query->file()->get($path);
             $output->writeln(sprintf('- %s:%s', $path, implode(', ', array_map(function (RecordReference $reference) {
                 return sprintf(
                     '[<comment>%s</>:<info>%s</>]',
