@@ -55,6 +55,11 @@ class RecordReference
         return new self($record->recordType(), $record->identifier(), $offset, $containerType);
     }
 
+    public function withContainerType(string $type): self
+    {
+        return new self($this->type, $this->identifier, $this->offset, $type);
+    }
+
     public function contaninerType(): ?string
     {
         return $this->contaninerType;
