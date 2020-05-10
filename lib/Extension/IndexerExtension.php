@@ -41,7 +41,7 @@ use Phpactor\Indexer\Extension\Rpc\IndexHandler;
 use Phpactor\Indexer\Model\FileListProvider;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexBuilder;
-use Phpactor\Indexer\Model\IndexQuery;
+use Phpactor\Indexer\Model\IndexQueryAgent;
 use Phpactor\Indexer\Model\Indexer;
 use Phpactor\TextDocument\TextDocumentUri;
 use Phpactor\WorseReflection\Reflector;
@@ -147,13 +147,13 @@ class IndexerExtension implements Extension
         });
         
         $container->register(IndexerClassSourceLocator::class, function (Container $container) {
-            return new IndexerClassSourceLocator($container->get(IndexQuery::class));
+            return new IndexerClassSourceLocator($container->get(IndexQueryAgent::class));
         }, [
             WorseReflectionExtension::TAG_SOURCE_LOCATOR => []
         ]);
 
         $container->register(IndexerFunctionSourceLocator::class, function (Container $container) {
-            return new IndexerFunctionSourceLocator($container->get(IndexQuery::class));
+            return new IndexerFunctionSourceLocator($container->get(IndexQueryAgent::class));
         }, [
             WorseReflectionExtension::TAG_SOURCE_LOCATOR => []
         ]);
@@ -169,7 +169,7 @@ class IndexerExtension implements Extension
         }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:build']]);
         
         $container->register(IndexQueryCommand::class, function (Container $container) {
-            return new IndexQueryCommand($container->get(IndexQuery::class));
+            return new IndexQueryCommand($container->get(IndexQueryAgent::class));
         }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:query']]);
     }
 
@@ -217,8 +217,8 @@ class IndexerExtension implements Extension
             return new SerializedIndex($repository);
         });
         
-        $container->register(IndexQuery::class, function (Container $container) {
-            return new IndexQuery($container->get(Index::class));
+        $container->register(IndexQueryAgent::class, function (Container $container) {
+            return new IndexQueryAgent($container->get(Index::class));
         });
     }
 
@@ -226,7 +226,7 @@ class IndexerExtension implements Extension
     {
         $container->register(IndexedImplementationFinder::class, function (Container $container) {
             return new IndexedImplementationFinder(
-                $container->get(IndexQuery::class),
+                $container->get(IndexQueryAgent::class),
                 $container->get(WorseReflectionExtension::SERVICE_REFLECTOR)
             );
         }, [ ReferenceFinderExtension::TAG_IMPLEMENTATION_FINDER => []]);

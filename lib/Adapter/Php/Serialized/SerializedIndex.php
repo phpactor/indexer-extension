@@ -3,11 +3,9 @@
 namespace Phpactor\Indexer\Adapter\Php\Serialized;
 
 use Phpactor\Indexer\Model\Index;
-use Phpactor\Indexer\Model\IndexQuery;
 use Phpactor\Indexer\Model\Record;
 use RuntimeException;
 use SplFileInfo;
-use Phpactor\Indexer\Model\SerializedQuery;
 
 class SerializedIndex implements Index
 {

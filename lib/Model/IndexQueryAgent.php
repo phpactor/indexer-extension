@@ -8,7 +8,7 @@ use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Model\Record\MemberRecord;
 use Phpactor\Name\FullyQualifiedName;
 
-class IndexQuery
+class IndexQueryAgent
 {
     /**
      * @var Index
@@ -21,7 +21,7 @@ class IndexQuery
     }
 
     /**
-     * {@inheritDoc}
+     * @return array<FullyQualifiedName>
      */
     public function implementing(FullyQualifiedName $name): array
     {

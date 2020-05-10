@@ -2,9 +2,8 @@
 
 namespace Phpactor\Indexer\Adapter\ReferenceFinder;
 
-use Phpactor\Indexer\Model\IndexQuery;
+use Phpactor\Indexer\Model\IndexQueryAgent;
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\Indexer\Model\Index;
 use Phpactor\ReferenceFinder\ClassImplementationFinder;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\Location;
@@ -24,11 +23,11 @@ class IndexedImplementationFinder implements ClassImplementationFinder
     private $reflector;
 
     /**
-     * @var IndexQuery
+     * @var IndexQueryAgent
      */
     private $query;
 
-    public function __construct(IndexQuery $query, Reflector $reflector)
+    public function __construct(IndexQueryAgent $query, Reflector $reflector)
     {
         $this->reflector = $reflector;
         $this->query = $query;

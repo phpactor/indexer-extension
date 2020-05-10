@@ -2,9 +2,8 @@
 
 namespace Phpactor\Indexer\Adapter\Worse;
 
-use Phpactor\Indexer\Model\IndexQuery;
+use Phpactor\Indexer\Model\IndexQueryAgent;
 use Phpactor\Name\FullyQualifiedName;
-use Phpactor\Indexer\Model\Index;
 use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
 use Phpactor\WorseReflection\Core\Name;
 use Phpactor\WorseReflection\Core\SourceCode;
@@ -13,11 +12,11 @@ use Phpactor\WorseReflection\Core\SourceCodeLocator;
 class IndexerFunctionSourceLocator implements SourceCodeLocator
 {
     /**
-     * @var IndexQuery
+     * @var IndexQueryAgent
      */
     private $query;
 
-    public function __construct(IndexQuery $query)
+    public function __construct(IndexQueryAgent $query)
     {
         $this->query = $query;
     }

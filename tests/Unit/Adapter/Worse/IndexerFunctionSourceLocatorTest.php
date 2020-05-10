@@ -3,7 +3,7 @@
 namespace Phpactor\Indexer\Tests\Unit\Adapter\Worse;
 
 use PHPUnit\Framework\TestCase;
-use Phpactor\Indexer\Model\IndexQuery;
+use Phpactor\Indexer\Model\IndexQueryAgent;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryIndex;
@@ -51,6 +51,6 @@ class IndexerFunctionSourceLocatorTest extends TestCase
 
     private function createLocator(InMemoryIndex $index): IndexerFunctionSourceLocator
     {
-        return new IndexerFunctionSourceLocator(new IndexQuery($index));
+        return new IndexerFunctionSourceLocator(new IndexQueryAgent($index));
     }
 }
