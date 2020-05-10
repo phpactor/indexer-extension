@@ -4,10 +4,6 @@ namespace Phpactor\Indexer\Adapter\ReferenceFinder;
 
 use Generator;
 use Phpactor\Indexer\Model\IndexQueryAgent;
-use Phpactor\Indexer\Model\Record;
-use Phpactor\Indexer\Model\RecordReferences;
-use Phpactor\Indexer\Model\Record\FileRecord;
-use Phpactor\Indexer\Model\Record\HasFileReferences;
 use Phpactor\ReferenceFinder\ReferenceFinder;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\Location;
@@ -52,15 +48,19 @@ class IndexedReferenceFinder implements ReferenceFinder
         return new Locations($locations);
     }
 
+    /**
+     * @return Generator<Location>
+     */
     private function resolveReferences(SymbolContext $symbolContext): Generator
     {
-        if ($symbolContext->symbol()->symbolType() === Symbol::CLASS_) {
+        $symbolType = $symbolContext->symbol()->symbolType();
+        if ($symbolType === Symbol::CLASS_) {
             yield from $this->query->class()->referencesTo($symbolContext->type()->__toString());
             return;
         }
 
-        if ($symbolContext->symbol()->symbolType() === Symbol::FUNCTION) {
-            yield from $this->query->function()->referencesTo($symbolContext->type()->__toString());
+        if ($symbolType === Symbol::FUNCTION) {
+            yield from $this->query->function()->referencesTo($symbolContext->symbol()->name());
             return;
         }
 

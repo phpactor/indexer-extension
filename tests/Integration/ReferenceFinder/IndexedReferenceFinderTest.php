@@ -24,6 +24,7 @@ class IndexedReferenceFinderTest extends IntegrationTestCase
      */
     public function testFinder(string $manifest, int $expectedLocationCount): void
     {
+        $this->workspace()->reset();
         $this->workspace()->loadManifest($manifest);
         [ $source, $offset ] = ExtractOffset::fromSource($this->workspace()->getContents('project/subject.php'));
         $this->workspace()->put('project/subject.php', $source);
@@ -83,7 +84,7 @@ EOT
         yield 'function references' => [
             <<<'EOT'
 // File: project/subject.php
-<?php fuction he<>llo_world() {}
+<?php function he<>llo_world() {}
 // File: project/class1.php
 <?php
 
@@ -94,7 +95,7 @@ hello_world();
 hello_world();
 EOT
         ,
-            3
+            2
         ];
     }
 
@@ -137,7 +138,7 @@ EOT
      */
     public function provideUnknown(): Generator
     {
-        yield 'function references' => [
+        yield 'variable' => [
             <<<'EOT'
 // File: project/subject.php
 <?php $a<>sd;

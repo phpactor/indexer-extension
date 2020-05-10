@@ -2,9 +2,12 @@
 
 namespace Phpactor\Indexer\Model\Query;
 
+use Generator;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexQuery;
+use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
+use Phpactor\TextDocument\Location;
 
 class FunctionQuery implements IndexQuery
 {
@@ -21,5 +24,21 @@ class FunctionQuery implements IndexQuery
     public function get(string $identifier): ?FunctionRecord
     {
         return $this->index->get(FunctionRecord::fromName($identifier));
+    }
+
+    /**
+     * @return Generator<Location>
+     */
+    public function referencesTo(string $identifier): Generator
+    {
+        $record = $this->get($identifier);
+        foreach ($record->references() as $fileReference) {
+            $fileRecord = $this->index->get(FileRecord::fromPath($fileReference));
+            assert($fileRecord instanceof FileRecord);
+
+            foreach ($fileRecord->references()->to($record) as $functionReference) {
+                yield Location::fromPathAndOffset($fileRecord->filePath(), $functionReference->offset());
+            }
+        }
     }
 }
