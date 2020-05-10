@@ -71,7 +71,7 @@ class MemberIndexer implements TolerantIndexer
 
         $memberType = $this->resolveScopedPropertyAccessMemberType($node);
 
-        $this->writeIndex($index, $memberType, $containerType, $memberName, $info, $node);
+        $this->writeIndex($index, $memberType, $containerType, $memberName, $info, $this->resolveStart($node->memberName));
     }
 
     private function resolveScopedPropertyAccessMemberType(ScopedPropertyAccessExpression $node): string
@@ -124,10 +124,10 @@ class MemberIndexer implements TolerantIndexer
 
         $memberType = $this->resolveMemberAccessType($node);
 
-        $this->writeIndex($index, $memberType, null, (string)$memberName, $info, $node);
+        $this->writeIndex($index, $memberType, null, (string)$memberName, $info, $this->resolveStart($node->memberName));
     }
 
-    private function writeIndex(Index $index, string $memberType, ?string $containerFqn, string $memberName, SplFileInfo $info, Node $node): void
+    private function writeIndex(Index $index, string $memberType, ?string $containerFqn, string $memberName, SplFileInfo $info, int $offsetStart): void
     {
         $record = $index->get(MemberRecord::fromMemberReference(MemberReference::create($memberType, $containerFqn, $memberName)));
         assert($record instanceof MemberRecord);
@@ -136,7 +136,19 @@ class MemberIndexer implements TolerantIndexer
         
         $fileRecord = $index->get(FileRecord::fromFileInfo($info));
         assert($fileRecord instanceof FileRecord);
-        $fileRecord->addReference(RecordReference::fromRecordAndOffsetAndContainerType($record, $node->getStart(), $containerFqn));
+        $fileRecord->addReference(RecordReference::fromRecordAndOffsetAndContainerType($record, $offsetStart, $containerFqn));
         $index->write($fileRecord);
+    }
+
+    /**
+     * @param Token|Node $nodeOrToken
+     */
+    private function resolveStart($nodeOrToken): int
+    {
+        if ($nodeOrToken instanceof Token) {
+            return $nodeOrToken->start;
+        }
+
+        return $nodeOrToken->getStart();
     }
 }

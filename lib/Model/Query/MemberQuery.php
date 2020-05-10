@@ -51,7 +51,7 @@ class MemberQuery implements IndexQuery
     /**
      * @return Generator<Location>
      */
-    public function referencesTo(string $type, string $memberName): Generator
+    public function referencesTo(string $type, string $memberName, ?string $containerType = null): Generator
     {
         $record = $this->getByTypeAndName($type, $memberName);
         assert($record instanceof MemberRecord);
@@ -63,7 +63,7 @@ class MemberQuery implements IndexQuery
             foreach ($fileRecord->references()->to($record) as $memberReference) {
                 $memberReference = $this->enhancer->enhance($fileRecord, $memberReference);
 
-                if (null === $memberReference->contaninerType()) {
+                if ($containerType && $containerType !== $memberReference->contaninerType()) {
                     continue;
                 }
 

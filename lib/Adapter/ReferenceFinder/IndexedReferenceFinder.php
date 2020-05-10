@@ -71,7 +71,8 @@ class IndexedReferenceFinder implements ReferenceFinder
         ])) {
             yield from $this->query->member()->referencesTo(
                 $symbolContext->symbol()->symbolType(),
-                $symbolContext->symbol()->name()
+                $symbolContext->symbol()->name(),
+                $symbolContext->containerType()
             );
             return;
         }

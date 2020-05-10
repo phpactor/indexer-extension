@@ -4,6 +4,7 @@ namespace Phpactor\Indexer\Tests\Integration\ReferenceFinder;
 
 use Generator;
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedReferenceFinder;
+use Phpactor\Indexer\Adapter\Worse\WorseRecordReferenceEnhancer;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
 use Phpactor\TestUtils\ExtractOffset;
 use Phpactor\TextDocument\ByteOffset;
@@ -33,7 +34,7 @@ class IndexedReferenceFinderTest extends IntegrationTestCase
 
         $referenceFinder = new IndexedReferenceFinder(
             $this->indexQuery($index),
-            $this->createReflector()
+            $this->createReflector(),
         );
 
         $locations = $referenceFinder->findReferences(
@@ -130,6 +131,19 @@ EOT
 EOT
         ,
             3
+        ];
+
+        yield 'instance members' => [
+            <<<'EOT'
+// File: project/subject.php
+<?php namespace Bar; $foo = new Foobar(); $foo->b<>ar();
+
+// File: project/class1.php
+<?php namespace Bar; class Foobar { public function bar() {}}
+
+EOT
+        ,
+            1
         ];
     }
 
