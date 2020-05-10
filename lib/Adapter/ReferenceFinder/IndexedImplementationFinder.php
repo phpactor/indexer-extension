@@ -54,10 +54,8 @@ class IndexedImplementationFinder implements ClassImplementationFinder
                 TextDocumentUri::fromString($record->filePath()),
                 $record->start()
             );
-        }, $this->query->implementing(
-            FullyQualifiedName::fromString(
-                $symbolContext->type()->__toString()
-            )
+        }, $this->query->class()->implementing(
+            $symbolContext->type()->__toString()
         )));
     }
 
@@ -72,10 +70,8 @@ class IndexedImplementationFinder implements ClassImplementationFinder
             return new Locations([]);
         }
 
-        $implementations = $this->query->implementing(
-            FullyQualifiedName::fromString(
-                $container->__toString()
-            )
+        $implementations = $this->query->class()->implementing(
+            $container->__toString()
         );
 
         $methodName = $symbolContext->symbol()->name();
