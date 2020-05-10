@@ -59,7 +59,7 @@ class FileRecord implements HasPath, Record
 
     public function references(): RecordReferences
     {
-        return new RecordReferences(array_map(function (array $reference) {
+        return new RecordReferences($this, array_map(function (array $reference) {
             return new RecordReference(...$reference);
         }, $this->references));
     }
