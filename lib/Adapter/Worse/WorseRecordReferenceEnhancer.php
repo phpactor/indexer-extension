@@ -7,6 +7,7 @@ use Phpactor\Indexer\Model\RecordReferenceEnhancer;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\MemberRecord;
 use Phpactor\WorseReflection\Core\Reflector\SourceCodeReflector;
+use Psr\Log\LoggerInterface;
 use Safe\Exceptions\FilesystemException;
 use function Safe\file_get_contents;
 
@@ -25,6 +26,10 @@ class WorseRecordReferenceEnhancer implements RecordReferenceEnhancer
     public function enhance(FileRecord $record, RecordReference $reference): RecordReference
     {
         if ($reference->type() !== MemberRecord::RECORD_TYPE) {
+            return $reference;
+        }
+
+        if ($reference->contaninerType()) {
             return $reference;
         }
 

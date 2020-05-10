@@ -43,17 +43,17 @@ class MemberQuery implements IndexQuery
         return $this->index->get($prototype);
     }
 
-    public function getByTypeAndName(string $type, string $name): ?MemberRecord
-    {
-        return $this->get($type . '#' . $name);
-    }
-
     /**
      * @return Generator<Location>
      */
     public function referencesTo(string $type, string $memberName, ?string $containerType = null): Generator
     {
         $record = $this->getByTypeAndName($type, $memberName);
+
+        if (null === $record) {
+            return;
+        }
+
         assert($record instanceof MemberRecord);
 
         foreach ($record->references() as $fileReference) {
@@ -70,5 +70,10 @@ class MemberQuery implements IndexQuery
                 yield Location::fromPathAndOffset($fileRecord->filePath(), $memberReference->offset());
             }
         }
+    }
+
+    private function getByTypeAndName(string $type, string $name): ?MemberRecord
+    {
+        return $this->get($type . '#' . $name);
     }
 }

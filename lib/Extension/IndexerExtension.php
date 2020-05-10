@@ -221,7 +221,9 @@ class IndexerExtension implements Extension
         $container->register(IndexQueryAgent::class, function (Container $container) {
             return new IndexQueryAgent(
                 $container->get(Index::class),
-                new WorseRecordReferenceEnhancer($container->get(WorseReflectionExtension::SERVICE_REFLECTOR)),
+                new WorseRecordReferenceEnhancer(
+                    $container->get(WorseReflectionExtension::SERVICE_REFLECTOR)
+                ),
             );
         });
     }
