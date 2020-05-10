@@ -31,7 +31,7 @@ class IndexedReferenceFinderTest extends IntegrationTestCase
         $index = $this->buildIndex();
 
         $referenceFinder = new IndexedReferenceFinder(
-            $index,
+            $this->indexQuery($index),
             $this->createReflector()
         );
 

@@ -10,11 +10,6 @@ use Phpactor\Indexer\Model\Query\MemberQuery;
 class IndexQueryAgent
 {
     /**
-     * @var Index
-     */
-    private $index;
-
-    /**
      * @var ClassQuery
      */
     private $classQuery;
@@ -36,7 +31,6 @@ class IndexQueryAgent
 
     public function __construct(Index $index)
     {
-        $this->index = $index;
         $this->classQuery = new ClassQuery($index);
         $this->functionQuery = new FunctionQuery($index);
         $this->fileQuery = new FileQuery($index);

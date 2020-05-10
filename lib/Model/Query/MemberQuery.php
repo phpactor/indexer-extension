@@ -26,4 +26,9 @@ class MemberQuery implements IndexQuery
 
         return $this->index->get(MemberRecord::fromIdentifier($identifier));
     }
+
+    public function getByTypeAndName(string $type, string $name): ?MemberRecord
+    {
+        return $this->get($type . '#' . $name);
+    }
 }

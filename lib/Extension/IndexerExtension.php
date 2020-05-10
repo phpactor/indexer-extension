@@ -233,7 +233,7 @@ class IndexerExtension implements Extension
 
         $container->register(IndexedReferenceFinder::class, function (Container $container) {
             return new IndexedReferenceFinder(
-                $container->get(Index::class),
+                $container->get(IndexQueryAgent::class),
                 $container->get(WorseReflectionExtension::SERVICE_REFLECTOR)
             );
         }, [ ReferenceFinderExtension::TAG_REFERENCE_FINDER => []]);

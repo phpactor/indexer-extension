@@ -2,14 +2,10 @@
 
 namespace Phpactor\Indexer\Adapter\ReferenceFinder;
 
-use Phpactor\Indexer\Model\MemberReference;
+use Phpactor\Indexer\Model\IndexQueryAgent;
 use Phpactor\Indexer\Model\Record;
-use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
-use Phpactor\Indexer\Model\Record\FunctionRecord;
-use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\Record\HasFileReferences;
-use Phpactor\Indexer\Model\Record\MemberRecord;
 use Phpactor\ReferenceFinder\ReferenceFinder;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\Location;
@@ -22,19 +18,19 @@ use Phpactor\WorseReflection\Reflector;
 class IndexedReferenceFinder implements ReferenceFinder
 {
     /**
-     * @var Index
-     */
-    private $index;
-
-    /**
      * @var Reflector
      */
     private $reflector;
 
-    public function __construct(Index $index, Reflector $reflector)
+    /**
+     * @var IndexQueryAgent
+     */
+    private $query;
+
+    public function __construct(IndexQueryAgent $query, Reflector $reflector)
     {
-        $this->index = $index;
         $this->reflector = $reflector;
+        $this->query = $query;
     }
 
     public function findReferences(TextDocument $document, ByteOffset $byteOffset): Locations
@@ -55,7 +51,7 @@ class IndexedReferenceFinder implements ReferenceFinder
         assert($record instanceof HasFileReferences);
 
         foreach ($record->references() as $reference) {
-            $fileRecord = $this->index->get(FileRecord::fromPath($reference));
+            $fileRecord = $this->query->file()->get($reference);
             assert($fileRecord instanceof FileRecord);
             $references = $fileRecord->referencesTo($record);
 
@@ -70,11 +66,11 @@ class IndexedReferenceFinder implements ReferenceFinder
     private function resolveRecord(SymbolContext $symbolContext): ?Record
     {
         if ($symbolContext->symbol()->symbolType() === Symbol::CLASS_) {
-            return $this->index->get(ClassRecord::fromName($symbolContext->type()->__toString()));
+            return $this->query->class()->get($symbolContext->type()->__toString());
         }
 
         if ($symbolContext->symbol()->symbolType() === Symbol::FUNCTION) {
-            return $this->index->get(FunctionRecord::fromName($symbolContext->symbol()->name()));
+            return $this->query->function()->get($symbolContext->type()->__toString());
         }
 
         if (in_array($symbolContext->symbol()->symbolType(), [
@@ -82,13 +78,10 @@ class IndexedReferenceFinder implements ReferenceFinder
             Symbol::CONSTANT,
             Symbol::PROPERTY
         ])) {
-            return $this->index->get(MemberRecord::fromMemberReference(
-                MemberReference::create(
-                    $symbolContext->symbol()->symbolType(),
-                    $symbolContext->type(),
-                    $symbolContext->symbol()->name()
-                )
-            ));
+            return $this->query->member()->getByTypeAndName(
+                $symbolContext->symbol()->symbolType(),
+                $symbolContext->symbol()->name()
+            );
         }
 
         return null;
