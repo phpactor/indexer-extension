@@ -6,6 +6,7 @@ use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\RecordReferenceEnhancer;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\MemberRecord;
+use Phpactor\WorseReflection\Core\Exception\NotFound;
 use Phpactor\WorseReflection\Core\Reflector\SourceCodeReflector;
 use Psr\Log\LoggerInterface;
 use Safe\Exceptions\FilesystemException;
@@ -41,7 +42,12 @@ class WorseRecordReferenceEnhancer implements RecordReferenceEnhancer
             return $reference;
         }
 
-        $offset = $this->reflector->reflectOffset($contents, $reference->offset());
+        try {
+            $offset = $this->reflector->reflectOffset($contents, $reference->offset());
+        } catch (NotFound $notFound) {
+            return $reference;
+        }
+
         $containerType = $offset->symbolContext()->containerType();
 
         if (null === $containerType) {
