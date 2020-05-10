@@ -5,6 +5,7 @@ namespace Phpactor\Indexer\Tests\Integration\ReferenceFinder;
 use Generator;
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedReferenceFinder;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
+use Phpactor\ReferenceFinder\PotentialLocation;
 use Phpactor\TestUtils\ExtractOffset;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\TextDocumentBuilder;
@@ -40,6 +41,10 @@ class IndexedReferenceFinderTest extends IntegrationTestCase
             TextDocumentBuilder::create($source)->build(),
             ByteOffset::fromInt((int)$offset)
         );
+
+        $locations = array_filter(iterator_to_array($locations), function (PotentialLocation $location) {
+            return $location->isSurely();
+        });
 
         self::assertCount($expectedLocationCount, $locations);
     }

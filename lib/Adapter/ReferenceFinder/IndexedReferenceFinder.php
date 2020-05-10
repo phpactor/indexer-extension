@@ -42,7 +42,15 @@ class IndexedReferenceFinder implements ReferenceFinder
         )->symbolContext();
 
         foreach ($this->resolveReferences($symbolContext) as $locationConfidence) {
-            yield new PotentialLocation($locationConfidence->location(), $locationConfidence->isSurely());
+            if ($locationConfidence->isSurely()) {
+                yield PotentialLocation::surely($locationConfidence->location());
+            }
+
+            if ($locationConfidence->isMaybe()) {
+                yield PotentialLocation::maybe($locationConfidence->location());
+            }
+
+            yield PotentialLocation::not($locationConfidence->location());
         }
     }
 
