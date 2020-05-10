@@ -96,4 +96,9 @@ class InMemoryIndex implements Index
     {
         $this->repository->lastUpdate = time();
     }
+
+    public function has(Record $record): bool
+    {
+        return false;
+    }
 }

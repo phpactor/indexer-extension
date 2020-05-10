@@ -54,6 +54,6 @@ class IndexerClassSourceLocatorTest extends TestCase
 
     private function createLocator(InMemoryIndex $index): IndexerClassSourceLocator
     {
-        return new IndexerClassSourceLocator(new IndexQueryAgent($index));
+        return new IndexerClassSourceLocator($index);
     }
 }

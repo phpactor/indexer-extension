@@ -3,9 +3,7 @@
 namespace Phpactor\Indexer\Adapter\Worse;
 
 use Phpactor\Indexer\Model\Index;
-use Phpactor\Indexer\Model\IndexIndexAgent;
 use Phpactor\Indexer\Model\Record\ClassRecord;
-use Phpactor\Name\FullyQualifiedName;
 use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
 use Phpactor\WorseReflection\Core\Name;
 use Phpactor\WorseReflection\Core\SourceCode;
