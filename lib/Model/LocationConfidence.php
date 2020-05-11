@@ -6,9 +6,9 @@ use Phpactor\TextDocument\Location;
 
 class LocationConfidence
 {
-    private const CONFIDENCE_SURELY = 'surely';
-    private const CONFIDENCE_NOT = 'not';
-    private const CONFIDENCE_MAYBE = 'maybe';
+    public const CONFIDENCE_SURELY = 'surely';
+    public const CONFIDENCE_NOT = 'not';
+    public const CONFIDENCE_MAYBE = 'maybe';
 
     /**
      * @var Location

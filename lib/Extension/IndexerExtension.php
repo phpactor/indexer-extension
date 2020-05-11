@@ -222,7 +222,8 @@ class IndexerExtension implements Extension
             return new IndexQueryAgent(
                 $container->get(Index::class),
                 new WorseRecordReferenceEnhancer(
-                    $container->get(WorseReflectionExtension::SERVICE_REFLECTOR)
+                    $container->get(WorseReflectionExtension::SERVICE_REFLECTOR),
+                    $container->get(LoggingExtension::SERVICE_LOGGER)
                 ),
             );
         });

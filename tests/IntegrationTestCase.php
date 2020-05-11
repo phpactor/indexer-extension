@@ -33,6 +33,8 @@ use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryIndex;
 use Phpactor\Indexer\Model\FileList;
 use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryRepository;
 use Phpactor\Indexer\Model\Index;
+use Psr\Log\AbstractLogger;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Phpactor\WorseReflection\Core\SourceCodeLocator\StubSourceLocator;
 use Phpactor\WorseReflection\ReflectorBuilder;
@@ -65,7 +67,7 @@ class IntegrationTestCase extends TestCase
     protected function buildIndex(?Index $index = null): Index
     {
         $index = $index ?: $this->createIndex();
-        $indexBuilder = $this->createTestBuilder($index);
+        $indexBuilder = $this->createBuilder($index);
         $fileList = $this->fileListProvider();
         $indexer = new Indexer($indexBuilder, $index, $fileList);
         $indexer->getJob()->run();
@@ -73,7 +75,7 @@ class IntegrationTestCase extends TestCase
         return $index;
     }
 
-    protected function createTestBuilder(Index $index): IndexBuilder
+    protected function createBuilder(Index $index): IndexBuilder
     {
         return TolerantIndexBuilder::create($index);
     }
@@ -100,7 +102,7 @@ class IntegrationTestCase extends TestCase
     {
         return new IndexQueryAgent(
             $index,
-            new WorseRecordReferenceEnhancer($this->createReflector())
+            new WorseRecordReferenceEnhancer($this->createReflector(), $this->createLogger())
         );
     }
 
@@ -136,5 +138,14 @@ class IntegrationTestCase extends TestCase
         );
 
         return $container[$key];
+    }
+
+    private function createLogger(): LoggerInterface
+    {
+        return new class extends AbstractLogger {
+            public function log($level, $message, array $context = []) {
+                fwrite(STDOUT, sprintf("[%s] %s\n", $level, $message));
+            }
+        };
     }
 }

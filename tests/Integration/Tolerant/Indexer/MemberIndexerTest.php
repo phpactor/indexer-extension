@@ -4,58 +4,43 @@ namespace Phpactor\Indexer\Tests\Integration\Tolerant\Indexer;
 
 use Generator;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\MemberIndexer;
-use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
-use Phpactor\Indexer\Model\Index;
-use Phpactor\Indexer\Model\Indexer;
+use Phpactor\Indexer\Model\LocationConfidence;
 use Phpactor\Indexer\Model\MemberReference;
-use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\MemberRecord;
 use Phpactor\Indexer\Tests\Integration\Tolerant\TolerantIndexerTestCase;
 
 class MemberIndexerTest extends TolerantIndexerTestCase
 {
-    public function testRemovesIncomingReferences(): void
-    {
-        $indexer = new MemberIndexer();
-        $index = $this->createIndex();
-        $this->runIndexer(new MemberIndexer(), $index, 'src');
-
-        $record1 = $index->get(MemberRecord::fromMemberReference(MemberReference::create(MemberRecord::TYPE_METHOD, 'Foobar', 'bar')));
-        $record2 = $index->get(MemberRecord::fromMemberReference(MemberReference::create(MemberRecord::TYPE_METHOD, 'Foobar', 'bar')));
-
-        $this->assertRemovesIncomingReferences($indexer, $index, $record1, $record2);
-    }
-
     /**
      * @dataProvider provideStaticAccess
      * @dataProvider provideInstanceAccess
+     * @param array{int,int,int} $expectedCounts
      */
-    public function testMembers(string $manifest, MemberReference $memberReference, int $expectedCount, int $expectedResolvedCount): void
+    public function testMembers(string $manifest, MemberReference $memberReference, array $expectedCounts): void
     {
         $this->workspace()->reset();
         $this->workspace()->loadManifest($manifest);
-
         $index = $this->createIndex();
         $this->runIndexer(new MemberIndexer(), $index, 'src');
 
         $memberRecord = $index->get(MemberRecord::fromMemberReference($memberReference));
         assert($memberRecord instanceof MemberRecord);
 
-        $unconfirmedReferences = [];
-        $confirmedReferences = [];
-        foreach ($memberRecord->references() as $reference) {
-            $fileRecord = $index->get(FileRecord::fromPath($reference));
-            assert($fileRecord instanceof FileRecord);
-            foreach ($fileRecord->references()->to($memberRecord) as $positionedReference) {
-                $unconfirmedReferences[] = $positionedReference;
-            }
-            foreach ($fileRecord->references()->to($memberRecord)->forContainerType($memberReference->containerType()) as $positionedReference) {
-                $confirmedReferences[] = $positionedReference;
-            }
+        $counts = [
+            LocationConfidence::CONFIDENCE_NOT => 0,
+            LocationConfidence::CONFIDENCE_MAYBE => 0,
+            LocationConfidence::CONFIDENCE_SURELY => 0,
+        ];
+
+        foreach ($this->indexQuery($index)->member()->referencesTo(
+            $memberReference->type(),
+            $memberReference->memberName(),
+            $memberReference->containerType()
+        ) as $locationCondidence) {
+            $counts[$locationCondidence->__toString()]++;
         }
 
-        self::assertCount($expectedCount, $unconfirmedReferences, 'Unconfirmed references');
-        self::assertCount($expectedResolvedCount, $confirmedReferences, 'Confirmed references');
+        self::assertEquals(array_combine(array_keys($counts), $expectedCounts), $counts);
     }
 
     /**
@@ -66,43 +51,49 @@ class MemberIndexerTest extends TolerantIndexerTestCase
         yield 'single ref' => [
             "// File: src/file1.php\n<?php Foobar::static()",
             MemberReference::create(MemberRecord::TYPE_METHOD, 'Foobar', 'static'),
-            1, 1
+            [0, 0, 1]
         ];
 
-        yield 'ambiguous single ref' => [
+        yield '> 1 same name method with different container type and specified search type' => [
             "// File: src/file1.php\n<?php Foobar::static(); Barfoo::static();",
             MemberReference::create(MemberRecord::TYPE_METHOD, 'Foobar', 'static'),
-            2, 1
+            [ 1, 0, 1 ],
+        ];
+
+        yield '> 1 same name method with different container type and no specified search type' => [
+            "// File: src/file1.php\n<?php Foobar::static(); Barfoo::static();",
+            MemberReference::create(MemberRecord::TYPE_METHOD, null, 'static'),
+            [ 0, 0, 2 ],
         ];
 
         yield 'multiple ref' => [
             "// File: src/file1.php\n<?php Foobar::static(); Foobar::static();",
             MemberReference::create(MemberRecord::TYPE_METHOD, 'Foobar', 'static'),
-            2, 2
+            [ 0, 0, 2 ],
         ];
 
         yield MemberRecord::TYPE_CONSTANT => [
             "// File: src/file1.php\n<?php Foobar::FOOBAR;",
             MemberReference::create(MemberRecord::TYPE_CONSTANT, 'Foobar', 'FOOBAR'),
-            1, 1
+            [ 0, 0, 1 ],
         ];
 
         yield 'constant in call' => [
             "// File: src/file1.php\n<?php get(Foobar::FOOBAR);",
             MemberReference::create(MemberRecord::TYPE_CONSTANT, 'Foobar', 'FOOBAR'),
-            1, 1
+            [ 0, 0, 1 ]
         ];
 
         yield MemberRecord::TYPE_PROPERTY => [
             "// File: src/file1.php\n<?php Foobar::\$foobar;",
             MemberReference::create(MemberRecord::TYPE_PROPERTY, 'Foobar', '$foobar'),
-            1, 1
+            [ 0, 0, 1 ]
         ];
 
         yield 'namespaced static access' => [
             "// File: src/file1.php\n<?php use Barfoo\\Foobar; Foobar::hello();",
             MemberReference::create(MemberRecord::TYPE_METHOD, 'Barfoo\\Foobar', 'hello'),
-            1, 1
+            [ 0, 0, 1 ]
         ];
     }
 
@@ -111,16 +102,28 @@ class MemberIndexerTest extends TolerantIndexerTestCase
      */
     public function provideInstanceAccess(): Generator
     {
+        yield 'method call with wrong container type' => [
+            "// File: src/file1.php\n<?php class Foobar {}; \$foobar = new Foobar(); \$foobar->hello();",
+            MemberReference::create(MemberRecord::TYPE_METHOD, 'Barfoo', 'hello'),
+            [ 1, 0, 0 ],
+        ];
+
         yield 'method call' => [
             "// File: src/file1.php\n<?php \$foobar->hello();",
             MemberReference::create(MemberRecord::TYPE_METHOD, 'Foobar', 'hello'),
-            1, 0
+            [ 0, 1, 0 ],
         ];
 
         yield 'property access' => [
             "// File: src/file1.php\n<?php \$foobar->hello;",
             MemberReference::create(MemberRecord::TYPE_PROPERTY, 'Foobar', 'hello'),
-            1, 0
+            [ 0, 1, 0 ],
+        ];
+
+        yield 'resolvable property instance container type' => [
+            "// File: src/file1.php\n<?php class Foobar {}; \$foobar = new Foobar(); \$foobar->hello;",
+            MemberReference::create(MemberRecord::TYPE_PROPERTY, 'Foobar', 'hello'),
+            [ 0, 0, 1 ],
         ];
     }
 }

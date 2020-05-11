@@ -34,10 +34,12 @@ class MemberIndexer implements TolerantIndexer
                 continue;
             }
 
-            $record = $index->get(MemberRecord::fromIdentifier($outgoingReference->identifier()));
-            assert($record instanceof MemberRecord);
-            $record->removeReference($fileRecord->identifier());
-            $index->write($record);
+            $memberRecord = $index->get(MemberRecord::fromIdentifier($outgoingReference->identifier()));
+            assert($memberRecord instanceof MemberRecord);
+            $memberRecord->removeReference($fileRecord->identifier());
+            $index->write($memberRecord);
+            $fileRecord->removeReferencesToRecordType($outgoingReference->type());
+            $index->write($fileRecord);
         }
     }
 

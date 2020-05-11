@@ -34,6 +34,8 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
             assert($record instanceof ClassRecord);
             $record->removeReference($fileRecord->identifier());
             $index->write($record);
+            $fileRecord->removeReferencesToRecordType($outgoingReference->type());
+            $index->write($fileRecord);
         }
     }
 

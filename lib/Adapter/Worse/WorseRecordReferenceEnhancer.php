@@ -8,6 +8,7 @@ use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\MemberRecord;
 use Phpactor\WorseReflection\Core\Exception\NotFound;
 use Phpactor\WorseReflection\Core\Reflector\SourceCodeReflector;
+use Psr\Log\LoggerInterface;
 use Safe\Exceptions\FilesystemException;
 use function Safe\file_get_contents;
 
@@ -18,9 +19,15 @@ class WorseRecordReferenceEnhancer implements RecordReferenceEnhancer
      */
     private $reflector;
 
-    public function __construct(SourceCodeReflector $reflector)
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(SourceCodeReflector $reflector, LoggerInterface $logger)
     {
         $this->reflector = $reflector;
+        $this->logger = $logger;
     }
 
     public function enhance(FileRecord $record, RecordReference $reference): RecordReference
@@ -38,12 +45,23 @@ class WorseRecordReferenceEnhancer implements RecordReferenceEnhancer
             // LS workspace. Perhaps add an adapter.
             $contents = file_get_contents($record->filePath());
         } catch (FilesystemException $error) {
+            $this->logger->warning(sprintf(
+                'Record Enhancer: Could not read file "%s": %s',
+                $record->filePath(),
+                $error->getMessage()
+            ));
             return $reference;
         }
 
         try {
             $offset = $this->reflector->reflectOffset($contents, $reference->offset());
         } catch (NotFound $notFound) {
+            $this->logger->debug(sprintf(
+                'Record Enhancer: Could not reflect offset %s in file "%s": %s',
+                $reference->offset(),
+                $record->filePath(),
+                $notFound->getMessage()
+            ));
             return $reference;
         }
 

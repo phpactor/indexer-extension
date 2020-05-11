@@ -72,4 +72,12 @@ class FileRecord implements HasPath, Record
             ));
         }
     }
+
+    public function removeReferencesToRecordType(string $type): self
+    {
+        $this->references = array_filter($this->references, function (array $reference) use ($type) {
+            return $reference[0] !== $type;
+        });
+        return $this;
+    }
 }

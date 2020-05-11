@@ -2,15 +2,8 @@
 
 namespace Phpactor\Indexer\Tests\Integration\Tolerant;
 
-use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
-use Phpactor\Indexer\Model\Index;
-use Phpactor\Indexer\Model\IndexBuilder;
-use Phpactor\Indexer\Tests\Integration\IndexBuilderIndexTestCase;
+use Phpactor\Indexer\Tests\Integration\IndexBuilderTestCase;
 
-class TolerantIndexBuilderTest extends IndexBuilderIndexTestCase
+class TolerantIndexBuilderTest extends IndexBuilderTestCase
 {
-    protected function createBuilder(Index $index): IndexBuilder
-    {
-        return TolerantIndexBuilder::create($index);
-    }
 }

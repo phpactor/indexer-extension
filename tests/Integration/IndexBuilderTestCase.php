@@ -4,18 +4,14 @@ namespace Phpactor\Indexer\Tests\Integration;
 
 use Closure;
 use Generator;
-use Phpactor\Indexer\Model\Index;
-use Phpactor\Indexer\Model\IndexBuilder;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
 use function Safe\file_get_contents;
 
-abstract class IndexBuilderIndexTestCase extends IntegrationTestCase
+abstract class IndexBuilderTestCase extends IntegrationTestCase
 {
-    abstract protected function createBuilder(Index $index): IndexBuilder;
-
     /**
      * @dataProvider provideIndexesClassLike
      * @dataProvider provideIndexesReferences

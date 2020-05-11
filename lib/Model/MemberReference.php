@@ -32,6 +32,9 @@ class MemberReference
         return new self($type, $containerType ? FullyQualifiedName::fromString($containerType) : null, $memberName);
     }
 
+    /**
+     * Member type, one of MemberRecord::TYPE_* (e.g. METHOD)
+     */
     public function type(): string
     {
         return $this->type;
