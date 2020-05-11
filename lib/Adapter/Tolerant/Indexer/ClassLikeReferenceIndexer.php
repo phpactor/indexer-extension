@@ -13,6 +13,12 @@ use SplFileInfo;
 
 class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
 {
+    private const NOT_CLASS_NAMES = [
+        'static',
+        'parent',
+        'self'
+    ];
+
     public function canIndex(Node $node): bool
     {
         // its hard to tell what is a class and what is not but all function
@@ -49,7 +55,7 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
             return;
         }
 
-        if (in_array((string)$name, ['static', 'parent', 'self'])) {
+        if (in_array((string)$name, self::NOT_CLASS_NAMES)) {
             return;
         }
 
