@@ -5,6 +5,7 @@ namespace Phpactor\Indexer\Tests\Integration\Tolerant\Indexer;
 use Generator;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\MemberIndexer;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
+use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Model\MemberReference;
 use Phpactor\Indexer\Model\Record\FileRecord;
@@ -17,6 +18,8 @@ class MemberIndexerTest extends TolerantIndexerTestCase
     {
         $indexer = new MemberIndexer();
         $index = $this->createIndex();
+        $this->runIndexer(new MemberIndexer(), $index, 'src');
+
         $record1 = $index->get(MemberRecord::fromMemberReference(MemberReference::create(MemberRecord::TYPE_METHOD, 'Foobar', 'bar')));
         $record2 = $index->get(MemberRecord::fromMemberReference(MemberReference::create(MemberRecord::TYPE_METHOD, 'Foobar', 'bar')));
 
@@ -31,13 +34,9 @@ class MemberIndexerTest extends TolerantIndexerTestCase
     {
         $this->workspace()->reset();
         $this->workspace()->loadManifest($manifest);
+
         $index = $this->createIndex();
-        $indexBuilder = new TolerantIndexBuilder($index, [
-            new MemberIndexer()
-        ]);
-        $fileList = $this->fileListProvider('src');
-        $indexer = new Indexer($indexBuilder, $index, $fileList);
-        $indexer->getJob()->run();
+        $this->runIndexer(new MemberIndexer(), $index, 'src');
 
         $memberRecord = $index->get(MemberRecord::fromMemberReference($memberReference));
         assert($memberRecord instanceof MemberRecord);

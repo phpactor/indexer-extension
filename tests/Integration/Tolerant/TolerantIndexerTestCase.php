@@ -2,6 +2,8 @@
 
 namespace Phpactor\Indexer\Tests\Integration\Tolerant;
 
+use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
+use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record;
@@ -42,5 +44,15 @@ class TolerantIndexerTestCase extends IntegrationTestCase
         self::assertCount(0, $record1->references());
         /** @phpstan-ignore-next-line */
         self::assertCount(0, $record2->references());
+    }
+
+    protected function runIndexer(TolerantIndexer $indexer, Index $index, string $path): Index
+    {
+        $indexBuilder = new TolerantIndexBuilder($index, [ $indexer ]);
+        $fileList = $this->fileListProvider($path);
+        $indexer = new Indexer($indexBuilder, $index, $fileList);
+        $indexer->getJob()->run();
+
+        return $index;
     }
 }
