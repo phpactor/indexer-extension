@@ -11,6 +11,8 @@ use Phpactor\Indexer\Tests\Integration\Tolerant\TolerantIndexerTestCase;
 
 class MemberIndexerTest extends TolerantIndexerTestCase
 {
+    private static $foobar;
+
     /**
      * @dataProvider provideStaticAccess
      * @dataProvider provideInstanceAccess
@@ -93,6 +95,18 @@ class MemberIndexerTest extends TolerantIndexerTestCase
         yield 'namespaced static access' => [
             "// File: src/file1.php\n<?php use Barfoo\\Foobar; Foobar::hello();",
             MemberReference::create(MemberRecord::TYPE_METHOD, 'Barfoo\\Foobar', 'hello'),
+            [ 0, 0, 1 ]
+        ];
+
+        yield 'self' => [
+            "// File: src/file1.php\n<?php class Foobar { function bar() {} function foo() { self::bar(); } }",
+            MemberReference::create(MemberRecord::TYPE_METHOD, 'Foobar', 'bar'),
+            [ 0, 0, 1 ]
+        ];
+
+        yield 'parent' => [
+            "// File: src/file1.php\n<?php class Foobar { function bar() {}} class Barfoo extends Foobar { function foo() { parent::bar(); } }",
+            MemberReference::create(MemberRecord::TYPE_METHOD, 'Foobar', 'bar'),
             [ 0, 0, 1 ]
         ];
     }

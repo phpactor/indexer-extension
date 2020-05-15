@@ -64,7 +64,7 @@ class MemberIndexer implements TolerantIndexer
             return;
         }
 
-        $containerType = (string)$containerType->getResolvedName();
+        $containerType = $this->resolveContainerType($containerType, $node);
         $memberName = $this->resolveScopedPropertyAccessName($node);
 
         if (empty($memberName)) {
@@ -152,5 +152,18 @@ class MemberIndexer implements TolerantIndexer
         }
 
         return $nodeOrToken->getStart();
+    }
+
+    private function resolveContainerType(QualifiedName $containerType, Node $node): ?string
+    {
+        $containerType = (string)$containerType->getResolvedName();
+
+        // let static analysis solve these later - we cannot determine the
+        // correct values efficiently now (traits etc).
+        if (in_array($containerType, ['self', 'static', 'parent'])) {
+            return null;
+        }
+
+        return $containerType;
     }
 }
