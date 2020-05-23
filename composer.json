@@ -13,6 +13,7 @@
     ],
     "require": {
         "php": "^7.3",
+        "phpactor/container": "^1.3.3",
         "phpactor/worse-reflection": "^0.4",
         "phpactor/source-code-filesystem": "~0.1.5",
         "phpactor/name-specification": "^0.1",

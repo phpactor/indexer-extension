@@ -18,7 +18,6 @@ use Phpactor\Container\Extension;
 use Phpactor\Extension\Console\ConsoleExtension;
 use Phpactor\Extension\Logger\LoggingExtension;
 use Phpactor\Extension\ReferenceFinder\ReferenceFinderExtension;
-use Phpactor\Extension\SourceCodeFilesystem\SourceCodeFilesystemExtension;
 use Phpactor\Extension\Rpc\RpcExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
@@ -53,13 +52,11 @@ use Webmozart\PathUtil\Path;
 class IndexerExtension implements Extension
 {
     const PARAM_INDEX_PATH = 'indexer.index_path';
-    const PARAM_DEFAULT_FILESYSTEM = 'indexer.default_filesystem';
     const PARAM_INDEXER_POLL_TIME = 'indexer.poll_time';
     const PARAM_ENABLED_WATCHERS = 'indexer.enabled_watchers';
     const PARAM_INCLUDE_PATTERNS = 'indexer.include_patterns';
     const PARAM_EXCLUDE_PATTERNS = 'indexer.exclude_patterns';
     const PARAM_INDEXER_BUFFER_TIME = 'indexer.buffer_time';
-    const PARAM_INDEXER = 'indexer.indexer';
 
     const TAG_WATCHER = 'indexer.watcher';
 
@@ -78,32 +75,26 @@ class IndexerExtension implements Extension
         $schema->setDefaults([
             self::PARAM_ENABLED_WATCHERS => ['inotify', 'find', 'php'],
             self::PARAM_INDEX_PATH => '%cache%/index/%project_id%',
-            self::PARAM_DEFAULT_FILESYSTEM => SourceCodeFilesystemExtension::FILESYSTEM_SIMPLE,
-
-            // glob patterns to include for watcher and job builder
             self::PARAM_INCLUDE_PATTERNS => [
                 '/**/*.php',
             ],
-
-            // glob patterns to exclude for watcher and job builder
             self::PARAM_EXCLUDE_PATTERNS => [
                 '/vendor/**/Tests/**/*',
                 '/vendor/**/tests/**/*',
                 '/vendor/composer/**/*',
             ],
-
-            // for polling watchers, scan the filesystem every x milliseconds
             self::PARAM_INDEXER_POLL_TIME => 5000,
-
-            // for "realtime" watchers, e.g. inotify, buffer for given time in
-            // milliseconds
             self::PARAM_INDEXER_BUFFER_TIME => 500,
-
-            // indexer implementation to use
-            self::PARAM_INDEXER => self::INDEXER_TOLERANT,
-
-            // index the project from this directory
             self::PARAM_PROJECT_ROOT => '%project_root%',
+        ]);
+        $schema->setDescriptions([
+            self::PARAM_ENABLED_WATCHERS => 'List of allowed watchers. The first watcher that supports the current system will be used',
+            self::PARAM_INDEX_PATH => 'Path where the index should be saved',
+            self::PARAM_INCLUDE_PATTERNS => 'Glob patterns to include while indexing',
+            self::PARAM_EXCLUDE_PATTERNS => 'Glob patterns to exclude while indexing',
+            self::PARAM_INDEXER_POLL_TIME => 'For polling indexers only: the time, in milliseconds, between polls (e.g. filesystem scans)',
+            self::PARAM_INDEXER_BUFFER_TIME => 'For real-time indexers only: the time, in milliseconds, to buffer the results',
+            self::PARAM_PROJECT_ROOT => 'The root path to use for scanning the index',
         ]);
     }
 
@@ -135,16 +126,7 @@ class IndexerExtension implements Extension
     private function registerWorseAdapters(ContainerBuilder $container): void
     {
         $container->register(IndexBuilder::class, function (Container $container) {
-            if ($container->getParameter(self::PARAM_INDEXER) === self::INDEXER_TOLERANT) {
-                return TolerantIndexBuilder::create($container->get(Index::class));
-            }
-
-            throw new RuntimeException(sprintf(
-                'Unknown indexer "%s" must be one of "%s" or "%s"',
-                $container->getParameter(self::PARAM_INDEXER),
-                self::INDEXER_TOLERANT,
-                self::INDEXER_WORSE
-            ));
+            return TolerantIndexBuilder::create($container->get(Index::class));
         });
         
         $container->register(IndexerClassSourceLocator::class, function (Container $container) {
