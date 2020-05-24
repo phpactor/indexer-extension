@@ -26,6 +26,7 @@ use Phpactor\Filesystem\Adapter\Simple\SimpleFileListProvider;
 use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
 use Phpactor\Filesystem\Domain\FilePath;
 use Phpactor\Indexer\Adapter\Php\FileSearchIndex;
+use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedNameSearcher;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Adapter\Worse\IndexerClassSourceLocator;
 use Phpactor\Indexer\Adapter\Worse\IndexerFunctionSourceLocator;
@@ -239,6 +240,12 @@ class IndexerExtension implements Extension
                 $container->get(WorseReflectionExtension::SERVICE_REFLECTOR),
             );
         }, [ ReferenceFinderExtension::TAG_REFERENCE_FINDER => []]);
+
+        $container->register(IndexedNameSearcher::class, function (Container $container) {
+            return new IndexedNameSearcher(
+                $container->get(IndexQueryAgent::class)
+            );
+        }, [ ReferenceFinderExtension::TAG_NAME_SEARCHER => []]);
     }
 
     private function registerRpc(ContainerBuilder $container): void
