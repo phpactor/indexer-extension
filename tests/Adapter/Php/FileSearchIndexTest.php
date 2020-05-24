@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\Indexer\Tests\Integration\Adapter\Php;
+namespace Phpactor\Indexer\Tests\Adapter\Php;
 
 use Phpactor\Indexer\Adapter\Php\FileSearchIndex;
 use Phpactor\Indexer\Model\Matcher\ClassShortNameMatcher;

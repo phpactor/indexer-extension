@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\Indexer\Tests\Integration\Tolerant;
+namespace Phpactor\Indexer\Tests\Adapter\Tolerant;
 
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Model\Indexer;

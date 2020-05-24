@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\Indexer\Tests\Integration\Worse;
+namespace Phpactor\Indexer\Tests\Adapter\Worse;
 
 use Generator;
 use Phpactor\Indexer\Adapter\Worse\WorseRecordReferenceEnhancer;

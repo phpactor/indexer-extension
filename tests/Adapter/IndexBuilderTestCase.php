@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\Indexer\Tests\Integration;
+namespace Phpactor\Indexer\Tests\Adapter;
 
 use Closure;
 use Generator;
