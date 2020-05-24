@@ -4,6 +4,8 @@ namespace Phpactor\Indexer\Tests\Integration\Tolerant\Indexer;
 
 use Generator;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\ClassDeclarationIndexer;
+use Phpactor\Indexer\Model\Record;
+use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Tests\Integration\Tolerant\TolerantIndexerTestCase;
 
 class ClassDeclarationIndexerTest extends TolerantIndexerTestCase
@@ -48,6 +50,46 @@ class ClassDeclarationIndexerTest extends TolerantIndexerTestCase
             "// File: src/file1.php\n<?php abstract class Barfoo implements Foobar{}",
             'Foobar',
             1
+        ];
+    }
+
+    /**
+     * @dataProvider provideSearch
+     * @param array<string> $expectedFqns
+     */
+    public function testSearch(string $manifest, string $search, array $expectedFqns): void
+    {
+        $this->workspace()->reset();
+        $this->workspace()->loadManifest($manifest);
+        $index = $this->createIndex();
+        $this->runIndexer(new ClassDeclarationIndexer(), $index, 'src');
+
+        self::assertEquals($expectedFqns, array_map(function (Record $record) {
+            return $record->identifier();
+        }, iterator_to_array($this->indexQuery($index)->class()->search($search))));
+    }
+
+    /**
+     * @return Generator<mixed>
+     */
+    public function provideSearch(): Generator
+    {
+        yield 'no results' => [
+            "// File: src/file1.php\n<?php class Barfoo {}",
+            'Foobar',
+            []
+        ];
+
+        yield 'exact match' => [
+            "// File: src/file1.php\n<?php class Barfoo implements Foobar{}",
+            'Foobar',
+            ['Foobar',]
+        ];
+
+        yield 'namespaced match' => [
+            "// File: src/file1.php\n<?php namespace Bar; class Barfoo implements Foobar{}",
+            'Foobar',
+            ['Bar\Foobar',]
         ];
     }
 }

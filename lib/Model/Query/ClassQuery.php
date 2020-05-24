@@ -61,4 +61,11 @@ class ClassQuery implements IndexQuery
             }
         }
     }
+
+    public function search(string $search): Generator
+    {
+        foreach ($this->index->search($search) as $partialRecord) {
+            yield $this->index->get($partialRecord);
+        }
+    }
 }
