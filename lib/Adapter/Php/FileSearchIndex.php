@@ -19,7 +19,7 @@ class FileSearchIndex implements SearchIndex
     private $open = false;
 
     /**
-     * @var array<string>
+     * @var array<array{string,string}>
      */
     private $subjects = [];
 
@@ -48,8 +48,7 @@ class FileSearchIndex implements SearchIndex
             $this->open();
         }
 
-        foreach ($this->subjects as $compoundIdentifier) {
-            [ $recordType, $identifier ] = explode(self::DELIMITER, $compoundIdentifier);
+        foreach ($this->subjects as [ $recordType, $identifier ]) {
 
             if (false === $this->matcher->match($identifier, $query)) {
                 continue;
@@ -61,12 +60,14 @@ class FileSearchIndex implements SearchIndex
 
     public function write(Record $record): void
     {
-        $this->subjects[] = $record->recordType() . self::DELIMITER . $record->identifier();
+        $this->subjects[] = [$record->recordType(), $record->identifier()];
     }
 
     public function flush(): void
     {
-        file_put_contents($this->path, implode("\n", array_unique($this->subjects)));
+        file_put_contents($this->path, implode("\n", array_unique(array_map(function (array $parts) {
+            return implode(self::DELIMITER, $parts);
+        }, $this->subjects))));
     }
 
     private function open(): void
@@ -75,7 +76,9 @@ class FileSearchIndex implements SearchIndex
             return;
         }
 
-        $this->subjects = explode("\n", file_get_contents($this->path));
+        $this->subjects = array_map(function (string $line) {
+            return explode(self::DELIMITER, $line);
+        }, explode("\n", file_get_contents($this->path)));
         $this->open = true;
     }
 }
