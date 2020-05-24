@@ -1,0 +1,29 @@
+<?php
+
+namespace Phpactor\Indexer\Adapter\ReferenceFinder;
+
+use Generator;
+use Phpactor\Indexer\Model\IndexQueryAgent;
+use Phpactor\Name\FullyQualifiedName;
+use Phpactor\ReferenceFinder\NameSearcher;
+use Phpactor\ReferenceFinder\Search\NameSearchResult;
+
+class IndexedNameSearcher implements NameSearcher
+{
+    /**
+     * @var IndexQueryAgent
+     */
+    private $query;
+
+    public function __construct(IndexQueryAgent $query)
+    {
+        $this->query = $query;
+    }
+
+    public function search(string $search): Generator
+    {
+        foreach ($this->query->search($search) as $result) {
+            yield NameSearchResult::create($result->recordType(), FullyQualifiedName::fromString($result->identifier()));
+        }
+    }
+}

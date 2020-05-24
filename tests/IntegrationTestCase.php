@@ -51,7 +51,7 @@ class IntegrationTestCase extends TestCase
 
     protected function initProject(): void
     {
-        $this->workspace()->loadManifest((string)file_get_contents(__DIR__ . '/Integration/Manifest/buildIndex.php.test'));
+        $this->workspace()->loadManifest((string)file_get_contents(__DIR__ . '/Adapter/Manifest/buildIndex.php.test'));
         $process = new Process([
             'composer', 'install'
         ], $this->workspace()->path('/'));
