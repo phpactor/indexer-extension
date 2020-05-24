@@ -8,6 +8,7 @@ use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\RecordFactory;
 use Phpactor\Indexer\Model\SearchIndex;
 use function Safe\file_get_contents;
+use function Safe\file_put_contents;
 
 class FileSearchIndex implements SearchIndex
 {
@@ -49,7 +50,6 @@ class FileSearchIndex implements SearchIndex
         }
 
         foreach ($this->subjects as [ $recordType, $identifier ]) {
-
             if (false === $this->matcher->match($identifier, $query)) {
                 continue;
             }
