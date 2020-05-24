@@ -4,8 +4,9 @@ namespace Phpactor\Indexer\Tests\Integration\Tolerant\Indexer;
 
 use Generator;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\ClassDeclarationIndexer;
-use Phpactor\Indexer\Model\Record;
+use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Tests\Integration\Tolerant\TolerantIndexerTestCase;
+use RuntimeException;
 
 class ClassDeclarationIndexerTest extends TolerantIndexerTestCase
 {
@@ -54,18 +55,32 @@ class ClassDeclarationIndexerTest extends TolerantIndexerTestCase
 
     /**
      * @dataProvider provideSearch
-     * @param array<string> $expectedFqns
+     * @param array<ClassRecord> $expectedRecords
      */
-    public function testSearch(string $manifest, string $search, array $expectedFqns): void
+    public function testSearch(string $manifest, string $search, array $expectedRecords): void
     {
         $this->workspace()->reset();
         $this->workspace()->loadManifest($manifest);
         $index = $this->createIndex();
         $this->runIndexer(new ClassDeclarationIndexer(), $index, 'src');
+        $foundRecords = $this->indexQuery($index)->search($search);
 
-        self::assertEquals($expectedFqns, array_map(function (Record $record) {
-            return $record->identifier();
-        }, iterator_to_array($this->indexQuery($index)->class()->search($search))));
+        foreach ($expectedRecords as $record) {
+            foreach ($foundRecords as $foundRecord) {
+                assert($foundRecord instanceof ClassRecord);
+                if ($foundRecord->identifier() === $record->identifier()) {
+                    self::assertEquals($record->filePath(), $foundRecord->filePath());
+                    continue 2;
+                }
+            }
+
+            throw new RuntimeException(sprintf(
+                'Record "%s" not found',
+                $record->identifier()
+            ));
+        }
+
+        $this->addToAssertionCount(1);
     }
 
     /**
@@ -81,14 +96,14 @@ class ClassDeclarationIndexerTest extends TolerantIndexerTestCase
 
         yield 'exact match' => [
             "// File: src/file1.php\n<?php class Barfoo implements Foobar{}",
-            'Foobar',
-            ['Foobar',]
+            'Barfoo',
+            [ClassRecord::fromName('Barfoo')->setFilePath($this->workspace()->path('src/file1.php'))]
         ];
 
         yield 'namespaced match' => [
             "// File: src/file1.php\n<?php namespace Bar; class Barfoo implements Foobar{}",
-            'Foobar',
-            ['Bar\Foobar',]
+            'Barfoo',
+            [ClassRecord::fromName('Bar\Barfoo')->setFilePath($this->workspace()->path('src/file1.php'))]
         ];
     }
 }

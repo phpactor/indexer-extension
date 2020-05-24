@@ -70,6 +70,7 @@ class SerializedIndex implements Index
     {
         $this->repository->flush();
         $this->repository->putTimestamp();
+        $this->search->flush();
     }
 
     public function has(Record $record): bool
