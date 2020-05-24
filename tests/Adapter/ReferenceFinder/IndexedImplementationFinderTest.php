@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\Indexer\Tests\Integration\ReferenceFinder;
+namespace Phpactor\Indexer\Tests\Adapter\ReferenceFinder;
 
 use Generator;
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedImplementationFinder;

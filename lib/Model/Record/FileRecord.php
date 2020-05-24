@@ -10,6 +10,8 @@ use SplFileInfo;
 
 class FileRecord implements HasPath, Record
 {
+    public const RECORD_TYPE = 'file';
+
     use HasPathTrait;
 
     /**
@@ -27,7 +29,7 @@ class FileRecord implements HasPath, Record
      */
     public function recordType(): string
     {
-        return 'file';
+        return self::RECORD_TYPE;
     }
 
     public static function fromFileInfo(SplFileInfo $info): self

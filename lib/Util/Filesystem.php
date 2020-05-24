@@ -11,6 +11,10 @@ class Filesystem
 {
     public static function removeDir(string $path): void
     {
+        if (!file_exists($path)) {
+            return;
+        }
+
         if ($path) {
             $splFileInfo = new SplFileInfo($path);
 

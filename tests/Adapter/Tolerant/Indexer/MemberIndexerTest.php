@@ -1,13 +1,13 @@
 <?php
 
-namespace Phpactor\Indexer\Tests\Integration\Tolerant\Indexer;
+namespace Phpactor\Indexer\Tests\Adapter\Tolerant\Indexer;
 
 use Generator;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\MemberIndexer;
 use Phpactor\Indexer\Model\LocationConfidence;
 use Phpactor\Indexer\Model\MemberReference;
 use Phpactor\Indexer\Model\Record\MemberRecord;
-use Phpactor\Indexer\Tests\Integration\Tolerant\TolerantIndexerTestCase;
+use Phpactor\Indexer\Tests\Adapter\Tolerant\TolerantIndexerTestCase;
 
 class MemberIndexerTest extends TolerantIndexerTestCase
 {

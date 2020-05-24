@@ -2,6 +2,7 @@
 
 namespace Phpactor\Indexer\Model;
 
+use Generator;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use SplFileInfo;
 
@@ -36,4 +37,9 @@ interface Index
     public function get(Record $record): Record;
 
     public function has(Record $record): bool;
+
+    /**
+     * @return Generator<Record>
+     */
+    public function search(string $search): Generator;
 }

@@ -25,11 +25,16 @@ use Phpactor\FilePathResolver\PathResolver;
 use Phpactor\Filesystem\Adapter\Simple\SimpleFileListProvider;
 use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
 use Phpactor\Filesystem\Domain\FilePath;
+use Phpactor\Indexer\Adapter\Php\FileSearchIndex;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Adapter\Worse\IndexerClassSourceLocator;
 use Phpactor\Indexer\Adapter\Worse\IndexerFunctionSourceLocator;
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedReferenceFinder;
 use Phpactor\Indexer\Adapter\Worse\WorseRecordReferenceEnhancer;
+use Phpactor\Indexer\Model\Matcher\ClassShortNameMatcher;
+use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record\FunctionRecord;
+use Phpactor\Indexer\Model\SearchIndex\FilteredSearchIndex;
 use Phpactor\MapResolver\Resolver;
 use Phpactor\Indexer\Adapter\Filesystem\FilesystemFileListProvider;
 use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
@@ -189,17 +194,25 @@ class IndexerExtension implements Extension
         });
         
         $container->register(Index::class, function (Container $container) {
+            $indexPath = $container->get(
+                FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER
+            )->resolve(
+                $container->getParameter(self::PARAM_INDEX_PATH)
+            );
             $repository = new FileRepository(
-                $container->get(
-                    FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER
-                )->resolve(
-                    $container->getParameter(self::PARAM_INDEX_PATH)
-                ),
+                $indexPath,
                 $container->get(LoggingExtension::SERVICE_LOGGER)
             );
-            return new SerializedIndex($repository);
+            $search = new FilteredSearchIndex(
+                new FileSearchIndex($indexPath . '/search', new ClassShortNameMatcher()),
+                [
+                    ClassRecord::RECORD_TYPE,
+                    FunctionRecord::RECORD_TYPE,
+                ]
+            );
+            return new SerializedIndex($repository, $search);
         });
-        
+
         $container->register(IndexQueryAgent::class, function (Container $container) {
             return new IndexQueryAgent(
                 $container->get(Index::class),
@@ -273,7 +286,7 @@ class IndexerExtension implements Extension
                     if (!in_array($name, $enabledWatchers)) {
                         return null;
                     }
-                    
+
                     return $container->get($serviceId);
                 },
                 array_keys($watchers),

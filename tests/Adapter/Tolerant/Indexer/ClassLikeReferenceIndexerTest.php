@@ -1,11 +1,11 @@
 <?php
 
-namespace Phpactor\Indexer\Tests\Integration\Tolerant\Indexer;
+namespace Phpactor\Indexer\Tests\Adapter\Tolerant\Indexer;
 
 use Generator;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\ClassLikeReferenceIndexer;
 use Phpactor\Indexer\Model\LocationConfidence;
-use Phpactor\Indexer\Tests\Integration\Tolerant\TolerantIndexerTestCase;
+use Phpactor\Indexer\Tests\Adapter\Tolerant\TolerantIndexerTestCase;
 
 class ClassLikeReferenceIndexerTest extends TolerantIndexerTestCase
 {
