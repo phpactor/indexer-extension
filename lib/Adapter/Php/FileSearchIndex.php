@@ -12,12 +12,17 @@ use function Safe\file_put_contents;
 
 class FileSearchIndex implements SearchIndex
 {
+    /**
+     * Flush to the filesystem after BATCH_SIZE updates
+     */
+    private const BATCH_SIZE = 10000;
+
     private const DELIMITER = "\t";
 
     /**
      * @var bool
      */
-    private $open = false;
+    private $initialized = false;
 
     /**
      * @var array<array{string,string}>
@@ -34,6 +39,11 @@ class FileSearchIndex implements SearchIndex
      */
     private $matcher;
 
+    /**
+     * @var int
+     */
+    private $counter = 0;
+
     public function __construct(string $path, Matcher $matcher)
     {
         $this->path = $path;
@@ -45,9 +55,7 @@ class FileSearchIndex implements SearchIndex
      */
     public function search(string $query): Generator
     {
-        if (false === $this->open) {
-            $this->open();
-        }
+        $this->open();
 
         foreach ($this->subjects as [ $recordType, $identifier ]) {
             if (false === $this->matcher->match($identifier, $query)) {
@@ -60,11 +68,18 @@ class FileSearchIndex implements SearchIndex
 
     public function write(Record $record): void
     {
-        $this->subjects[] = [$record->recordType(), $record->identifier()];
+        $this->open();
+        $this->subjects[$record->recordType().$record->identifier()] = [$record->recordType(), $record->identifier()];
+
+        if (++$this->counter % self::BATCH_SIZE === 0) {
+            $this->flush();
+        }
     }
 
     public function flush(): void
     {
+        $this->open();
+
         file_put_contents($this->path, implode("\n", array_unique(array_map(function (array $parts) {
             return implode(self::DELIMITER, $parts);
         }, $this->subjects))));
@@ -72,13 +87,24 @@ class FileSearchIndex implements SearchIndex
 
     private function open(): void
     {
+        if ($this->initialized) {
+            return;
+        }
+
         if (!file_exists($this->path)) {
             return;
         }
 
-        $this->subjects = array_map(function (string $line) {
-            return explode(self::DELIMITER, $line);
-        }, explode("\n", file_get_contents($this->path)));
-        $this->open = true;
+        $this->subjects = array_filter(array_map(function (string $line) {
+            $parts = explode(self::DELIMITER, $line);
+
+            if (count($parts) !== 2) {
+                return false;
+            }
+
+            return $parts;
+        }, explode("\n", file_get_contents($this->path))));
+
+        $this->initialized = true;
     }
 }
