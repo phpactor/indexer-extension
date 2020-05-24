@@ -5,7 +5,6 @@ namespace Phpactor\Indexer\Tests\Integration\Tolerant\Indexer;
 use Generator;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\ClassDeclarationIndexer;
 use Phpactor\Indexer\Model\Record;
-use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Tests\Integration\Tolerant\TolerantIndexerTestCase;
 
 class ClassDeclarationIndexerTest extends TolerantIndexerTestCase

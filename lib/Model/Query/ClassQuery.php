@@ -8,6 +8,7 @@ use Phpactor\Indexer\Model\IndexQuery;
 use Phpactor\Indexer\Model\LocationConfidence;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
+use Phpactor\Indexer\Model\Record;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\TextDocument\Location;
 
@@ -62,6 +63,9 @@ class ClassQuery implements IndexQuery
         }
     }
 
+    /**
+     * @return Generator<Record>
+     */
     public function search(string $search): Generator
     {
         foreach ($this->index->search($search) as $partialRecord) {

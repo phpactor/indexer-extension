@@ -27,7 +27,8 @@ class RecordFactory
 
         throw new RuntimeException(sprintf(
             'Do not know how to create record of type "%s" with identifier "%s"',
-            $type, $identifier
+            $type,
+            $identifier
         ));
     }
 }

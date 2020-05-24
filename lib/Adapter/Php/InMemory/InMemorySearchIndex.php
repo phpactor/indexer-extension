@@ -23,6 +23,7 @@ class InMemorySearchIndex implements SearchIndex
             if (!preg_match('{' . $query. '}', $identifier)) {
                 continue;
             }
+
             yield RecordFactory::create($recordType, $identifier);
         }
     }
