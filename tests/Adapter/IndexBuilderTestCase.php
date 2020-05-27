@@ -363,7 +363,7 @@ EOT
 // File: project/test1.php
 <?php 
 namespace Barfoos;
-function foobar();
+foobar();
 
 // File: project/test2.php
 <?php
@@ -373,6 +373,26 @@ EOT
             function (FunctionRecord $record) {
                 // there is one file reference per class
                 self::assertCount(1, $record->references());
+                self::assertNull($record->filePath());
+            }
+        ];
+
+        yield 'declaration is indexed' => [
+            <<<'EOT'
+// File: project/test1.php
+<?php 
+namespace Barfoos;
+
+function foobar() {};
+
+// File: project/test2.php
+<?php
+Barfoos\foobar();
+EOT
+            , 'Barfoos\foobar',
+            function (FunctionRecord $record) {
+                self::assertCount(1, $record->references());
+                self::assertEquals($this->workspace()->path('project/test1.php'), $record->filePath());
             }
         ];
     }

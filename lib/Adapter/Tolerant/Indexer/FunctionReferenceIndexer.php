@@ -49,8 +49,6 @@ class FunctionReferenceIndexer extends AbstractClassLikeIndexer
 
         $targetRecord = $index->get(FunctionRecord::fromName($name));
         assert($targetRecord instanceof FunctionRecord);
-        $targetRecord->setStart(ByteOffset::fromInt($node->getStart()));
-        $targetRecord->setFilePath($info->getPathname());
         $targetRecord->addReference($info->getPathname());
         $index->write($targetRecord);
 
