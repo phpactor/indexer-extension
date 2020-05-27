@@ -49,4 +49,9 @@ class FilteredSearchIndex implements SearchIndex
     {
         $this->innerIndex->flush();
     }
+
+    public function remove(Record $record): void
+    {
+        $this->innerIndex->remove($record);
+    }
 }

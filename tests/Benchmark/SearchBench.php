@@ -64,10 +64,6 @@ class SearchBench
             'search' => 'A',
         ];
 
-        yield 'B' => [
-            'search' => 'B',
-        ];
-
         yield 'Request' => [
             'search' => 'Request',
         ];
