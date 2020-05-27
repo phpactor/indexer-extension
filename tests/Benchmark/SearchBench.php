@@ -3,33 +3,56 @@
 namespace Phpactor\Indexer\Tests\Benchmark;
 
 use Phpactor\Indexer\Adapter\Php\FileSearchIndex;
+use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
+use Phpactor\Indexer\Adapter\Php\Serialized\SerializedIndex;
 use Phpactor\Indexer\Model\Matcher\ClassShortNameMatcher;
+use Phpactor\Indexer\Model\SearchIndex;
+use Phpactor\Indexer\Model\SearchIndex\ValidatingSearchIndex;
 
 /**
+ * Run ./bin/console index:build before running this benchmark
+ *
  * @Iterations(10)
  * @Revs(1)
- * @OutputTimeUnit("milliseconds")
+ * @OutputTimeUnit("seconds")
  */
 class SearchBench
 {
     /**
-     * @var FileSearchIndex
+     * @var SearchIndex
      */
     private $search;
 
-    /**
-     * Run ./bin/console index:build before running this benchmark
-     */
-    public function setUp(): void
+    public function createFileSearch(): void
     {
-        $this->search = new FileSearchIndex(__DIR__ . '/../../cache/search', new ClassShortNameMatcher());
+        $indexPath = __DIR__ . '/../..';
+        $this->search = new FileSearchIndex($indexPath . '/cache/search', new ClassShortNameMatcher());
+    }
+
+    public function createValidatingFileSearch(): void
+    {
+        $indexPath = __DIR__ . '/../../cache';
+        $this->search = new ValidatingSearchIndex(
+            new FileSearchIndex($indexPath . '/search', new ClassShortNameMatcher()),
+            new SerializedIndex(new FileRepository($indexPath))
+        );
     }
 
     /**
-     * @BeforeMethods({"setUp"})
+     * @BeforeMethods({"createFileSearch"})
      * @ParamProviders({"provideSearches"})
      */
-    public function benchSearch(array $params): void
+    public function benchFileSearch(array $params): void
+    {
+        foreach ($this->search->search($params['search']) as $result) {
+        }
+    }
+
+    /**
+     * @BeforeMethods({"createValidatingFileSearch"})
+     * @ParamProviders({"provideSearches"})
+     */
+    public function benchValidatingFileSearch(array $params): void
     {
         foreach ($this->search->search($params['search']) as $result) {
         }
@@ -43,10 +66,6 @@ class SearchBench
 
         yield 'B' => [
             'search' => 'B',
-        ];
-
-        yield 'C' => [
-            'search' => 'C',
         ];
 
         yield 'Request' => [

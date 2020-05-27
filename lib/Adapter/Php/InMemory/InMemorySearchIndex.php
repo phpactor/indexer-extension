@@ -36,4 +36,9 @@ class InMemorySearchIndex implements SearchIndex
     public function flush(): void
     {
     }
+
+    public function remove(Record $record): void
+    {
+        unset($this->buffer[$record->identifier()]);
+    }
 }
