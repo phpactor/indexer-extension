@@ -9,7 +9,6 @@ use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
-use Phpactor\TextDocument\ByteOffset;
 use SplFileInfo;
 
 class FunctionReferenceIndexer extends AbstractClassLikeIndexer
