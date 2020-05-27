@@ -3,4 +3,6 @@ parameters:
     inferPrivatePropertyTypeFromConstructor: true
     paths:
         - lib
+    ignoreErrors:
+        - "{but empty return statement found}"
 
