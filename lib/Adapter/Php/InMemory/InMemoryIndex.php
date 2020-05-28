@@ -5,21 +5,13 @@ namespace Phpactor\Indexer\Adapter\Php\InMemory;
 use Generator;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexQueryAgent;
-use RuntimeException;
-use Phpactor\Indexer\Model\Record\FunctionRecord;
-use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record;
 use SplFileInfo;
 
 class InMemoryIndex implements Index
 {
     /**
-     * @var InMemoryRepository
-     */
-    private $repository;
-
-    /**
-     * @var int
+     * @var int|null
      */
     private $lastUpdate;
 
@@ -83,12 +75,12 @@ class InMemoryIndex implements Index
 
     public function exists(): bool
     {
-        return $this->repository->lastUpdate !== 0;
+        return $this->lastUpdate !== 0;
     }
 
     public function done(): void
     {
-        $this->repository->lastUpdate = time();
+        $this->lastUpdate = time();
     }
 
     public function has(Record $record): bool

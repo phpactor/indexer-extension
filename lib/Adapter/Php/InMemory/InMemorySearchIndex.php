@@ -33,6 +33,11 @@ class InMemorySearchIndex implements SearchIndex
         $this->buffer[$record->identifier()] = [$record->recordType(), $record->identifier()];
     }
 
+    public function has(Record $record): bool
+    {
+        return isset($this->buffer[$record->identifier()]);
+    }
+
     public function flush(): void
     {
     }
