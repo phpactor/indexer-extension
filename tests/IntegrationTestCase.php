@@ -83,7 +83,15 @@ class IntegrationTestCase extends TestCase
     protected function fileListProvider(string $projectRoot = 'project'): FileListProvider
     {
         $path = $this->workspace()->path($projectRoot);
-        $provider = new FilesystemFileListProvider(new SimpleFilesystem($path, new SimpleFileListProvider(FilePath::fromString($path))));
+        $provider = new FilesystemFileListProvider(
+            new SimpleFilesystem(
+                $path,
+                new SimpleFileListProvider(
+                    FilePath::fromString($path)
+                )
+            )
+        );
+
         return $provider;
     }
 

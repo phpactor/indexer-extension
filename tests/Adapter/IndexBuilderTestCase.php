@@ -467,6 +467,7 @@ EOT
         );
         self::assertCount(2, $references);
 
+
         $this->workspace()->put(
             'project/AbstractClassImplementation1.php',
             <<<'EOT'

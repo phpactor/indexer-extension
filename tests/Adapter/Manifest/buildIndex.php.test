@@ -24,11 +24,11 @@ class DbalIndex implements Index
 // File: project/AbstractClass.php
 <?php
 abstract class AbstractClass {}
-// File project/AbstractClassImplementation1.php
+// File: project/AbstractClassImplementation1.php
 <?php
 class AbstractClassImplementation1 extends AbstractClass {}
 
-// File project/AbstractClassImplementation2.php
+// File: project/AbstractClassImplementation2.php
 <?php
 class AbstractClassImplementation2 extends AbstractClass {}
 // File: project/Exception/RuntimeException.php
