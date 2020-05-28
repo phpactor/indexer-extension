@@ -13,5 +13,7 @@ interface SearchIndex
 
     public function write(Record $record): void;
 
+    public function remove(Record $record): void;
+
     public function flush(): void;
 }
