@@ -28,11 +28,19 @@ class InMemoryIndex implements Index
      */
     private $searchIndex;
 
-    public function __construct(?InMemoryRepository $repository = null)
+    /**
+     * @var array<Record>
+     */
+    private $index;
+
+    /**
+     * @param array<Record> $index
+     */
+    public function __construct(array $index = [])
     {
-        $this->repository = $repository ?: new InMemoryRepository();
         $this->searchIndex = new InMemorySearchIndex();
         $this->lastUpdate = 0;
+        $this->index = $index;
     }
 
     public function lastUpdate(): int
@@ -47,43 +55,20 @@ class InMemoryIndex implements Index
 
     public function write(Record $record): void
     {
+        $this->index[$this->recordKey($record)] = $record;
         $this->searchIndex->write($record);
-
-        if ($record instanceof ClassRecord) {
-            $this->repository->putClass($record);
-            return;
-        }
-
-        if ($record instanceof FunctionRecord) {
-            $this->repository->putFunction($record);
-            return;
-        }
-
-        throw new RuntimeException(sprintf(
-            'Do not know how to index "%s"',
-            get_class($record)
-        ));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function get(Record $record): Record
     {
-        if ($record instanceof ClassRecord) {
-            // @phpstan-ignore-next-line
-            return $this->repository->getClass($record->fqn()) ?? $record;
+        $key = $this->recordKey($record);
+
+        if (isset($this->index[$key])) {
+            /** @phpstan-ignore-next-line */
+            return $this->index[$key];
         }
 
-        if ($record instanceof FunctionRecord) {
-            // @phpstan-ignore-next-line
-            return $this->repository->getFunction($record->fqn()) ?? $record;
-        }
-
-        throw new RuntimeException(sprintf(
-            'Do not know how to index "%s"',
-            get_class($record)
-        ));
+        return $record;
     }
 
     public function isFresh(SplFileInfo $fileInfo): bool
@@ -93,7 +78,7 @@ class InMemoryIndex implements Index
 
     public function reset(): void
     {
-        $this->repository->reset();
+        $this->index = [];
     }
 
     public function exists(): bool
@@ -108,7 +93,7 @@ class InMemoryIndex implements Index
 
     public function has(Record $record): bool
     {
-        return false;
+        return isset($this->index[$this->recordKey($record)]);
     }
 
     /**
@@ -117,5 +102,10 @@ class InMemoryIndex implements Index
     public function search(string $search): Generator
     {
         yield from $this->searchIndex->search($search);
+    }
+
+    private function recordKey(Record $record): string
+    {
+        return $record->recordType().$record->identifier();
     }
 }
