@@ -47,17 +47,6 @@ class QueryClient
         $this->index = $index;
     }
 
-    /**
-     * @return Generator<Record>
-     */
-    public function search(string $query): Generator
-    {
-        foreach ($this->index->search($query) as $record) {
-            // hydrate the record
-            yield $this->index->get($record);
-        }
-    }
-
     public function class(): ClassQuery
     {
         return $this->classQuery;

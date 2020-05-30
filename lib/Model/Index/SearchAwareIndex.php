@@ -70,12 +70,4 @@ class SearchAwareIndex implements Index
     {
         return $this->innerIndex->has($record);
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function search(string $search): Generator
-    {
-        return yield from $this->search->search($search);
-    }
 }

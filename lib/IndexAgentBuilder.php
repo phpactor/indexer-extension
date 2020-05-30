@@ -24,6 +24,7 @@ use Phpactor\Indexer\Model\RecordReferenceEnhancer;
 use Phpactor\Indexer\Model\RecordReferenceEnhancer\NullRecordReferenceEnhancer;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
+use Phpactor\Indexer\Model\SearchClient\HydratingSearchClient;
 use Phpactor\Indexer\Model\SearchIndex;
 use Phpactor\Indexer\Model\SearchIndex\FilteredSearchIndex;
 use Phpactor\Indexer\Model\TestIndexAgent;
@@ -95,6 +96,7 @@ class IndexAgentBuilder
         $query = $this->buildQuery($index);
         $builder = $this->buildBuilder($index);
         $indexer = $this->buildIndexer($builder, $index);
+        $search = new HydratingSearchClient($index, $search);
 
         return new RealIndexAgent($index, $query, $search, $indexer);
     }

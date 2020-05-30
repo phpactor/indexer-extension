@@ -67,7 +67,7 @@ class ClassDeclarationIndexerTest extends TolerantIndexerTestCase
         $this->workspace()->reset();
         $this->workspace()->loadManifest($manifest);
         $agent = $this->runIndexer(new ClassDeclarationIndexer(), 'src');
-        $foundRecords = $agent->query()->search($search);
+        $foundRecords = $agent->search()->search($search);
 
         foreach ($expectedRecords as $record) {
             foreach ($foundRecords as $foundRecord) {

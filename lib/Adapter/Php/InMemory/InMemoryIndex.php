@@ -23,15 +23,9 @@ class InMemoryIndex implements Index
      */
     private $lastUpdate;
 
-    /**
-     * @var InMemorySearchIndex
-     */
-    private $searchIndex;
-
     public function __construct(?InMemoryRepository $repository = null)
     {
         $this->repository = $repository ?: new InMemoryRepository();
-        $this->searchIndex = new InMemorySearchIndex();
         $this->lastUpdate = 0;
     }
 
@@ -47,8 +41,6 @@ class InMemoryIndex implements Index
 
     public function write(Record $record): void
     {
-        $this->searchIndex->write($record);
-
         if ($record instanceof ClassRecord) {
             $this->repository->putClass($record);
             return;
@@ -109,13 +101,5 @@ class InMemoryIndex implements Index
     public function has(Record $record): bool
     {
         return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function search(string $search): Generator
-    {
-        yield from $this->searchIndex->search($search);
     }
 }

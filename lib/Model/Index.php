@@ -37,9 +37,4 @@ interface Index
     public function get(Record $record): Record;
 
     public function has(Record $record): bool;
-
-    /**
-     * @return Generator<Record>
-     */
-    public function search(string $search): Generator;
 }
