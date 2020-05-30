@@ -79,18 +79,9 @@ class IntegrationTestCase extends TestCase
         );
     }
 
-    protected function createIndex(): Index
-    {
-        $repository = new FileRepository(
-            $this->workspace()->path('repo')
-        );
-        return new SerializedIndex($repository);
-    }
-
     protected function buildIndex(?Index $index = null): Index
     {
         $agent = $this->indexAgent();
-
         $agent->indexer()->getJob()->run();
 
         return $agent->index();
