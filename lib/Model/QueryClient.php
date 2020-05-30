@@ -2,7 +2,6 @@
 
 namespace Phpactor\Indexer\Model;
 
-use Generator;
 use Phpactor\Indexer\Model\Query\ClassQuery;
 use Phpactor\Indexer\Model\Query\FileQuery;
 use Phpactor\Indexer\Model\Query\FunctionQuery;

@@ -2,8 +2,6 @@
 
 namespace Phpactor\Indexer\Model;
 
-use Generator;
-use Phpactor\Indexer\Model\Record\ClassRecord;
 use SplFileInfo;
 
 interface Index extends IndexAccess

@@ -2,13 +2,7 @@
 
 namespace Phpactor\Indexer\Tests\Adapter\Tolerant;
 
-use Phpactor\Filesystem\Adapter\Simple\SimpleFileListProvider;
-use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
-use Phpactor\Filesystem\Domain\FilePath;
-use Phpactor\Indexer\Adapter\Filesystem\FilesystemFileListProvider;
-use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Model\Indexer;
-use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexer;
 use Phpactor\Indexer\Model\TestIndexAgent;
 use Phpactor\Indexer\Tests\IntegrationTestCase;

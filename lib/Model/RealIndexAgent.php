@@ -3,18 +3,11 @@
 namespace Phpactor\Indexer\Model;
 
 use Phpactor\Indexer\IndexAgent;
-use Phpactor\Indexer\Model\Index;
-use Phpactor\Indexer\Model\IndexBuilder;
-use Phpactor\Indexer\Model\IndexQuery;
-use Phpactor\Indexer\Model\QueryClient;
-use Phpactor\Indexer\Model\Indexer;
-use Phpactor\Indexer\Model\SearchClient;
-use Phpactor\Indexer\Model\SearchIndex;
 
 class RealIndexAgent implements IndexAgent, TestIndexAgent
 {
     /**
-     * @var IndexQueryAgent
+     * @var QueryClient
      */
     private $query;
 

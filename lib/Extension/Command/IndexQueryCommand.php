@@ -18,7 +18,7 @@ class IndexQueryCommand extends Command
     const ARG_QUERY = 'query';
 
     /**
-     * @var IndexQueryAgent
+     * @var QueryClient
      */
     private $query;
 

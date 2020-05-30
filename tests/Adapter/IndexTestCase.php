@@ -2,7 +2,6 @@
 
 namespace Phpactor\Indexer\Tests\Adapter;
 
-use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
 use function Safe\file_get_contents;
 

@@ -3,7 +3,6 @@
 namespace Phpactor\Indexer\Adapter\ReferenceFinder;
 
 use Generator;
-use Phpactor\Indexer\Model\QueryClient;
 use Phpactor\Indexer\Model\SearchClient;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\ReferenceFinder\NameSearcher;

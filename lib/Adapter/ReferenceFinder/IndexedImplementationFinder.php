@@ -23,7 +23,7 @@ class IndexedImplementationFinder implements ClassImplementationFinder
     private $reflector;
 
     /**
-     * @var IndexQueryAgent
+     * @var QueryClient
      */
     private $query;
 

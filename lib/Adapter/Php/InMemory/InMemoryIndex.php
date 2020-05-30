@@ -2,9 +2,7 @@
 
 namespace Phpactor\Indexer\Adapter\Php\InMemory;
 
-use Generator;
 use Phpactor\Indexer\Model\Index;
-use Phpactor\Indexer\Model\IndexQueryAgent;
 use Phpactor\Indexer\Model\Record;
 use SplFileInfo;
 
@@ -38,11 +36,6 @@ class InMemoryIndex implements Index
     public function lastUpdate(): int
     {
         return $this->lastUpdate;
-    }
-
-    public function query(): IndexQueryAgent
-    {
-        return new IndexQueryAgent($this);
     }
 
     public function write(Record $record): void
@@ -86,14 +79,6 @@ class InMemoryIndex implements Index
     public function has(Record $record): bool
     {
         return isset($this->index[$this->recordKey($record)]);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function search(string $search): Generator
-    {
-        yield from $this->searchIndex->search($search);
     }
 
     private function recordKey(Record $record): string

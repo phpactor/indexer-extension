@@ -22,7 +22,7 @@ class IndexedReferenceFinder implements ReferenceFinder
     private $reflector;
 
     /**
-     * @var IndexQueryAgent
+     * @var QueryClient
      */
     private $query;
 
