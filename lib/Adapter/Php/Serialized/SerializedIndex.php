@@ -2,11 +2,8 @@
 
 namespace Phpactor\Indexer\Adapter\Php\Serialized;
 
-use Generator;
-use Phpactor\Indexer\Adapter\Php\InMemory\InMemorySearchIndex;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\Record;
-use Phpactor\Indexer\Model\SearchIndex;
 use RuntimeException;
 use SplFileInfo;
 
@@ -17,15 +14,9 @@ class SerializedIndex implements Index
      */
     private $repository;
 
-    /**
-     * @var SearchIndex
-     */
-    private $search;
-
-    public function __construct(FileRepository $repository, ?SearchIndex $search = null)
+    public function __construct(FileRepository $repository)
     {
         $this->repository = $repository;
-        $this->search = $search ?: new InMemorySearchIndex();
     }
 
     public function lastUpdate(): int
@@ -41,7 +32,6 @@ class SerializedIndex implements Index
     public function write(Record $record): void
     {
         $this->repository->put($record);
-        $this->search->write($record);
     }
 
     public function isFresh(SplFileInfo $fileInfo): bool
@@ -70,19 +60,10 @@ class SerializedIndex implements Index
     {
         $this->repository->flush();
         $this->repository->putTimestamp();
-        $this->search->flush();
     }
 
     public function has(Record $record): bool
     {
         return $this->repository->get($record) ? true : false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function search(string $query): Generator
-    {
-        yield from $this->search->search($query);
     }
 }

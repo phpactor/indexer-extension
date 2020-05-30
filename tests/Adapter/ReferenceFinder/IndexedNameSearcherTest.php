@@ -11,8 +11,9 @@ class IndexedNameSearcherTest extends IndexTestCase
     public function testSearcher(): void
     {
         $this->workspace()->put('project/Foobar.php', '<?php class Foobar {}');
-        $index = $this->buildIndex();
-        $searcher = new IndexedNameSearcher($this->indexQuery($index));
+        $agent = $this->indexAgent();
+        $agent->indexer()->getJob()->run();
+        $searcher = new IndexedNameSearcher($agent->search());
 
         foreach ($searcher->search('Foo') as $result) {
             assert($result instanceof NameSearchResult);

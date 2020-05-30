@@ -3,7 +3,7 @@
 namespace Phpactor\Indexer\Adapter\ReferenceFinder;
 
 use Generator;
-use Phpactor\Indexer\Model\IndexQueryAgent;
+use Phpactor\Indexer\Model\QueryClient;
 use Phpactor\Indexer\Model\LocationConfidence;
 use Phpactor\ReferenceFinder\PotentialLocation;
 use Phpactor\ReferenceFinder\ReferenceFinder;
@@ -22,11 +22,11 @@ class IndexedReferenceFinder implements ReferenceFinder
     private $reflector;
 
     /**
-     * @var IndexQueryAgent
+     * @var QueryClient
      */
     private $query;
 
-    public function __construct(IndexQueryAgent $query, Reflector $reflector)
+    public function __construct(QueryClient $query, Reflector $reflector)
     {
         $this->reflector = $reflector;
         $this->query = $query;

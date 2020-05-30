@@ -23,9 +23,12 @@ use Phpactor\Indexer\Extension\IndexerExtension;
 use Phpactor\Container\Container;
 use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
 use Phpactor\Filesystem\Domain\MappedFilesystemRegistry;
+use Phpactor\Indexer\IndexAgent;
+use Phpactor\Indexer\IndexAgentBuilder;
 use Phpactor\Indexer\Model\FileListProvider;
-use Phpactor\Indexer\Model\IndexQueryAgent;
+use Phpactor\Indexer\Model\QueryClient;
 use Phpactor\Indexer\Model\Indexer;
+use Phpactor\Indexer\Model\TestIndexAgent;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\TestUtils\Workspace;
 use Phpactor\Indexer\Adapter\Filesystem\FilesystemFileListProvider;
@@ -58,41 +61,30 @@ class IntegrationTestCase extends TestCase
         $process->mustRun();
     }
 
-    protected function createIndex(): Index
+    protected function indexAgent(): TestIndexAgent
     {
-        $repository = new FileRepository($this->workspace()->path('repo'));
-        return new SerializedIndex($repository);
+        return $this->indexAgentBuilder()->buildTestAgent();
+    }
+
+    protected function indexAgentBuilder(string $path = 'project'): IndexAgentBuilder
+    {
+        return IndexAgentBuilder::create(
+            $this->workspace()->path('repo'),
+            $this->workspace()->path($path),
+        )->setReferenceEnhancer(
+            new WorseRecordReferenceEnhancer(
+                $this->createReflector(),
+                $this->createLogger()
+            )
+        );
     }
 
     protected function buildIndex(?Index $index = null): Index
     {
-        $index = $index ?: $this->createIndex();
-        $indexBuilder = $this->createBuilder($index);
-        $fileList = $this->fileListProvider();
-        $indexer = new Indexer($indexBuilder, $index, $fileList);
-        $indexer->getJob()->run();
+        $agent = $this->indexAgent();
+        $agent->indexer()->getJob()->run();
 
-        return $index;
-    }
-
-    protected function createBuilder(Index $index): IndexBuilder
-    {
-        return TolerantIndexBuilder::create($index);
-    }
-
-    protected function fileListProvider(string $projectRoot = 'project'): FileListProvider
-    {
-        $path = $this->workspace()->path($projectRoot);
-        $provider = new FilesystemFileListProvider(
-            new SimpleFilesystem(
-                $path,
-                new SimpleFileListProvider(
-                    FilePath::fromString($path)
-                )
-            )
-        );
-
-        return $provider;
+        return $agent->index();
     }
 
     protected function createReflector(): Reflector
@@ -106,9 +98,9 @@ class IntegrationTestCase extends TestCase
         )->build();
     }
 
-    protected function indexQuery(Index $index): IndexQueryAgent
+    protected function indexQuery(Index $index): QueryClient
     {
-        return new IndexQueryAgent(
+        return new QueryClient(
             $index,
             new WorseRecordReferenceEnhancer($this->createReflector(), $this->createLogger())
         );
@@ -118,7 +110,7 @@ class IntegrationTestCase extends TestCase
     {
         $key = serialize($config);
         static $container = [];
-        
+
         if (isset($container[$key])) {
             return $container[$key];
         }
@@ -135,14 +127,14 @@ class IntegrationTestCase extends TestCase
             ComposerAutoloaderExtension::class,
             ReferenceFinderExtension::class,
         ], 
-            array_merge([
-                FilePathResolverExtension::PARAM_APPLICATION_ROOT => __DIR__ . '/../',
-                FilePathResolverExtension::PARAM_PROJECT_ROOT => $this->workspace()->path(),
-                IndexerExtension::PARAM_INDEX_PATH => $this->workspace()->path('/cache'),
-                LoggingExtension::PARAM_ENABLED=> true,
-                LoggingExtension::PARAM_PATH=> 'php://stderr',
-                WorseReflectionExtension::PARAM_ENABLE_CACHE=> false,
-            ], $config)
+        array_merge([
+            FilePathResolverExtension::PARAM_APPLICATION_ROOT => __DIR__ . '/../',
+            FilePathResolverExtension::PARAM_PROJECT_ROOT => $this->workspace()->path(),
+            IndexerExtension::PARAM_INDEX_PATH => $this->workspace()->path('/cache'),
+            LoggingExtension::PARAM_ENABLED=> true,
+            LoggingExtension::PARAM_PATH=> 'php://stderr',
+            WorseReflectionExtension::PARAM_ENABLE_CACHE=> false,
+        ], $config)
         );
 
         return $container[$key];

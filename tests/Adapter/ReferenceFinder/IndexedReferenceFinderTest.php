@@ -31,10 +31,10 @@ class IndexedReferenceFinderTest extends IntegrationTestCase
         [ $source, $offset ] = ExtractOffset::fromSource($this->workspace()->getContents('project/subject.php'));
         $this->workspace()->put('project/subject.php', $source);
 
-        $index = $this->buildIndex();
+        $this->indexAgent()->indexer()->getJob()->run();
 
         $referenceFinder = new IndexedReferenceFinder(
-            $this->indexQuery($index),
+            $this->indexAgent()->query(),
             $this->createReflector(),
         );
 

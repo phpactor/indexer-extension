@@ -17,8 +17,7 @@ class ClassLikeReferenceIndexerTest extends TolerantIndexerTestCase
     {
         $this->workspace()->reset();
         $this->workspace()->loadManifest($manifest);
-        $index = $this->createIndex();
-        $this->runIndexer(new ClassLikeReferenceIndexer(), $index, 'src');
+        $agent = $this->runIndexer(new ClassLikeReferenceIndexer(), 'src');
 
         $counts = [
             LocationConfidence::CONFIDENCE_NOT => 0,
@@ -26,7 +25,7 @@ class ClassLikeReferenceIndexerTest extends TolerantIndexerTestCase
             LocationConfidence::CONFIDENCE_SURELY => 0,
         ];
 
-        foreach ($this->indexQuery($index)->class()->referencesTo($fqn) as $locationConfidence) {
+        foreach ($agent->query()->class()->referencesTo($fqn) as $locationConfidence) {
             $counts[$locationConfidence->__toString()]++;
         }
 

@@ -22,32 +22,22 @@ use Phpactor\Extension\Rpc\RpcExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
 use Phpactor\FilePathResolver\PathResolver;
-use Phpactor\Filesystem\Adapter\Simple\SimpleFileListProvider;
-use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
-use Phpactor\Filesystem\Domain\FilePath;
-use Phpactor\Indexer\Adapter\Php\FileSearchIndex;
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedNameSearcher;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Adapter\Worse\IndexerClassSourceLocator;
 use Phpactor\Indexer\Adapter\Worse\IndexerFunctionSourceLocator;
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedReferenceFinder;
 use Phpactor\Indexer\Adapter\Worse\WorseRecordReferenceEnhancer;
-use Phpactor\Indexer\Model\Matcher\ClassShortNameMatcher;
-use Phpactor\Indexer\Model\Record\ClassRecord;
-use Phpactor\Indexer\Model\Record\FunctionRecord;
-use Phpactor\Indexer\Model\SearchIndex\FilteredSearchIndex;
+use Phpactor\Indexer\IndexAgent;
+use Phpactor\Indexer\IndexAgentBuilder;
+use Phpactor\Indexer\Model\IndexAccess;
 use Phpactor\MapResolver\Resolver;
-use Phpactor\Indexer\Adapter\Filesystem\FilesystemFileListProvider;
-use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
-use Phpactor\Indexer\Adapter\Php\Serialized\SerializedIndex;
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedImplementationFinder;
 use Phpactor\Indexer\Extension\Command\IndexQueryCommand;
 use Phpactor\Indexer\Extension\Command\IndexBuildCommand;
 use Phpactor\Indexer\Extension\Rpc\IndexHandler;
-use Phpactor\Indexer\Model\FileListProvider;
-use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexBuilder;
-use Phpactor\Indexer\Model\IndexQueryAgent;
+use Phpactor\Indexer\Model\QueryClient;
 use Phpactor\Indexer\Model\Indexer;
 use Phpactor\TextDocument\TextDocumentUri;
 use Phpactor\WorseReflection\Reflector;
@@ -115,7 +105,6 @@ class IndexerExtension implements Extension
         $this->registerRpc($container);
         $this->registerReferenceFinderAdapters($container);
         $this->registerWatcher($container);
-        $this->registerFilesystem($container);
     }
 
     private function createReflector(Container $container): Reflector
@@ -132,17 +121,17 @@ class IndexerExtension implements Extension
     private function registerWorseAdapters(ContainerBuilder $container): void
     {
         $container->register(IndexBuilder::class, function (Container $container) {
-            return TolerantIndexBuilder::create($container->get(Index::class));
+            return TolerantIndexBuilder::create($container->get(IndexAccess::class));
         });
         
         $container->register(IndexerClassSourceLocator::class, function (Container $container) {
-            return new IndexerClassSourceLocator($container->get(Index::class));
+            return new IndexerClassSourceLocator($container->get(IndexAccess::class));
         }, [
             WorseReflectionExtension::TAG_SOURCE_LOCATOR => []
         ]);
 
         $container->register(IndexerFunctionSourceLocator::class, function (Container $container) {
-            return new IndexerFunctionSourceLocator($container->get(Index::class));
+            return new IndexerFunctionSourceLocator($container->get(IndexAccess::class));
         }, [
             WorseReflectionExtension::TAG_SOURCE_LOCATOR => []
         ]);
@@ -158,30 +147,44 @@ class IndexerExtension implements Extension
         }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:build']]);
         
         $container->register(IndexQueryCommand::class, function (Container $container) {
-            return new IndexQueryCommand($container->get(IndexQueryAgent::class));
+            return new IndexQueryCommand($container->get(QueryClient::class));
         }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:query']]);
     }
 
     private function registerModel(ContainerBuilder $container): void
     {
-        $container->register(Indexer::class, function (Container $container) {
-            return new Indexer(
-                $container->get(IndexBuilder::class),
-                $container->get(Index::class),
-                $container->get(FileListProvider::class)
-            );
+        $container->register(IndexAgent::class, function (Container $container) {
+            return $container->get(IndexAgentBuilder::class)
+                ->setReferenceEnhancer($container->get(WorseRecordReferenceEnhancer::class))
+                ->buildAgent();
         });
-        
-        $container->register(FileListProvider::class, function (Container $container) {
-            return new FilesystemFileListProvider(
-                $container->get(self::SERVICE_FILESYSTEM),
-                $container->get(self::SERVICE_INDEXER_INCLUDE_PATTERNS),
-                $container->get(self::SERVICE_INDEXER_EXCLUDE_PATTERNS),
+
+        $container->register(IndexAccess::class, function (Container $container) {
+            return $container->get(IndexAgentBuilder::class)
+                ->buildAgent()->access();
+        });
+
+        $container->register(QueryClient::class, function (Container $container) {
+            return $container->get(IndexAgent::class)->query();
+        });
+
+        $container->register(IndexAgentBuilder::class, function (Container $container) {
+            $indexPath = $container->get(
+                FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER
+            )->resolve(
+                $container->getParameter(self::PARAM_INDEX_PATH)
             );
+            return IndexAgentBuilder::create($indexPath, $this->projectRoot($container))
+                ->setExcludePatterns($container->get(self::SERVICE_INDEXER_EXCLUDE_PATTERNS))
+                ->setIncludePatterns($container->get(self::SERVICE_INDEXER_INCLUDE_PATTERNS));
+        });
+
+        $container->register(Indexer::class, function (Container $container) {
+            return $container->get(IndexAgent::class)->indexer();
         });
 
         $container->register(self::SERVICE_INDEXER_EXCLUDE_PATTERNS, function (Container $container) {
-            $projectRoot = $container->getParameter(FilePathResolverExtension::PARAM_PROJECT_ROOT);
+            $projectRoot = $this->projectRoot($container);
             return array_map(function (string $pattern) use ($projectRoot) {
                 return Path::join([$projectRoot, $pattern]);
             }, $container->getParameter(self::PARAM_EXCLUDE_PATTERNS));
@@ -194,33 +197,10 @@ class IndexerExtension implements Extension
             }, $container->getParameter(self::PARAM_INCLUDE_PATTERNS));
         });
         
-        $container->register(Index::class, function (Container $container) {
-            $indexPath = $container->get(
-                FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER
-            )->resolve(
-                $container->getParameter(self::PARAM_INDEX_PATH)
-            );
-            $repository = new FileRepository(
-                $indexPath,
+        $container->register(WorseRecordReferenceEnhancer::class, function (Container $container) {
+            return new WorseRecordReferenceEnhancer(
+                $container->get(WorseReflectionExtension::SERVICE_REFLECTOR),
                 $container->get(LoggingExtension::SERVICE_LOGGER)
-            );
-            $search = new FilteredSearchIndex(
-                new FileSearchIndex($indexPath . '/search', new ClassShortNameMatcher()),
-                [
-                    ClassRecord::RECORD_TYPE,
-                    FunctionRecord::RECORD_TYPE,
-                ]
-            );
-            return new SerializedIndex($repository, $search);
-        });
-
-        $container->register(IndexQueryAgent::class, function (Container $container) {
-            return new IndexQueryAgent(
-                $container->get(Index::class),
-                new WorseRecordReferenceEnhancer(
-                    $container->get(WorseReflectionExtension::SERVICE_REFLECTOR),
-                    $container->get(LoggingExtension::SERVICE_LOGGER)
-                ),
             );
         });
     }
@@ -229,21 +209,21 @@ class IndexerExtension implements Extension
     {
         $container->register(IndexedImplementationFinder::class, function (Container $container) {
             return new IndexedImplementationFinder(
-                $container->get(IndexQueryAgent::class),
+                $container->get(QueryClient::class),
                 $container->get(WorseReflectionExtension::SERVICE_REFLECTOR)
             );
         }, [ ReferenceFinderExtension::TAG_IMPLEMENTATION_FINDER => []]);
 
         $container->register(IndexedReferenceFinder::class, function (Container $container) {
             return new IndexedReferenceFinder(
-                $container->get(IndexQueryAgent::class),
+                $container->get(QueryClient::class),
                 $container->get(WorseReflectionExtension::SERVICE_REFLECTOR),
             );
         }, [ ReferenceFinderExtension::TAG_REFERENCE_FINDER => []]);
 
         $container->register(IndexedNameSearcher::class, function (Container $container) {
             return new IndexedNameSearcher(
-                $container->get(IndexQueryAgent::class)
+                $container->get(QueryClient::class)
             );
         }, [ ReferenceFinderExtension::TAG_NAME_SEARCHER => []]);
     }
@@ -371,19 +351,10 @@ class IndexerExtension implements Extension
         ]);
     }
 
-    private function registerFilesystem(ContainerBuilder $container): void
+    private function projectRoot(Container $container): string
     {
-        $container->register(self::SERVICE_FILESYSTEM, function (Container $container) {
-            $projectRoot = $container->get(
-                FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER
-            )->resolve($container->getParameter(self::PARAM_PROJECT_ROOT));
-
-            return new SimpleFilesystem(
-                $projectRoot,
-                new SimpleFileListProvider(
-                    FilePath::fromString($projectRoot)
-                )
-            );
-        });
+        return $container->get(
+            FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER
+        )->resolve($container->getParameter(self::PARAM_PROJECT_ROOT));
     }
 }

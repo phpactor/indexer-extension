@@ -44,6 +44,11 @@ class FileSearchIndex implements SearchIndex
      */
     private $counter = 0;
 
+    /**
+     * @var bool
+     */
+    private $dirty = false;
+
     public function __construct(string $path, Matcher $matcher)
     {
         $this->path = $path;
@@ -69,20 +74,33 @@ class FileSearchIndex implements SearchIndex
     public function write(Record $record): void
     {
         $this->open();
-        $this->subjects[$record->recordType().$record->identifier()] = [$record->recordType(), $record->identifier()];
+        $this->subjects[$this->recordHash($record)] = [$record->recordType(), $record->identifier()];
+        $this->dirty = true;
 
         if (++$this->counter % self::BATCH_SIZE === 0) {
             $this->flush();
         }
     }
 
+    public function remove(Record $record): void
+    {
+        unset($this->subjects[$this->recordHash($record)]);
+        $this->dirty = true;
+    }
+
     public function flush(): void
     {
+        if (false === $this->dirty) {
+            return;
+        }
+
         $this->open();
 
         file_put_contents($this->path, implode("\n", array_unique(array_map(function (array $parts) {
             return implode(self::DELIMITER, $parts);
         }, $this->subjects))));
+
+        $this->dirty = false;
     }
 
     private function open(): void
@@ -106,5 +124,10 @@ class FileSearchIndex implements SearchIndex
         }, explode("\n", file_get_contents($this->path))));
 
         $this->initialized = true;
+    }
+
+    private function recordHash(Record $record): string
+    {
+        return $record->recordType().$record->identifier();
     }
 }

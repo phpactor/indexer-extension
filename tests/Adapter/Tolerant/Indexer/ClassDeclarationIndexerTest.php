@@ -17,10 +17,15 @@ class ClassDeclarationIndexerTest extends TolerantIndexerTestCase
     {
         $this->workspace()->reset();
         $this->workspace()->loadManifest($manifest);
-        $index = $this->createIndex();
-        $this->runIndexer(new ClassDeclarationIndexer(), $index, 'src');
 
-        self::assertCount($expectedCount, $this->indexQuery($index)->class()->implementing($fqn));
+        $agent = $this->indexAgentBuilder('src')
+            ->setIndexers([
+                new ClassDeclarationIndexer()
+            ])->buildAgent();
+
+        $agent->indexer()->getJob()->run();
+
+        self::assertCount($expectedCount, $agent->query()->class()->implementing($fqn));
     }
 
     /**
@@ -61,9 +66,8 @@ class ClassDeclarationIndexerTest extends TolerantIndexerTestCase
     {
         $this->workspace()->reset();
         $this->workspace()->loadManifest($manifest);
-        $index = $this->createIndex();
-        $this->runIndexer(new ClassDeclarationIndexer(), $index, 'src');
-        $foundRecords = $this->indexQuery($index)->search($search);
+        $agent = $this->runIndexer(new ClassDeclarationIndexer(), 'src');
+        $foundRecords = $agent->search()->search($search);
 
         foreach ($expectedRecords as $record) {
             foreach ($foundRecords as $foundRecord) {

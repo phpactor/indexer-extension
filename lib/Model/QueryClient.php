@@ -2,14 +2,13 @@
 
 namespace Phpactor\Indexer\Model;
 
-use Generator;
 use Phpactor\Indexer\Model\Query\ClassQuery;
 use Phpactor\Indexer\Model\Query\FileQuery;
 use Phpactor\Indexer\Model\Query\FunctionQuery;
 use Phpactor\Indexer\Model\Query\MemberQuery;
 use Phpactor\Indexer\Model\RecordReferenceEnhancer\NullRecordReferenceEnhancer;
 
-class IndexQueryAgent
+class QueryClient
 {
     /**
      * @var ClassQuery
@@ -45,17 +44,6 @@ class IndexQueryAgent
         $this->fileQuery = new FileQuery($index);
         $this->memberQuery = new MemberQuery($index, $enhancer);
         $this->index = $index;
-    }
-
-    /**
-     * @return Generator<Record>
-     */
-    public function search(string $query): Generator
-    {
-        foreach ($this->index->search($query) as $record) {
-            // hydrate the record
-            yield $this->index->get($record);
-        }
     }
 
     public function class(): ClassQuery
