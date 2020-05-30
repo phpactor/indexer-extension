@@ -38,6 +38,7 @@ use Phpactor\Indexer\Extension\Command\IndexBuildCommand;
 use Phpactor\Indexer\Extension\Rpc\IndexHandler;
 use Phpactor\Indexer\Model\IndexBuilder;
 use Phpactor\Indexer\Model\QueryClient;
+use Phpactor\Indexer\Model\SearchClient;
 use Phpactor\Indexer\Model\Indexer;
 use Phpactor\TextDocument\TextDocumentUri;
 use Phpactor\WorseReflection\Reflector;
@@ -168,6 +169,10 @@ class IndexerExtension implements Extension
             return $container->get(IndexAgent::class)->query();
         });
 
+        $container->register(SearchClient::class, function (Container $container) {
+            return $container->get(IndexAgent::class)->search();
+        });
+
         $container->register(IndexAgentBuilder::class, function (Container $container) {
             $indexPath = $container->get(
                 FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER
@@ -223,7 +228,7 @@ class IndexerExtension implements Extension
 
         $container->register(IndexedNameSearcher::class, function (Container $container) {
             return new IndexedNameSearcher(
-                $container->get(QueryClient::class)
+                $container->get(SearchClient::class)
             );
         }, [ ReferenceFinderExtension::TAG_NAME_SEARCHER => []]);
     }

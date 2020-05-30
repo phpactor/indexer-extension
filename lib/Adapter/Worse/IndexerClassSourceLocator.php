@@ -2,7 +2,7 @@
 
 namespace Phpactor\Indexer\Adapter\Worse;
 
-use Phpactor\Indexer\Model\Index;
+use Phpactor\Indexer\Model\IndexAccess;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
 use Phpactor\WorseReflection\Core\Name;
@@ -12,11 +12,11 @@ use Phpactor\WorseReflection\Core\SourceCodeLocator;
 class IndexerClassSourceLocator implements SourceCodeLocator
 {
     /**
-     * @var Index
+     * @var IndexAccess
      */
     private $index;
 
-    public function __construct(Index $index)
+    public function __construct(IndexAccess $index)
     {
         $this->index = $index;
     }

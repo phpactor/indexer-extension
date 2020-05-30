@@ -2,8 +2,7 @@
 
 namespace Phpactor\Indexer\Adapter\Php\Serialized;
 
-use Phpactor\Indexer\Model\Exception\CorruptedRecord;
-use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\RecordSerializer;
 use Phpactor\Indexer\Util\Filesystem;
 use Phpactor\Indexer\Model\Record;
 use Psr\Log\LoggerInterface;
@@ -11,6 +10,7 @@ use Psr\Log\NullLogger;
 use function Safe\file_get_contents;
 use function Safe\file_put_contents;
 use function Safe\mkdir;
+use Throwable;
 
 class FileRepository
 {
@@ -44,11 +44,17 @@ class FileRepository
      */
     private $counter = 0;
 
-    public function __construct(string $path, ?LoggerInterface $logger = null)
+    /**
+     * @var RecordSerializer
+     */
+    private $serializer;
+
+    public function __construct(string $path, RecordSerializer $serializer, ?LoggerInterface $logger = null)
     {
         $this->path = $path;
         $this->initializeLastUpdate();
         $this->logger = $logger ?: new NullLogger();
+        $this->serializer = $serializer;
     }
 
     public function put(Record $record): void
@@ -76,39 +82,36 @@ class FileRepository
         $path = $this->pathFor($record);
 
         if (!file_exists($path)) {
+            $this->remove($record);
             return null;
         }
-        
-        $contents = file_get_contents($path);
         
         try {
-            $deserialized = @unserialize($contents);
-        } catch (CorruptedRecord $corruption) {
+            $deserialized = $this->serializer->deserialize(file_get_contents($path));
+        } catch (Throwable $corrupted) {
             $this->logger->warning(sprintf(
-                'Cache entry file "%s" is corrupted: %s',
+                'Record at path "%s" is corrupted, removing: %s',
                 $path,
-                $corruption->getMessage()
+                $corrupted->getMessage()
             ));
+            $this->remove($record);
             return null;
         }
-        
-        if (!$deserialized) {
-            $this->logger->warning(sprintf(
-                'Cache entry file "%s" is empty after deserialization',
-                $path
-            ));
+
+        if (null === $deserialized) {
             return null;
         }
-        
+
         if (!$deserialized instanceof $record) {
             $this->logger->warning(sprintf(
                 'Invalid cache entry file: "%s", got instance of "%s"',
                 $path,
-                is_object($deserialized) ? get_class($deserialized):gettype($deserialized)
+                get_class($deserialized)
             ));
+
             return null;
         }
-        
+
         return $deserialized;
     }
 
@@ -166,9 +169,10 @@ class FileRepository
         );
     }
 
-    public function remove(ClassRecord $classRecord): void
+    public function remove(Record $record): void
     {
-        $path = $this->pathFor($classRecord);
+        $path = $this->pathFor($record);
+
         if (!file_exists($path)) {
             return;
         }
@@ -188,7 +192,7 @@ class FileRepository
         foreach ($this->buffer as $record) {
             $path = $this->pathFor($record);
             $this->ensureDirectoryExists(dirname($path));
-            file_put_contents($path, serialize($record));
+            file_put_contents($path, $this->serializer->serialize($record));
         }
         $this->buffer = [];
     }

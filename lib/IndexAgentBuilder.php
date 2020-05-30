@@ -23,6 +23,8 @@ use Phpactor\Indexer\Model\Matcher;
 use Phpactor\Indexer\Model\Matcher\ClassShortNameMatcher;
 use Phpactor\Indexer\Model\RecordReferenceEnhancer;
 use Phpactor\Indexer\Model\RecordReferenceEnhancer\NullRecordReferenceEnhancer;
+use Phpactor\Indexer\Model\RecordSerializer;
+use Phpactor\Indexer\Model\RecordSerializer\PhpSerializer;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Model\SearchClient\HydratingSearchClient;
@@ -120,7 +122,12 @@ class IndexAgentBuilder
 
     private function buildIndex(): Index
     {
-        $repository = new FileRepository($this->indexRoot);
+        $repository = new FileRepository(
+            $this->indexRoot,
+            $this->buildRecordSerializer(),
+            $this->logger
+        );
+
         return new SerializedIndex($repository);
     }
 
@@ -207,5 +214,10 @@ class IndexAgentBuilder
         $this->includePatterns = $includePatterns;
 
         return $this;
+    }
+
+    private function buildRecordSerializer(): RecordSerializer
+    {
+        return new PhpSerializer();
     }
 }
