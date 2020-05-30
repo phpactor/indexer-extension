@@ -13,6 +13,7 @@ use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexer;
 use Phpactor\Indexer\Model\FileListProvider;
 use Phpactor\Indexer\Model\Index;
+use Phpactor\Indexer\Model\Index\SearchAwareIndex;
 use Phpactor\Indexer\Model\RealIndexAgent;
 use Phpactor\Indexer\Model\IndexBuilder;
 use Phpactor\Indexer\Model\QueryClient;
@@ -88,8 +89,9 @@ class IndexAgentBuilder
 
     public function buildTestAgent(): TestIndexAgent
     {
+        $index = $this->buildIndex();
         $search = $this->buildSearch();
-        $index = $this->buildIndex($search);
+        $index = new SearchAwareIndex($index, $search);
         $query = $this->buildQuery($index);
         $builder = $this->buildBuilder($index);
         $indexer = $this->buildIndexer($builder, $index);
@@ -97,11 +99,10 @@ class IndexAgentBuilder
         return new RealIndexAgent($index, $query, $search, $indexer);
     }
 
-    private function buildIndex(SearchIndex $search): Index
+    private function buildIndex(): Index
     {
         $repository = new FileRepository($this->indexRoot);
-
-        return new SerializedIndex($repository, $search);
+        return new SerializedIndex($repository);
     }
 
     private function buildQuery(Index $index): QueryClient
