@@ -11,8 +11,6 @@ use Phpactor\Indexer\Tests\Adapter\Tolerant\TolerantIndexerTestCase;
 
 class MemberIndexerTest extends TolerantIndexerTestCase
 {
-    private static $foobar;
-
     /**
      * @dataProvider provideStaticAccess
      * @dataProvider provideInstanceAccess
@@ -22,10 +20,10 @@ class MemberIndexerTest extends TolerantIndexerTestCase
     {
         $this->workspace()->reset();
         $this->workspace()->loadManifest($manifest);
-        $index = $this->createIndex();
-        $this->runIndexer(new MemberIndexer(), $index, 'src');
 
-        $memberRecord = $index->get(MemberRecord::fromMemberReference($memberReference));
+        $agent = $this->runIndexer(new MemberIndexer(), 'src');
+
+        $memberRecord = $agent->index()->get(MemberRecord::fromMemberReference($memberReference));
         assert($memberRecord instanceof MemberRecord);
 
         $counts = [
@@ -34,7 +32,7 @@ class MemberIndexerTest extends TolerantIndexerTestCase
             LocationConfidence::CONFIDENCE_SURELY => 0,
         ];
 
-        foreach ($this->indexQuery($index)->member()->referencesTo(
+        foreach ($agent->query()->member()->referencesTo(
             $memberReference->type(),
             $memberReference->memberName(),
             $memberReference->containerType()

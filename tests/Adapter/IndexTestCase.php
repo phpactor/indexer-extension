@@ -10,11 +10,9 @@ abstract class IndexTestCase extends IntegrationTestCase
 {
     public function testBuild(): void
     {
-        $index = $this->createIndex();
-        $builder = $this->createBuilder($index);
-        $indexer = new Indexer($builder, $index, $this->fileListProvider());
-        $indexer->getJob()->run();
-        $references = $foo = $this->indexQuery($index)->class()->implementing(
+        $agent = $this->indexAgent();
+        $agent->indexer()->getJob()->run();
+        $references = $foo = $agent->query()->class()->implementing(
             'Index'
         );
 
