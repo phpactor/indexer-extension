@@ -6,7 +6,7 @@ use Phpactor\Indexer\IndexAgent;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexBuilder;
 use Phpactor\Indexer\Model\IndexQuery;
-use Phpactor\Indexer\Model\IndexQueryAgent;
+use Phpactor\Indexer\Model\QueryClient;
 use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Model\SearchClient;
 use Phpactor\Indexer\Model\SearchIndex;
@@ -33,7 +33,7 @@ class RealIndexAgent implements IndexAgent, TestIndexAgent
      */
     private $index;
 
-    public function __construct(Index $index, IndexQueryAgent $query, SearchClient $search, Indexer $indexer)
+    public function __construct(Index $index, QueryClient $query, SearchClient $search, Indexer $indexer)
     {
         $this->query = $query;
         $this->search = $search;
@@ -46,7 +46,7 @@ class RealIndexAgent implements IndexAgent, TestIndexAgent
         return $this->search;
     }
 
-    public function query(): IndexQueryAgent
+    public function query(): QueryClient
     {
         return $this->query;
     }

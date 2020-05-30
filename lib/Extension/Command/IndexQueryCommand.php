@@ -6,7 +6,7 @@ use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Model\Record\MemberRecord;
-use Phpactor\Indexer\Model\IndexQueryAgent;
+use Phpactor\Indexer\Model\QueryClient;
 use Phpactor\Indexer\Util\Cast;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -22,7 +22,7 @@ class IndexQueryCommand extends Command
      */
     private $query;
 
-    public function __construct(IndexQueryAgent $query)
+    public function __construct(QueryClient $query)
     {
         $this->query = $query;
         parent::__construct();

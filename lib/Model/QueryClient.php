@@ -9,7 +9,7 @@ use Phpactor\Indexer\Model\Query\FunctionQuery;
 use Phpactor\Indexer\Model\Query\MemberQuery;
 use Phpactor\Indexer\Model\RecordReferenceEnhancer\NullRecordReferenceEnhancer;
 
-class IndexQueryAgent
+class QueryClient
 {
     /**
      * @var ClassQuery

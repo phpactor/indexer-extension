@@ -4,7 +4,7 @@ namespace Phpactor\Indexer\Adapter\Php\InMemory;
 
 use Generator;
 use Phpactor\Indexer\Model\Index;
-use Phpactor\Indexer\Model\IndexQueryAgent;
+use Phpactor\Indexer\Model\QueryClient;
 use RuntimeException;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Model\Record\ClassRecord;
@@ -40,9 +40,9 @@ class InMemoryIndex implements Index
         return $this->lastUpdate;
     }
 
-    public function query(): IndexQueryAgent
+    public function query(): QueryClient
     {
-        return new IndexQueryAgent($this);
+        return new QueryClient($this);
     }
 
     public function write(Record $record): void

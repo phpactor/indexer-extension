@@ -26,7 +26,7 @@ use Phpactor\Filesystem\Domain\MappedFilesystemRegistry;
 use Phpactor\Indexer\IndexAgent;
 use Phpactor\Indexer\IndexAgentBuilder;
 use Phpactor\Indexer\Model\FileListProvider;
-use Phpactor\Indexer\Model\IndexQueryAgent;
+use Phpactor\Indexer\Model\QueryClient;
 use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Model\TestIndexAgent;
 use Phpactor\WorseReflection\Reflector;
@@ -98,9 +98,9 @@ class IntegrationTestCase extends TestCase
         )->build();
     }
 
-    protected function indexQuery(Index $index): IndexQueryAgent
+    protected function indexQuery(Index $index): QueryClient
     {
-        return new IndexQueryAgent(
+        return new QueryClient(
             $index,
             new WorseRecordReferenceEnhancer($this->createReflector(), $this->createLogger())
         );

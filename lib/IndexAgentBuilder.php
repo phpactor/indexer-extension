@@ -15,7 +15,7 @@ use Phpactor\Indexer\Model\FileListProvider;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\RealIndexAgent;
 use Phpactor\Indexer\Model\IndexBuilder;
-use Phpactor\Indexer\Model\IndexQueryAgent;
+use Phpactor\Indexer\Model\QueryClient;
 use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Model\Matcher;
 use Phpactor\Indexer\Model\Matcher\ClassShortNameMatcher;
@@ -104,9 +104,9 @@ class IndexAgentBuilder
         return new SerializedIndex($repository, $search);
     }
 
-    private function buildQuery(Index $index): IndexQueryAgent
+    private function buildQuery(Index $index): QueryClient
     {
-        return new IndexQueryAgent(
+        return new QueryClient(
             $index,
             $this->enhancer
         );
