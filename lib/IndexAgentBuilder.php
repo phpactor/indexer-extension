@@ -13,6 +13,7 @@ use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexer;
 use Phpactor\Indexer\Model\FileListProvider;
 use Phpactor\Indexer\Model\Index;
+use Phpactor\Indexer\Model\IndexAccess;
 use Phpactor\Indexer\Model\Index\SearchAwareIndex;
 use Phpactor\Indexer\Model\RealIndexAgent;
 use Phpactor\Indexer\Model\IndexBuilder;
@@ -27,7 +28,10 @@ use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Model\SearchClient\HydratingSearchClient;
 use Phpactor\Indexer\Model\SearchIndex;
 use Phpactor\Indexer\Model\SearchIndex\FilteredSearchIndex;
+use Phpactor\Indexer\Model\SearchIndex\ValidatingSearchIndex;
 use Phpactor\Indexer\Model\TestIndexAgent;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class IndexAgentBuilder
 {
@@ -64,16 +68,29 @@ class IndexAgentBuilder
      */
     private $indexers = null;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     private function __construct(string $indexRoot, string $projectRoot)
     {
         $this->indexRoot = $indexRoot;
         $this->enhancer = new NullRecordReferenceEnhancer();
+        $this->logger = new NullLogger();
         $this->projectRoot = $projectRoot;
     }
 
     public static function create(string $indexRootPath, string $projectRoot): self
     {
         return new self($indexRootPath, $projectRoot);
+    }
+
+    public function setLogger(LoggerInterface $logger): self
+    {
+        $this->logger = $logger;
+
+        return $this;
     }
 
     public function setReferenceEnhancer(RecordReferenceEnhancer $enhancer): self
@@ -91,7 +108,7 @@ class IndexAgentBuilder
     public function buildTestAgent(): TestIndexAgent
     {
         $index = $this->buildIndex();
-        $search = $this->buildSearch();
+        $search = $this->buildSearch($index);
         $index = new SearchAwareIndex($index, $search);
         $query = $this->buildQuery($index);
         $builder = $this->buildBuilder($index);
@@ -115,9 +132,10 @@ class IndexAgentBuilder
         );
     }
 
-    private function buildSearch(): SearchIndex
+    private function buildSearch(IndexAccess $index): SearchIndex
     {
         $search = new FileSearchIndex($this->indexRoot . '/search', $this->buildMatcher());
+        $search = new ValidatingSearchIndex($search, $index, $this->logger);
         $search = new FilteredSearchIndex($search, [
             ClassRecord::RECORD_TYPE,
             FunctionRecord::RECORD_TYPE,

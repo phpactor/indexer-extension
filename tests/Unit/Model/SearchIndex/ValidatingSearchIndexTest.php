@@ -10,6 +10,7 @@ use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\MemberRecord;
 use Phpactor\Indexer\Model\SearchIndex\ValidatingSearchIndex;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
+use Psr\Log\NullLogger;
 
 class ValidatingSearchIndexTest extends IntegrationTestCase
 {
@@ -33,7 +34,8 @@ class ValidatingSearchIndexTest extends IntegrationTestCase
         $this->index = new InMemoryIndex();
         $this->searchIndex = new ValidatingSearchIndex(
             $this->innerSearchIndex,
-            $this->index
+            $this->index,
+            new NullLogger()
         );
     }
 
