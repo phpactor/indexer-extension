@@ -170,4 +170,24 @@ class IndexAgentBuilder
 
         return $this;
     }
+
+    /**
+     * @param array<string> $excludePatterns
+     */
+    public function setExcludePatterns(array $excludePatterns): self
+    {
+        $this->excludePatterns = $excludePatterns;
+
+        return $this;
+    }
+
+    /**
+     * @param array<string> $includePatterns
+     */
+    public function setIncludePatterns(array $includePatterns): self
+    {
+        $this->includePatterns = $includePatterns;
+
+        return $this;
+    }
 }

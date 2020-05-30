@@ -60,4 +60,9 @@ class RealIndexAgent implements IndexAgent, TestIndexAgent
     {
         return $this->index;
     }
+
+    public function access(): IndexAccess
+    {
+        return $this->index;
+    }
 }

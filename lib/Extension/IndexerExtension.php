@@ -32,6 +32,9 @@ use Phpactor\Indexer\Adapter\Worse\IndexerClassSourceLocator;
 use Phpactor\Indexer\Adapter\Worse\IndexerFunctionSourceLocator;
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedReferenceFinder;
 use Phpactor\Indexer\Adapter\Worse\WorseRecordReferenceEnhancer;
+use Phpactor\Indexer\IndexAgent;
+use Phpactor\Indexer\IndexAgentBuilder;
+use Phpactor\Indexer\Model\IndexAccess;
 use Phpactor\Indexer\Model\Matcher\ClassShortNameMatcher;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
@@ -115,7 +118,6 @@ class IndexerExtension implements Extension
         $this->registerRpc($container);
         $this->registerReferenceFinderAdapters($container);
         $this->registerWatcher($container);
-        $this->registerFilesystem($container);
     }
 
     private function createReflector(Container $container): Reflector
@@ -132,17 +134,17 @@ class IndexerExtension implements Extension
     private function registerWorseAdapters(ContainerBuilder $container): void
     {
         $container->register(IndexBuilder::class, function (Container $container) {
-            return TolerantIndexBuilder::create($container->get(Index::class));
+            return TolerantIndexBuilder::create($container->get(IndexAccess::class));
         });
         
         $container->register(IndexerClassSourceLocator::class, function (Container $container) {
-            return new IndexerClassSourceLocator($container->get(Index::class));
+            return new IndexerClassSourceLocator($container->get(IndexAccess::class));
         }, [
             WorseReflectionExtension::TAG_SOURCE_LOCATOR => []
         ]);
 
         $container->register(IndexerFunctionSourceLocator::class, function (Container $container) {
-            return new IndexerFunctionSourceLocator($container->get(Index::class));
+            return new IndexerFunctionSourceLocator($container->get(IndexAccess::class));
         }, [
             WorseReflectionExtension::TAG_SOURCE_LOCATOR => []
         ]);
@@ -164,24 +166,38 @@ class IndexerExtension implements Extension
 
     private function registerModel(ContainerBuilder $container): void
     {
-        $container->register(Indexer::class, function (Container $container) {
-            return new Indexer(
-                $container->get(IndexBuilder::class),
-                $container->get(Index::class),
-                $container->get(FileListProvider::class)
-            );
+        $container->register(IndexAgent::class, function (Container $container) {
+            return $container->get(IndexAgentBuilder::class)
+                ->setReferenceEnhancer($container->get(WorseRecordReferenceEnhancer::class))
+                ->buildAgent();
         });
-        
-        $container->register(FileListProvider::class, function (Container $container) {
-            return new FilesystemFileListProvider(
-                $container->get(self::SERVICE_FILESYSTEM),
-                $container->get(self::SERVICE_INDEXER_INCLUDE_PATTERNS),
-                $container->get(self::SERVICE_INDEXER_EXCLUDE_PATTERNS),
+
+        $container->register(IndexAccess::class, function (Container $container) {
+            return $container->get(IndexAgentBuilder::class)
+                ->buildAgent()->access();
+        });
+
+        $container->register(QueryClient::class, function (Container $container) {
+            return $container->get(IndexAgent::class)->query();
+        });
+
+        $container->register(IndexAgentBuilder::class, function (Container $container) {
+            $indexPath = $container->get(
+                FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER
+            )->resolve(
+                $container->getParameter(self::PARAM_INDEX_PATH)
             );
+            return IndexAgentBuilder::create($indexPath, $this->projectRoot($container))
+                ->setExcludePatterns($container->get(self::SERVICE_INDEXER_EXCLUDE_PATTERNS))
+                ->setIncludePatterns($container->get(self::SERVICE_INDEXER_INCLUDE_PATTERNS));
+        });
+
+        $container->register(Indexer::class, function (Container $container) {
+            return $container->get(IndexAgent::class)->indexer();
         });
 
         $container->register(self::SERVICE_INDEXER_EXCLUDE_PATTERNS, function (Container $container) {
-            $projectRoot = $container->getParameter(FilePathResolverExtension::PARAM_PROJECT_ROOT);
+            $projectRoot = $this->projectRoot($container);
             return array_map(function (string $pattern) use ($projectRoot) {
                 return Path::join([$projectRoot, $pattern]);
             }, $container->getParameter(self::PARAM_EXCLUDE_PATTERNS));
@@ -194,33 +210,10 @@ class IndexerExtension implements Extension
             }, $container->getParameter(self::PARAM_INCLUDE_PATTERNS));
         });
         
-        $container->register(Index::class, function (Container $container) {
-            $indexPath = $container->get(
-                FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER
-            )->resolve(
-                $container->getParameter(self::PARAM_INDEX_PATH)
-            );
-            $repository = new FileRepository(
-                $indexPath,
+        $container->register(WorseRecordReferenceEnhancer::class, function (Container $container) {
+            return new WorseRecordReferenceEnhancer(
+                $container->get(WorseReflectionExtension::SERVICE_REFLECTOR),
                 $container->get(LoggingExtension::SERVICE_LOGGER)
-            );
-            $search = new FilteredSearchIndex(
-                new FileSearchIndex($indexPath . '/search', new ClassShortNameMatcher()),
-                [
-                    ClassRecord::RECORD_TYPE,
-                    FunctionRecord::RECORD_TYPE,
-                ]
-            );
-            return new SerializedIndex($repository, $search);
-        });
-
-        $container->register(QueryClient::class, function (Container $container) {
-            return new QueryClient(
-                $container->get(Index::class),
-                new WorseRecordReferenceEnhancer(
-                    $container->get(WorseReflectionExtension::SERVICE_REFLECTOR),
-                    $container->get(LoggingExtension::SERVICE_LOGGER)
-                ),
             );
         });
     }
@@ -371,19 +364,10 @@ class IndexerExtension implements Extension
         ]);
     }
 
-    private function registerFilesystem(ContainerBuilder $container): void
+    private function projectRoot(Container $container): string
     {
-        $container->register(self::SERVICE_FILESYSTEM, function (Container $container) {
-            $projectRoot = $container->get(
-                FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER
-            )->resolve($container->getParameter(self::PARAM_PROJECT_ROOT));
-
-            return new SimpleFilesystem(
-                $projectRoot,
-                new SimpleFileListProvider(
-                    FilePath::fromString($projectRoot)
-                )
-            );
-        });
+        return $container->get(
+            FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER
+        )->resolve($container->getParameter(self::PARAM_PROJECT_ROOT));
     }
 }
