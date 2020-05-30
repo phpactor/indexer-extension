@@ -5,6 +5,7 @@ namespace Phpactor\Indexer\Adapter\Php\InMemory;
 use Generator;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\RecordFactory;
+use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\SearchIndex;
 
 class InMemorySearchIndex implements SearchIndex
@@ -35,5 +36,15 @@ class InMemorySearchIndex implements SearchIndex
 
     public function flush(): void
     {
+    }
+
+    public function remove(Record $record): void
+    {
+        unset($this->buffer[$record->identifier()]);
+    }
+
+    public function has(ClassRecord $record): bool
+    {
+        return isset($this->buffer[$record->identifier()]);
     }
 }

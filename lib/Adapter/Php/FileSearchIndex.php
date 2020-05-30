@@ -69,11 +69,16 @@ class FileSearchIndex implements SearchIndex
     public function write(Record $record): void
     {
         $this->open();
-        $this->subjects[$record->recordType().$record->identifier()] = [$record->recordType(), $record->identifier()];
+        $this->subjects[$this->recordHash($record)] = [$record->recordType(), $record->identifier()];
 
         if (++$this->counter % self::BATCH_SIZE === 0) {
             $this->flush();
         }
+    }
+
+    public function remove(Record $record): void
+    {
+        unset($this->subjects[$this->recordHash($record)]);
     }
 
     public function flush(): void
@@ -106,5 +111,10 @@ class FileSearchIndex implements SearchIndex
         }, explode("\n", file_get_contents($this->path))));
 
         $this->initialized = true;
+    }
+
+    private function recordHash(Record $record): string
+    {
+        return $record->recordType().$record->identifier();
     }
 }
