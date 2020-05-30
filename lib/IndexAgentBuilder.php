@@ -81,7 +81,7 @@ class IndexAgentBuilder
         return $this;
     }
 
-    public function build(): IndexAgent
+    public function buildAgent(): IndexAgent
     {
         return $this->buildTestAgent();
     }

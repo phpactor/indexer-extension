@@ -21,7 +21,7 @@ class ClassDeclarationIndexerTest extends TolerantIndexerTestCase
         $agent = $this->indexAgentBuilder('src')
             ->setIndexers([
                 new ClassDeclarationIndexer()
-            ])->build();
+            ])->buildAgent();
 
         $agent->indexer()->getJob()->run();
 
