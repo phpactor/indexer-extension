@@ -39,6 +39,7 @@ class IndexBuildCommand extends Command
 
     protected function configure(): void
     {
+        $this->setDescription('Build the index');
         $this->addArgument(self::ARG_SUB_PATH, InputArgument::OPTIONAL, 'Sub path to index');
         $this->addOption(self::OPT_RESET, null, InputOption::VALUE_NONE, 'Purge index before building');
         $this->addOption(self::OPT_WATCH, null, InputOption::VALUE_NONE, 'Watch for updated files (poll for changes ever x seconds, default 10)');

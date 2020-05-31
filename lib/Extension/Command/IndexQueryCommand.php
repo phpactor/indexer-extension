@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class IndexQueryCommand extends Command
 {
-    const ARG_QUERY = 'query';
+    const ARG_IDENITIFIER = 'identifier';
 
     /**
      * @var QueryClient
@@ -30,26 +30,29 @@ class IndexQueryCommand extends Command
 
     protected function configure(): void
     {
-        $this->addArgument(self::ARG_QUERY, InputArgument::REQUIRED, 'Query (function name, class name, <memberType>#<memberName>)');
+        $this->addArgument(self::ARG_IDENITIFIER, InputArgument::REQUIRED, 'Query (function name, class name, <memberType>#<memberName>)');
+        $this->setDescription(
+            'Show the indexed information for a given identifier'
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $class = $this->query->class()->get(Cast::toString($input->getArgument(self::ARG_QUERY)));
+        $class = $this->query->class()->get(Cast::toString($input->getArgument(self::ARG_IDENITIFIER)));
 
         if ($class) {
             $this->renderClass($output, $class);
         }
 
         $function = $this->query->function()->get(
-            Cast::toString($input->getArgument(self::ARG_QUERY))
+            Cast::toString($input->getArgument(self::ARG_IDENITIFIER))
         );
 
         if ($function) {
             $this->renderFunction($output, $function);
         }
 
-        $member = $this->query->member()->get(Cast::toString($input->getArgument(self::ARG_QUERY)));
+        $member = $this->query->member()->get(Cast::toString($input->getArgument(self::ARG_IDENITIFIER)));
 
         if ($member) {
             $this->renderMember($output, $member);
