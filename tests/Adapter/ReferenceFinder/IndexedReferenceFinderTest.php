@@ -44,12 +44,13 @@ class IndexedReferenceFinderTest extends IntegrationTestCase
         );
 
         $locations = iterator_to_array($locations);
+
         $sureLocations = array_filter($locations, function (PotentialLocation $location) {
             return $location->isSurely();
         });
 
-        self::assertCount($expectedConfirmed, $sureLocations);
-        self::assertCount($expectedTotal, $locations);
+        self::assertCount($expectedConfirmed, $sureLocations, 'Total confirmed');
+        self::assertCount($expectedTotal, $locations, 'Total expected');
     }
 
     /**
@@ -78,6 +79,23 @@ new Foo();
 <?php
 
 Foo::bar();
+EOT
+        ,
+            2
+        ];
+
+        yield 'class deep references' => [
+            <<<'EOT'
+// File: project/subject.php
+<?php class Fo<>o {}
+// File: project/class1.php
+<?php
+
+class Bar extends Foo {}
+// File: project/class2.php
+<?php
+
+Bar::bar();
 EOT
         ,
             2
@@ -151,6 +169,25 @@ EOT
 EOT
         ,
             1, 1
+        ];
+
+        yield 'deep members' => [
+            <<<'EOT'
+// File: project/subject.php
+<?php namespace Bar; $foo = new Foobar(); $foo->b<>ar();
+
+// File: project/subject1.php
+<?php namespace Bar; $foo = new Barfoo(); $foo->bar();
+
+// File: project/class1.php
+<?php namespace Bar; class Foobar extends Barfoo { public function bar() {}}
+
+// File: project/class2.php
+<?php namespace Bar; class Barfoo { public function bar() {}}
+
+EOT
+        ,
+            2, 4 // total number is multipled due to implementation recursion
         ];
     }
 
