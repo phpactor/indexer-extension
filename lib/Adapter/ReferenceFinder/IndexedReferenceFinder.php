@@ -3,6 +3,8 @@
 namespace Phpactor\Indexer\Adapter\ReferenceFinder;
 
 use Generator;
+use Phpactor\Indexer\Adapter\ReferenceFinder\Util\ContainerTypeResolver;
+use Phpactor\Indexer\Adapter\ReferenceFinder\Util\ReflectionMemberResolver;
 use Phpactor\Indexer\Model\QueryClient;
 use Phpactor\Indexer\Model\LocationConfidence;
 use Phpactor\ReferenceFinder\PotentialLocation;
@@ -26,10 +28,16 @@ class IndexedReferenceFinder implements ReferenceFinder
      */
     private $query;
 
-    public function __construct(QueryClient $query, Reflector $reflector)
+    /**
+     * @var ContainerTypeResolver
+     */
+    private $containerTypeResolver;
+
+    public function __construct(QueryClient $query, Reflector $reflector, ?ContainerTypeResolver $containerTypeResolver = null)
     {
         $this->reflector = $reflector;
         $this->query = $query;
+        $this->containerTypeResolver = $containerTypeResolver ?: new ContainerTypeResolver($reflector);
     }
 
     /**
@@ -85,7 +93,11 @@ class IndexedReferenceFinder implements ReferenceFinder
             yield from $this->query->member()->referencesTo(
                 $symbolContext->symbol()->symbolType(),
                 $symbolContext->symbol()->name(),
-                $symbolContext->containerType()
+                $this->containerTypeResolver->resolveDeclaringContainerType(
+                    $symbolContext->symbol()->symbolType(),
+                    $symbolContext->symbol()->name(),
+                    $symbolContext->containerType()
+                )
             );
             return;
         }
