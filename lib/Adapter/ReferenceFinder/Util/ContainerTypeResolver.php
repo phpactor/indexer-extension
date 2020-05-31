@@ -3,10 +3,7 @@
 namespace Phpactor\Indexer\Adapter\ReferenceFinder\Util;
 
 use Phpactor\WorseReflection\Core\Exception\NotFound;
-use Phpactor\WorseReflection\Core\Reflection\ReflectionClass;
-use Phpactor\WorseReflection\Core\Reflection\ReflectionClassLike;
 use Phpactor\WorseReflection\Core\Reflector\ClassReflector;
-use Phpactor\WorseReflection\Core\Type;
 
 class ContainerTypeResolver
 {
@@ -34,6 +31,5 @@ class ContainerTypeResolver
         } catch (NotFound $notFound) {
             return $containerFqn;
         }
-
     }
 }

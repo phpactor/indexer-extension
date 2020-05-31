@@ -4,7 +4,6 @@ namespace Phpactor\Indexer\Adapter\ReferenceFinder;
 
 use Generator;
 use Phpactor\Indexer\Adapter\ReferenceFinder\Util\ContainerTypeResolver;
-use Phpactor\Indexer\Adapter\ReferenceFinder\Util\ReflectionMemberResolver;
 use Phpactor\Indexer\Model\QueryClient;
 use Phpactor\Indexer\Model\LocationConfidence;
 use Phpactor\ReferenceFinder\PotentialLocation;

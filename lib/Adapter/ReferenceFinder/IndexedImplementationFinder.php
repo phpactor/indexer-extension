@@ -2,6 +2,8 @@
 
 namespace Phpactor\Indexer\Adapter\ReferenceFinder;
 
+use Generator;
+use Phpactor\Indexer\Adapter\ReferenceFinder\Util\ContainerTypeResolver;
 use Phpactor\Indexer\Model\QueryClient;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\ReferenceFinder\ClassImplementationFinder;
@@ -13,6 +15,7 @@ use Phpactor\TextDocument\TextDocumentUri;
 use Phpactor\WorseReflection\Core\Exception\NotFound;
 use Phpactor\WorseReflection\Core\Inference\Symbol;
 use Phpactor\WorseReflection\Core\Inference\SymbolContext;
+use Phpactor\WorseReflection\Core\Reflection\ReflectionMethod;
 use Phpactor\WorseReflection\Reflector;
 
 class IndexedImplementationFinder implements ClassImplementationFinder
@@ -27,10 +30,16 @@ class IndexedImplementationFinder implements ClassImplementationFinder
      */
     private $query;
 
+    /**
+     * @var ContainerTypeResolver
+     */
+    private $containerTypeResolver;
+
     public function __construct(QueryClient $query, Reflector $reflector)
     {
         $this->reflector = $reflector;
         $this->query = $query;
+        $this->containerTypeResolver = new ContainerTypeResolver($reflector);
     }
 
     /**
@@ -47,16 +56,19 @@ class IndexedImplementationFinder implements ClassImplementationFinder
             return $this->methodImplementations($symbolContext);
         }
 
-        return new Locations(array_map(function (FullyQualifiedName $name) {
-            $record = $this->query->class()->get($name);
+        $locations = [];
+        $implementations = $this->resolveImplementations(FullyQualifiedName::fromString($symbolContext->type()->__toString()));
 
-            return new Location(
+        foreach ($implementations as $implementation) {
+            $record = $this->query->class()->get($implementation);
+
+            $locations[] = new Location(
                 TextDocumentUri::fromString($record->filePath()),
                 $record->start()
             );
-        }, $this->query->class()->implementing(
-            $symbolContext->type()->__toString()
-        )));
+        }
+
+        return new Locations($locations);
     }
 
     /**
@@ -65,24 +77,31 @@ class IndexedImplementationFinder implements ClassImplementationFinder
     private function methodImplementations(SymbolContext $symbolContext): Locations
     {
         $container = $symbolContext->containerType();
+        $methodName = $symbolContext->symbol()->name();
+        $containerType = $this->containerTypeResolver->resolveDeclaringContainerType('method', $methodName, $container);
 
-        if (null === $container) {
+        if (null === $containerType) {
             return new Locations([]);
         }
 
-        $implementations = $this->query->class()->implementing(
-            $container->__toString()
+        $implementations = $this->resolveImplementations(
+            FullyQualifiedName::fromString($containerType),
+            true
         );
 
-        $methodName = $symbolContext->symbol()->name();
         $locations = [];
 
         foreach ($implementations as $implementation) {
             $record = $this->query->class()->get($implementation);
             try {
-                $reflection = $this->reflector->reflectClassLike($implementation->__toString());
-                $method = $reflection->methods()->get($methodName);
+                $reflection = $this->reflector->reflectClass($implementation->__toString());
+                $method = $reflection->methods()->belongingTo($reflection->name())->get($methodName);
             } catch (NotFound $notFound) {
+                continue;
+            }
+
+            assert($method instanceof ReflectionMethod);
+            if ($method->isAbstract()) {
                 continue;
             }
 
@@ -93,5 +112,19 @@ class IndexedImplementationFinder implements ClassImplementationFinder
         }
 
         return new Locations($locations);
+    }
+
+    /**
+     * @return Generator<FullyQualifiedName>
+     */
+    private function resolveImplementations(FullyQualifiedName $type, bool $yieldFirst = false): Generator
+    {
+        if ($yieldFirst) {
+            yield $type;
+        }
+
+        foreach ($this->query->class()->implementing($type) as $implementingType) {
+            yield from $this->resolveImplementations($implementingType, true);
+        }
     }
 }

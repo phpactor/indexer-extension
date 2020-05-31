@@ -87,6 +87,21 @@ EOT
         ,
             2
         ];
+
+        yield 'implementations of abstract class implementation' => [
+            <<<'EOT'
+// File: project/subject.php
+<?php abstract class Fo<>o {}
+// File: project/class.php
+<?php
+
+class Foobar extends Foo {}
+class Barfoo extends Foo {}
+class Carfoo extends Barfoo {}
+EOT
+        ,
+            3
+        ];
     }
 
     /**
@@ -125,17 +140,38 @@ EOT
             2
         ];
 
-        yield 'class member' => [
+        yield 'does not count abstract class member' => [
             <<<'EOT'
 // File: project/subject.php
-<?php class Foo {
-   public function doT<>his();
+<?php abstract class Foo {
+   abstract public function doT<>his();
 }
 // File: project/class.php
 <?php
 
 class Foobar extends Foo {
     public function doThis();
+}
+EOT
+        ,
+            1
+        ];
+
+        yield 'member implementations of abstract class implementation' => [
+            <<<'EOT'
+// File: project/subject.php
+<?php $foo = new Foo();
+   $foo->d<>oThis();
+}
+// File: project/class.php
+<?php
+class Bar {
+    public function doThis();
+}
+
+// File: project/foo.php
+<?php
+class Foo extends Bar {
 }
 EOT
         ,
