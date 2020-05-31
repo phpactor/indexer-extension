@@ -35,11 +35,17 @@ class IndexedImplementationFinder implements ClassImplementationFinder
      */
     private $containerTypeResolver;
 
-    public function __construct(QueryClient $query, Reflector $reflector)
+    /**
+     * @var bool
+     */
+    private $deepReferences;
+
+    public function __construct(QueryClient $query, Reflector $reflector, bool $deepReferences = true)
     {
         $this->reflector = $reflector;
         $this->query = $query;
         $this->containerTypeResolver = new ContainerTypeResolver($reflector);
+        $this->deepReferences = $deepReferences;
     }
 
     /**
@@ -124,6 +130,11 @@ class IndexedImplementationFinder implements ClassImplementationFinder
         }
 
         foreach ($this->query->class()->implementing($type) as $implementingType) {
+            if (false === $this->deepReferences) {
+                yield $implementingType;
+                continue;
+            }
+
             yield from $this->resolveImplementations($implementingType, true);
         }
     }
