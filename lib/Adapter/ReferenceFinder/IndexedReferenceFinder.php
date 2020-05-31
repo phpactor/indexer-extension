@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Adapter\ReferenceFinder;
 
 use Generator;
+use Phpactor\Indexer\Adapter\ReferenceFinder\Util\ContainerTypeResolver;
 use Phpactor\Indexer\Model\QueryClient;
 use Phpactor\Indexer\Model\LocationConfidence;
 use Phpactor\ReferenceFinder\PotentialLocation;
@@ -26,10 +27,22 @@ class IndexedReferenceFinder implements ReferenceFinder
      */
     private $query;
 
-    public function __construct(QueryClient $query, Reflector $reflector)
+    /**
+     * @var ContainerTypeResolver
+     */
+    private $containerTypeResolver;
+
+    /**
+     * @var bool
+     */
+    private $deepReferences;
+
+    public function __construct(QueryClient $query, Reflector $reflector, ?ContainerTypeResolver $containerTypeResolver = null, bool $deepReferences = true)
     {
         $this->reflector = $reflector;
         $this->query = $query;
+        $this->containerTypeResolver = $containerTypeResolver ?: new ContainerTypeResolver($reflector);
+        $this->deepReferences = $deepReferences;
     }
 
     /**
@@ -68,7 +81,9 @@ class IndexedReferenceFinder implements ReferenceFinder
     {
         $symbolType = $symbolContext->symbol()->symbolType();
         if ($symbolType === Symbol::CLASS_) {
-            yield from $this->query->class()->referencesTo($symbolContext->type()->__toString());
+            foreach ($this->implementationsOf($symbolContext->type()->__toString()) as $implementationFqn) {
+                yield from $this->query->class()->referencesTo($implementationFqn);
+            }
             return;
         }
 
@@ -82,12 +97,47 @@ class IndexedReferenceFinder implements ReferenceFinder
             Symbol::CONSTANT,
             Symbol::PROPERTY
         ])) {
-            yield from $this->query->member()->referencesTo(
+            $containerType = $this->containerTypeResolver->resolveDeclaringContainerType(
                 $symbolContext->symbol()->symbolType(),
                 $symbolContext->symbol()->name(),
                 $symbolContext->containerType()
             );
+
+            if (null === $containerType) {
+                yield from $this->query->member()->referencesTo(
+                    $symbolContext->symbol()->symbolType(),
+                    $symbolContext->symbol()->name(),
+                    null
+                );
+                return;
+            }
+
+            // note that we check the all implementations: this will multiply
+            // the number of NOT and MAYBE matches
+            foreach ($this->implementationsOf($containerType) as $containerType) {
+                yield from $this->query->member()->referencesTo(
+                    $symbolContext->symbol()->symbolType(),
+                    $symbolContext->symbol()->name(),
+                    $containerType
+                );
+            }
             return;
+        }
+    }
+
+    /**
+     * @return Generator<string>
+     */
+    private function implementationsOf(string $fqn): Generator
+    {
+        yield $fqn;
+
+        if (false === $this->deepReferences) {
+            return;
+        }
+
+        foreach ($this->query->class()->implementing($fqn) as $implementation) {
+            yield from $this->implementationsOf($implementation->__toString());
         }
     }
 }

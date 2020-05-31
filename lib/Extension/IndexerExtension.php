@@ -23,6 +23,7 @@ use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
 use Phpactor\FilePathResolver\PathResolver;
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedNameSearcher;
+use Phpactor\Indexer\Adapter\ReferenceFinder\Util\ContainerTypeResolver;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Adapter\Worse\IndexerClassSourceLocator;
 use Phpactor\Indexer\Adapter\Worse\IndexerFunctionSourceLocator;
@@ -48,12 +49,14 @@ use Webmozart\PathUtil\Path;
 
 class IndexerExtension implements Extension
 {
-    const PARAM_INDEX_PATH = 'indexer.index_path';
-    const PARAM_INDEXER_POLL_TIME = 'indexer.poll_time';
-    const PARAM_ENABLED_WATCHERS = 'indexer.enabled_watchers';
-    const PARAM_INCLUDE_PATTERNS = 'indexer.include_patterns';
-    const PARAM_EXCLUDE_PATTERNS = 'indexer.exclude_patterns';
-    const PARAM_INDEXER_BUFFER_TIME = 'indexer.buffer_time';
+    public const PARAM_INDEX_PATH = 'indexer.index_path';
+    public const PARAM_INDEXER_POLL_TIME = 'indexer.poll_time';
+    public const PARAM_ENABLED_WATCHERS = 'indexer.enabled_watchers';
+    public const PARAM_INCLUDE_PATTERNS = 'indexer.include_patterns';
+    public const PARAM_EXCLUDE_PATTERNS = 'indexer.exclude_patterns';
+    public const PARAM_INDEXER_BUFFER_TIME = 'indexer.buffer_time';
+    public const PARAM_REFERENCES_DEEP_REFERENCES = 'indexer.reference_finder.deep';
+    public const PARAM_IMPLEMENTATIONS_DEEP_REFERENCES = 'indexer.implementation_finder.deep';
 
     const TAG_WATCHER = 'indexer.watcher';
 
@@ -83,6 +86,8 @@ class IndexerExtension implements Extension
             self::PARAM_INDEXER_POLL_TIME => 5000,
             self::PARAM_INDEXER_BUFFER_TIME => 500,
             self::PARAM_PROJECT_ROOT => '%project_root%',
+            self::PARAM_REFERENCES_DEEP_REFERENCES => true,
+            self::PARAM_IMPLEMENTATIONS_DEEP_REFERENCES => true,
         ]);
         $schema->setDescriptions([
             self::PARAM_ENABLED_WATCHERS => 'List of allowed watchers. The first watcher that supports the current system will be used',
@@ -92,6 +97,8 @@ class IndexerExtension implements Extension
             self::PARAM_INDEXER_POLL_TIME => 'For polling indexers only: the time, in milliseconds, between polls (e.g. filesystem scans)',
             self::PARAM_INDEXER_BUFFER_TIME => 'For real-time indexers only: the time, in milliseconds, to buffer the results',
             self::PARAM_PROJECT_ROOT => 'The root path to use for scanning the index',
+            self::PARAM_REFERENCES_DEEP_REFERENCES => 'Recurse over class implementations to resolve all references',
+            self::PARAM_IMPLEMENTATIONS_DEEP_REFERENCES => 'Recurse over class implementations to resolve all class implementations (not just the classes directly implementing the subject)',
         ]);
     }
 
@@ -215,7 +222,8 @@ class IndexerExtension implements Extension
         $container->register(IndexedImplementationFinder::class, function (Container $container) {
             return new IndexedImplementationFinder(
                 $container->get(QueryClient::class),
-                $container->get(WorseReflectionExtension::SERVICE_REFLECTOR)
+                $container->get(WorseReflectionExtension::SERVICE_REFLECTOR),
+                $container->getParameter(self::PARAM_IMPLEMENTATIONS_DEEP_REFERENCES)
             );
         }, [ ReferenceFinderExtension::TAG_IMPLEMENTATION_FINDER => []]);
 
@@ -223,6 +231,8 @@ class IndexerExtension implements Extension
             return new IndexedReferenceFinder(
                 $container->get(QueryClient::class),
                 $container->get(WorseReflectionExtension::SERVICE_REFLECTOR),
+                new ContainerTypeResolver($container->get(WorseReflectionExtension::SERVICE_REFLECTOR)),
+                $container->getParameter(self::PARAM_REFERENCES_DEEP_REFERENCES)
             );
         }, [ ReferenceFinderExtension::TAG_REFERENCE_FINDER => []]);
 
