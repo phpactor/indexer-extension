@@ -135,13 +135,17 @@ class IndexerExtension implements Extension
         $container->register(IndexerClassSourceLocator::class, function (Container $container) {
             return new IndexerClassSourceLocator($container->get(IndexAccess::class));
         }, [
-            WorseReflectionExtension::TAG_SOURCE_LOCATOR => []
+            WorseReflectionExtension::TAG_SOURCE_LOCATOR => [
+                'priority' => 128,
+            ]
         ]);
 
         $container->register(IndexerFunctionSourceLocator::class, function (Container $container) {
             return new IndexerFunctionSourceLocator($container->get(IndexAccess::class));
         }, [
-            WorseReflectionExtension::TAG_SOURCE_LOCATOR => []
+            WorseReflectionExtension::TAG_SOURCE_LOCATOR => [
+                'priority' => 128,
+            ]
         ]);
     }
 
