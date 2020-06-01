@@ -2,6 +2,8 @@
 
 namespace Phpactor\Indexer\Model;
 
+use SplFileInfo;
+
 class Indexer
 {
     /**
@@ -32,6 +34,11 @@ class Indexer
             $this->builder,
             $this->provider->provideFileList($this->index, $subPath)
         );
+    }
+
+    public function index(SplFileInfo $file): void
+    {
+        $this->builder->index($file);
     }
 
     public function reset(): void

@@ -24,7 +24,6 @@ use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
 use Phpactor\FilePathResolver\PathResolver;
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedNameSearcher;
 use Phpactor\Indexer\Adapter\ReferenceFinder\Util\ContainerTypeResolver;
-use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Adapter\Worse\IndexerClassSourceLocator;
 use Phpactor\Indexer\Adapter\Worse\IndexerFunctionSourceLocator;
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedReferenceFinder;
@@ -37,7 +36,6 @@ use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedImplementationFinder;
 use Phpactor\Indexer\Extension\Command\IndexQueryCommand;
 use Phpactor\Indexer\Extension\Command\IndexBuildCommand;
 use Phpactor\Indexer\Extension\Rpc\IndexHandler;
-use Phpactor\Indexer\Model\IndexBuilder;
 use Phpactor\Indexer\Model\QueryClient;
 use Phpactor\Indexer\Model\SearchClient;
 use Phpactor\Indexer\Model\Indexer;
@@ -128,12 +126,8 @@ class IndexerExtension implements Extension
 
     private function registerWorseAdapters(ContainerBuilder $container): void
     {
-        $container->register(IndexBuilder::class, function (Container $container) {
-            return TolerantIndexBuilder::create($container->get(IndexAccess::class));
-        });
-        
         $container->register(IndexerClassSourceLocator::class, function (Container $container) {
-            return new IndexerClassSourceLocator($container->get(IndexAccess::class.'.internal'));
+            return new IndexerClassSourceLocator($container->get(IndexAccess::class));
         }, [
             WorseReflectionExtension::TAG_SOURCE_LOCATOR => [
                 'priority' => 128,
@@ -141,7 +135,7 @@ class IndexerExtension implements Extension
         ]);
 
         $container->register(IndexerFunctionSourceLocator::class, function (Container $container) {
-            return new IndexerFunctionSourceLocator($container->get(IndexAccess::class.'.internal'));
+            return new IndexerFunctionSourceLocator($container->get(IndexAccess::class));
         }, [
             WorseReflectionExtension::TAG_SOURCE_LOCATOR => [
                 'priority' => 128,
@@ -172,9 +166,6 @@ class IndexerExtension implements Extension
         });
 
         $container->register(IndexAccess::class, function (Container $container) {
-            return $container->get(IndexAgent::class)->access();
-        });
-        $container->register(IndexAccess::class.'.internal', function (Container $container) {
             // the worse reflection locators would have a circular reference so
             // we create a new instance for them.
             return $container->get(IndexAgentBuilder::class)
