@@ -133,7 +133,7 @@ class IndexerExtension implements Extension
         });
         
         $container->register(IndexerClassSourceLocator::class, function (Container $container) {
-            return new IndexerClassSourceLocator($container->get(IndexAccess::class));
+            return new IndexerClassSourceLocator($container->get(IndexAccess::class.'.internal'));
         }, [
             WorseReflectionExtension::TAG_SOURCE_LOCATOR => [
                 'priority' => 128,
@@ -141,11 +141,11 @@ class IndexerExtension implements Extension
         ]);
 
         $container->register(IndexerFunctionSourceLocator::class, function (Container $container) {
-            return new IndexerFunctionSourceLocator($container->get(IndexAccess::class));
+            return new IndexerFunctionSourceLocator($container->get(IndexAccess::class.'.internal'));
         }, [
             WorseReflectionExtension::TAG_SOURCE_LOCATOR => [
                 'priority' => 128,
-            ]
+            ],
         ]);
     }
 
@@ -172,6 +172,11 @@ class IndexerExtension implements Extension
         });
 
         $container->register(IndexAccess::class, function (Container $container) {
+            return $container->get(IndexAgent::class)->access();
+        });
+        $container->register(IndexAccess::class.'.internal', function (Container $container) {
+            // the worse reflection locators would have a circular reference so
+            // we create a new instance for them.
             return $container->get(IndexAgentBuilder::class)
                 ->buildAgent()->access();
         });
