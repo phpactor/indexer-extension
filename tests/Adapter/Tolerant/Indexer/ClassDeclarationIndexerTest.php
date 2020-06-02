@@ -6,6 +6,8 @@ use Generator;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\ClassDeclarationIndexer;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Tests\Adapter\Tolerant\TolerantIndexerTestCase;
+use Prophecy\Argument;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 class ClassDeclarationIndexerTest extends TolerantIndexerTestCase
@@ -108,6 +110,38 @@ class ClassDeclarationIndexerTest extends TolerantIndexerTestCase
             "// File: src/file1.php\n<?php namespace Bar; class Barfoo implements Foobar{}",
             'Barfoo',
             [ClassRecord::fromName('Bar\Barfoo')->setFilePath($this->workspace()->path('src/file1.php'))]
+        ];
+    }
+
+    /**
+     * @dataProvider provideInvalidClasses
+     */
+    public function testInvalidClass(string $manifest, string $exectedMessage): void
+    {
+        $this->workspace()->reset();
+        $this->workspace()->loadManifest($manifest);
+
+        $logger = $this->prophesize(LoggerInterface::class);
+
+        $logger->warning(Argument::containingString($exectedMessage))->shouldBeCalled();
+
+        $agent = $this->indexAgentBuilder('src')
+            ->setIndexers([
+                new ClassDeclarationIndexer()
+            ])->setLogger($logger->reveal())->buildAgent();
+
+        $agent->indexer()->getJob()->run();
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * @return Generator<mixed>
+     */
+    public function provideInvalidClasses(): Generator
+    {
+        yield 'no class name' => [
+            "// File: src/file1.php\n<?php class {}",
+            'Name is empty',
         ];
     }
 }

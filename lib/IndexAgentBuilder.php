@@ -159,7 +159,7 @@ class IndexAgentBuilder
     private function buildBuilder(Index $index): IndexBuilder
     {
         if (null !== $this->indexers) {
-            return new TolerantIndexBuilder($index, $this->indexers);
+            return new TolerantIndexBuilder($index, $this->indexers, $this->logger);
         }
         return TolerantIndexBuilder::create($index);
     }

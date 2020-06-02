@@ -7,6 +7,7 @@ use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\QualifiedName;
 use Microsoft\PhpParser\Node\DelimitedList\QualifiedNameList;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexer;
+use Phpactor\Indexer\Model\Exception\CannotIndexNode;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\TextDocument\ByteOffset;
@@ -48,13 +49,16 @@ abstract class AbstractClassLikeIndexer implements TolerantIndexer
         }
     }
 
-    protected function getClassLikeRecord(string $type, Node $node, Index $index, SplFileInfo $info): ?ClassRecord
+    protected function getClassLikeRecord(string $type, Node $node, Index $index, SplFileInfo $info): ClassRecord
     {
         assert($node instanceof NamespacedNameInterface);
         $name = $node->getNamespacedName()->getFullyQualifiedNameText();
 
         if (empty($name)) {
-            return null;
+            throw new CannotIndexNode(sprintf(
+                'Name is empty for file "%s"',
+                $info->getPathname()
+            ));
         }
 
         $record = $index->get(ClassRecord::fromName($name));
