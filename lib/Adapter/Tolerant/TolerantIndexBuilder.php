@@ -102,7 +102,7 @@ final class TolerantIndexBuilder implements IndexBuilder
                 if ($indexer->canIndex($node)) {
                     $indexer->index($this->index, $info, $node);
                 }
-            } catch(CannotIndexNode $cannotIndexNode) {
+            } catch (CannotIndexNode $cannotIndexNode) {
                 $this->logger->warning(sprintf(
                     'Cannot index node of class "%s" in file "%s": %s',
                     get_class($node),
