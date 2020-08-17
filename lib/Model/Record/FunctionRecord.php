@@ -4,7 +4,7 @@ namespace Phpactor\Indexer\Model\Record;
 
 use Phpactor\Indexer\Model\Record;
 
-final class FunctionRecord implements HasFileReferences, HasPath, Record, HasFullyQualifiedName, HasShortName
+final class FunctionRecord implements HasFileReferences, HasPath, Record, HasFullyQualifiedName
 {
     use FullyQualifiedReferenceTrait;
     use HasFileReferencesTrait;
