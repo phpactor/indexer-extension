@@ -16,7 +16,7 @@ final class FunctionRecord implements HasFileReferences, HasPath, Record, HasFul
 
     public static function fromName(string $name): self
     {
-        return new self(new FullyQualifiedName($name));
+        return new self($name);
     }
 
     /**
@@ -25,10 +25,5 @@ final class FunctionRecord implements HasFileReferences, HasPath, Record, HasFul
     public function recordType(): string
     {
         return self::RECORD_TYPE;
-    }
-
-    public function shortName(): string
-    {
-        return $this->fqn()->head()->__toString();
     }
 }

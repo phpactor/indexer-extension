@@ -32,7 +32,7 @@ final class ClassRecord implements Record, HasFileReferences, HasPath, HasFullyQ
 
     public static function fromName(string $name): self
     {
-        return new self(new FullyQualifiedName($name));
+        return new self($name);
     }
 
     public function clearImplemented(): void
@@ -103,10 +103,5 @@ final class ClassRecord implements Record, HasFileReferences, HasPath, HasFullyQ
     public function recordType(): string
     {
         return self::RECORD_TYPE;
-    }
-
-    public function shortName(): string
-    {
-        return $this->fqn()->head()->__toString();
     }
 }

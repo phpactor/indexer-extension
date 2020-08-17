@@ -65,6 +65,7 @@ class FileSearchIndex implements SearchIndex
 
         foreach ($this->subjects as [ $recordType, $identifier ]) {
             $record = RecordFactory::create($recordType, $identifier);
+
             if (false === $criteria->isSatisfiedBy($record)) {
                 continue;
             }

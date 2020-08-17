@@ -18,12 +18,8 @@ trait FullyQualifiedReferenceTrait
      */
     private $start;
 
-    public function __construct(
-        FullyQualifiedName $fqn
-    ) {
-        // this object is serialized, do not store the object representation as
-        // it adds around 100b to the size of each indexed class
-        $this->fqn = $fqn->__toString();
+    public function __construct(string $fqn) {
+        $this->fqn = $fqn;
     }
 
     public function setStart(ByteOffset $start): self
@@ -54,5 +50,17 @@ trait FullyQualifiedReferenceTrait
                 'Record was corrupted'
             ));
         }
+    }
+
+    public function shortName(): string
+    {
+        $id = $this->fqn;
+        $offset = strrpos($id, '\\');
+
+        if (false !== $offset) {
+            $id = substr($id, $offset + 1);
+        }
+
+        return $id;
     }
 }
