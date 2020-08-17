@@ -6,9 +6,9 @@ use Generator;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexQuery;
 use Phpactor\Indexer\Model\LocationConfidence;
+use Phpactor\Indexer\Model\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
-use Phpactor\Name\FullyQualifiedName;
 use Phpactor\TextDocument\Location;
 
 class ClassQuery implements IndexQuery

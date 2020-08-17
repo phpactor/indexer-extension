@@ -3,8 +3,8 @@
 namespace Phpactor\Indexer\Model\Record;
 
 use Phpactor\Indexer\Model\Exception\CorruptedRecord;
+use Phpactor\Indexer\Model\Name\FullyQualifiedName;
 use Phpactor\TextDocument\ByteOffset;
-use Phpactor\Name\FullyQualifiedName;
 
 trait FullyQualifiedReferenceTrait
 {

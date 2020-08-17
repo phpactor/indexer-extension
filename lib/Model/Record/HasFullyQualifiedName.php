@@ -2,7 +2,7 @@
 
 namespace Phpactor\Indexer\Model\Record;
 
-use Phpactor\Name\FullyQualifiedName;
+use Phpactor\Indexer\Model\Name\FullyQualifiedName;
 use Phpactor\TextDocument\ByteOffset;
 
 interface HasFullyQualifiedName

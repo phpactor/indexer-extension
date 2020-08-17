@@ -2,7 +2,7 @@
 
 namespace Phpactor\Indexer\Model;
 
-use Phpactor\Name\FullyQualifiedName;
+use Phpactor\Indexer\Model\Name\FullyQualifiedName;
 
 class MemberReference
 {
@@ -10,6 +10,7 @@ class MemberReference
      * @var string
      */
     private $type;
+
     /**
      * @var FullyQualifiedName|null
      */

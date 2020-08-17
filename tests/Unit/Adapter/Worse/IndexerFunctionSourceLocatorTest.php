@@ -3,8 +3,8 @@
 namespace Phpactor\Indexer\Tests\Unit\Adapter\Worse;
 
 use PHPUnit\Framework\TestCase;
+use Phpactor\Indexer\Model\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\QueryClient;
-use Phpactor\Name\FullyQualifiedName;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryIndex;
 use Phpactor\Indexer\Adapter\Worse\IndexerFunctionSourceLocator;

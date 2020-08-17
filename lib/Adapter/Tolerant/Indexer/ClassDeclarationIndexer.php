@@ -3,7 +3,7 @@
 namespace Phpactor\Indexer\Adapter\Tolerant\Indexer;
 
 use Microsoft\PhpParser\Node;
-use Phpactor\Name\FullyQualifiedName;
+use Phpactor\Indexer\Model\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Microsoft\PhpParser\Node\Statement\ClassDeclaration;
 use SplFileInfo;
