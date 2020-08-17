@@ -21,9 +21,9 @@ class IndexedNameSearcher implements NameSearcher
         $this->client = $client;
     }
 
-    public function search(Criteria $criteria): Generator
+    public function search(string $name): Generator
     {
-        foreach ($this->client->search($criteria) as $result) {
+        foreach ($this->client->search(Criteria::shortNameBeginsWith($name)) as $result) {
             yield NameSearchResult::create($result->recordType(), FullyQualifiedName::fromString($result->identifier()));
         }
     }
