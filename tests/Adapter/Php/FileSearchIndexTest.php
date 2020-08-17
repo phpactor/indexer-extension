@@ -3,8 +3,6 @@
 namespace Phpactor\Indexer\Tests\Adapter\Php;
 
 use Phpactor\Indexer\Adapter\Php\FileSearchIndex;
-use Phpactor\Indexer\Model\Matcher\ClassShortNameMatcher;
-use Phpactor\Indexer\Model\Query\Criteria\ExactShortName;
 use Phpactor\Indexer\Model\Query\Criteria\ShortNameBeginsWith;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
@@ -19,7 +17,7 @@ class FileSearchIndexTest extends IntegrationTestCase
     protected function setUp(): void
     {
         $this->workspace()->reset();
-        $this->index = new FileSearchIndex($this->workspace()->path('search'), new ClassShortNameMatcher());
+        $this->index = new FileSearchIndex($this->workspace()->path('search'));
     }
 
     public function testWriteIndex(): void

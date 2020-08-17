@@ -32,7 +32,7 @@ class SearchBench
     public function createBareFileSearch(): void
     {
         $indexPath = __DIR__ . '/../..';
-        $this->search = new FileSearchIndex($indexPath . '/cache/search', new ClassShortNameMatcher());
+        $this->search = new FileSearchIndex($indexPath . '/cache/search');
     }
 
     public function createFullFileSearch(): void

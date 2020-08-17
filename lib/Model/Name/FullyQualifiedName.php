@@ -14,7 +14,7 @@ class FullyQualifiedName
         $this->fqn = $fqn;
     }
 
-    public static function fromString(string $fqn)
+    public static function fromString(string $fqn): self
     {
         return new self($fqn);
     }

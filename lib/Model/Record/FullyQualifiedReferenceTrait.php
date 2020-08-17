@@ -18,7 +18,8 @@ trait FullyQualifiedReferenceTrait
      */
     private $start;
 
-    public function __construct(string $fqn) {
+    public function __construct(string $fqn)
+    {
         $this->fqn = $fqn;
     }
 

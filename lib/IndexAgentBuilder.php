@@ -19,8 +19,6 @@ use Phpactor\Indexer\Model\RealIndexAgent;
 use Phpactor\Indexer\Model\IndexBuilder;
 use Phpactor\Indexer\Model\QueryClient;
 use Phpactor\Indexer\Model\Indexer;
-use Phpactor\Indexer\Model\Matcher;
-use Phpactor\Indexer\Model\Matcher\ClassShortNameMatcher;
 use Phpactor\Indexer\Model\RecordReferenceEnhancer;
 use Phpactor\Indexer\Model\RecordReferenceEnhancer\NullRecordReferenceEnhancer;
 use Phpactor\Indexer\Model\RecordSerializer;
@@ -141,7 +139,7 @@ class IndexAgentBuilder
 
     private function buildSearch(IndexAccess $index): SearchIndex
     {
-        $search = new FileSearchIndex($this->indexRoot . '/search', $this->buildMatcher());
+        $search = new FileSearchIndex($this->indexRoot . '/search');
         $search = new ValidatingSearchIndex($search, $index, $this->logger);
         $search = new FilteredSearchIndex($search, [
             ClassRecord::RECORD_TYPE,
@@ -149,11 +147,6 @@ class IndexAgentBuilder
         ]);
 
         return $search;
-    }
-
-    private function buildMatcher(): Matcher
-    {
-        return new ClassShortNameMatcher();
     }
 
     private function buildBuilder(Index $index): IndexBuilder

@@ -2,9 +2,7 @@
 
 namespace Phpactor\Indexer\Model\Record;
 
-use Phpactor\Indexer\Model\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Record;
-use Phpactor\Indexer\Model\Record\HasFullyQualifiedName;
 
 final class FunctionRecord implements HasFileReferences, HasPath, Record, HasFullyQualifiedName, HasShortName
 {

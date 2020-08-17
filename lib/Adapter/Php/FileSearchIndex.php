@@ -3,7 +3,6 @@
 namespace Phpactor\Indexer\Adapter\Php;
 
 use Generator;
-use Phpactor\Indexer\Model\Matcher;
 use Phpactor\Indexer\Model\Query\Criteria;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\RecordFactory;
@@ -36,11 +35,6 @@ class FileSearchIndex implements SearchIndex
     private $path;
 
     /**
-     * @var Matcher
-     */
-    private $matcher;
-
-    /**
      * @var int
      */
     private $counter = 0;
@@ -50,10 +44,9 @@ class FileSearchIndex implements SearchIndex
      */
     private $dirty = false;
 
-    public function __construct(string $path, Matcher $matcher)
+    public function __construct(string $path)
     {
         $this->path = $path;
-        $this->matcher = $matcher;
     }
 
     /**

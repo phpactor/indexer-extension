@@ -4,10 +4,9 @@ namespace Phpactor\Indexer\Model\Query\Criteria;
 
 use Phpactor\Indexer\Model\Query\Criteria;
 use Phpactor\Indexer\Model\Record;
-use Phpactor\Indexer\Model\Record\HasFullyQualifiedName;
 use Phpactor\Indexer\Model\Record\HasShortName;
 
-class ExactShortName implements Criteria
+class ExactShortName extends Criteria
 {
     /**
      * @var string
