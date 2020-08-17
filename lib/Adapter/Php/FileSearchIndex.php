@@ -3,7 +3,7 @@
 namespace Phpactor\Indexer\Adapter\Php;
 
 use Generator;
-use Phpactor\Indexer\Model\Matcher;
+use Phpactor\Indexer\Model\Query\Criteria;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\RecordFactory;
 use Phpactor\Indexer\Model\SearchIndex;
@@ -35,11 +35,6 @@ class FileSearchIndex implements SearchIndex
     private $path;
 
     /**
-     * @var Matcher
-     */
-    private $matcher;
-
-    /**
      * @var int
      */
     private $counter = 0;
@@ -49,25 +44,26 @@ class FileSearchIndex implements SearchIndex
      */
     private $dirty = false;
 
-    public function __construct(string $path, Matcher $matcher)
+    public function __construct(string $path)
     {
         $this->path = $path;
-        $this->matcher = $matcher;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function search(string $query): Generator
+    public function search(Criteria $criteria): Generator
     {
         $this->open();
 
         foreach ($this->subjects as [ $recordType, $identifier ]) {
-            if (false === $this->matcher->match($identifier, $query)) {
+            $record = RecordFactory::create($recordType, $identifier);
+
+            if (false === $criteria->isSatisfiedBy($record)) {
                 continue;
             }
 
-            yield RecordFactory::create($recordType, $identifier);
+            yield $record;
         }
     }
 

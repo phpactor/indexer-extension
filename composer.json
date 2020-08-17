@@ -33,7 +33,8 @@
         "phpstan/phpstan": "^0.12.0",
         "phpactor/test-utils": "^1.0.2",
         "phpactor/console-extension": "^0.1.2",
-        "symfony/var-dumper": "^5.1"
+        "symfony/var-dumper": "^5.1",
+        "phpbench/phpbench": "^1.0@dev"
     },
     "autoload": {
         "psr-4": {
@@ -48,7 +49,7 @@
     "extra": {
         "phpactor.extension_class": "Phpactor\\Indexer\\Extension\\IndexerExtension",
         "branch-alias": {
-            "dev-master": "0.2.x-dev"
+            "dev-master": "0.3.x-dev"
         }
     },
     "scripts": {

@@ -6,7 +6,7 @@ use Phpactor\Indexer\Model\MemberReference;
 use Phpactor\Indexer\Model\Record;
 use RuntimeException;
 
-class MemberRecord implements HasFileReferences, Record
+class MemberRecord implements HasFileReferences, Record, HasShortName
 {
     use HasFileReferencesTrait;
 
@@ -101,5 +101,10 @@ class MemberRecord implements HasFileReferences, Record
     public function type(): string
     {
         return $this->type;
+    }
+
+    public function shortName(): string
+    {
+        return $this->memberName;
     }
 }

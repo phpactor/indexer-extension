@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Model\SearchIndex;
 
 use Generator;
+use Phpactor\Indexer\Model\Query\Criteria;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\SearchIndex;
 
@@ -31,9 +32,9 @@ class FilteredSearchIndex implements SearchIndex
     /**
      * {@inheritDoc}
      */
-    public function search(string $query): Generator
+    public function search(Criteria $criteria): Generator
     {
-        return $this->innerIndex->search($query);
+        return $this->innerIndex->search($criteria);
     }
 
     public function write(Record $record): void

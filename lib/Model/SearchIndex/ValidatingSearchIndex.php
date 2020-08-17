@@ -4,6 +4,7 @@ namespace Phpactor\Indexer\Model\SearchIndex;
 
 use Generator;
 use Phpactor\Indexer\Model\IndexAccess;
+use Phpactor\Indexer\Model\Query\Criteria;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record\HasPath;
 use Phpactor\Indexer\Model\SearchIndex;
@@ -36,9 +37,9 @@ class ValidatingSearchIndex implements SearchIndex
     /**
      * {@inheritDoc}
      */
-    public function search(string $query): Generator
+    public function search(Criteria $criteria): Generator
     {
-        foreach ($this->innerIndex->search($query) as $result) {
+        foreach ($this->innerIndex->search($criteria) as $result) {
             if (!$this->index->has($result)) {
                 $this->innerIndex->remove($result);
 

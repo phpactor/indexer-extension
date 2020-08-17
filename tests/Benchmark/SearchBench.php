@@ -7,10 +7,12 @@ use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
 use Phpactor\Indexer\Adapter\Php\Serialized\SerializedIndex;
 use Phpactor\Indexer\IndexAgentBuilder;
 use Phpactor\Indexer\Model\Matcher\ClassShortNameMatcher;
+use Phpactor\Indexer\Model\Query\Criteria\ShortNameBeginsWith;
 use Phpactor\Indexer\Model\RecordSerializer\PhpSerializer;
 use Phpactor\Indexer\Model\SearchClient;
 use Phpactor\Indexer\Model\SearchIndex;
 use Phpactor\Indexer\Model\SearchIndex\ValidatingSearchIndex;
+
 
 
 /**
@@ -30,7 +32,7 @@ class SearchBench
     public function createBareFileSearch(): void
     {
         $indexPath = __DIR__ . '/../..';
-        $this->search = new FileSearchIndex($indexPath . '/cache/search', new ClassShortNameMatcher());
+        $this->search = new FileSearchIndex($indexPath . '/cache/search');
     }
 
     public function createFullFileSearch(): void
@@ -49,7 +51,7 @@ class SearchBench
      */
     public function benchBareFileSearch(array $params): void
     {
-        foreach ($this->search->search($params['search']) as $result) {
+        foreach ($this->search->search(new ShortNameBeginsWith($params['search'])) as $result) {
         }
     }
 
@@ -60,7 +62,7 @@ class SearchBench
      */
     public function benchFullFileSearch(array $params): void
     {
-        foreach ($this->search->search($params['search']) as $result) {
+        foreach ($this->search->search(new ShortNameBeginsWith($params['search'])) as $result) {
         }
     }
 

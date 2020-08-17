@@ -2,10 +2,10 @@
 
 namespace Phpactor\Indexer\Model\Record;
 
+use Phpactor\Indexer\Model\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Record;
-use Phpactor\Name\FullyQualifiedName;
 
-final class ClassRecord implements Record, HasFileReferences, HasPath
+final class ClassRecord implements Record, HasFileReferences, HasPath, HasFullyQualifiedName
 {
     use FullyQualifiedReferenceTrait;
     use HasFileReferencesTrait;
@@ -32,7 +32,7 @@ final class ClassRecord implements Record, HasFileReferences, HasPath
 
     public static function fromName(string $name): self
     {
-        return new self(FullyQualifiedName::fromString($name));
+        return new self($name);
     }
 
     public function clearImplemented(): void
