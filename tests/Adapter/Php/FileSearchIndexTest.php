@@ -4,6 +4,8 @@ namespace Phpactor\Indexer\Tests\Adapter\Php;
 
 use Phpactor\Indexer\Adapter\Php\FileSearchIndex;
 use Phpactor\Indexer\Model\Matcher\ClassShortNameMatcher;
+use Phpactor\Indexer\Model\Query\Criteria\ExactShortName;
+use Phpactor\Indexer\Model\Query\Criteria\ShortNameBeginsWith;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
 
@@ -54,6 +56,6 @@ class FileSearchIndexTest extends IntegrationTestCase
 
     private function search(string $query): array
     {
-        return iterator_to_array($this->index->search($query));
+        return iterator_to_array($this->index->search(new ShortNameBeginsWith($query)));
     }
 }

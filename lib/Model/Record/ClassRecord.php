@@ -5,7 +5,7 @@ namespace Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Name\FullyQualifiedName;
 
-final class ClassRecord implements Record, HasFileReferences, HasPath
+final class ClassRecord implements Record, HasFileReferences, HasPath, HasFullyQualifiedName, HasShortName
 {
     use FullyQualifiedReferenceTrait;
     use HasFileReferencesTrait;
@@ -103,5 +103,10 @@ final class ClassRecord implements Record, HasFileReferences, HasPath
     public function recordType(): string
     {
         return self::RECORD_TYPE;
+    }
+
+    public function shortName(): string
+    {
+        return $this->fqn()->head()->__toString();
     }
 }

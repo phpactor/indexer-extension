@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Adapter\ReferenceFinder;
 
 use Generator;
+use Phpactor\Indexer\Model\Query\Criteria;
 use Phpactor\Indexer\Model\SearchClient;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\ReferenceFinder\NameSearcher;
@@ -20,9 +21,9 @@ class IndexedNameSearcher implements NameSearcher
         $this->client = $client;
     }
 
-    public function search(string $search): Generator
+    public function search(Criteria $criteria): Generator
     {
-        foreach ($this->client->search($search) as $result) {
+        foreach ($this->client->search($criteria) as $result) {
             yield NameSearchResult::create($result->recordType(), FullyQualifiedName::fromString($result->identifier()));
         }
     }

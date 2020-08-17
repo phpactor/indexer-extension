@@ -6,6 +6,7 @@ use Generator;
 use PHPUnit\Framework\TestCase;
 use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryIndex;
 use Phpactor\Indexer\Adapter\Php\InMemory\InMemorySearchIndex;
+use Phpactor\Indexer\Model\Query\Criteria\ShortNameBeginsWith;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\MemberRecord;
 use Phpactor\Indexer\Model\SearchIndex\ValidatingSearchIndex;
@@ -44,7 +45,7 @@ class ValidatingSearchIndexTest extends IntegrationTestCase
         $record = ClassRecord::fromName('Foobar');
         $this->innerSearchIndex->write($record);
 
-        self::assertSearchCount(0, $this->searchIndex->search('Foobar'));
+        self::assertSearchCount(0, $this->searchIndex->search(new ShortNameBeginsWith('Foobar')));
         self::assertFalse($this->innerSearchIndex->has($record));
     }
 
@@ -54,7 +55,7 @@ class ValidatingSearchIndexTest extends IntegrationTestCase
         $this->index->write($record);
         $this->innerSearchIndex->write($record);
 
-        self::assertSearchCount(1, $this->searchIndex->search('method#foo'));
+        self::assertSearchCount(1, $this->searchIndex->search(new ShortNameBeginsWith('foo')));
     }
 
     public function testRemovesFromIndexIfFileDoesNotExist(): void
@@ -65,7 +66,7 @@ class ValidatingSearchIndexTest extends IntegrationTestCase
         $this->index->write($record);
         $this->innerSearchIndex->write($record);
 
-        self::assertSearchCount(0, $this->searchIndex->search('Foobar'));
+        self::assertSearchCount(0, $this->searchIndex->search(new ShortNameBeginsWith('Foobar')));
         self::assertFalse($this->innerSearchIndex->has($record));
     }
 
@@ -78,7 +79,7 @@ class ValidatingSearchIndexTest extends IntegrationTestCase
         $this->index->write($record);
         $this->innerSearchIndex->write($record);
 
-        self::assertSearchCount(1, $this->searchIndex->search('Foobar'));
+        self::assertSearchCount(1, $this->searchIndex->search(new ShortNameBeginsWith('Foobar')));
         self::assertTrue($this->innerSearchIndex->has($record));
     }
 

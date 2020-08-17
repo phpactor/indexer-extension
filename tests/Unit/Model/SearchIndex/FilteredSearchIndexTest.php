@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Tests\Unit\Model\SearchIndex;
 
 use PHPUnit\Framework\TestCase;
+use Phpactor\Indexer\Model\Query\Criteria\ShortNameBeginsWith;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Model\SearchIndex;
@@ -30,9 +31,9 @@ class FilteredSearchIndexTest extends IntegrationTestCase
 
     public function testDecoration(): void
     {
-        $this->innerIndex->search('foobar')->willYield([ClassRecord::fromName('Foobar')])->shouldBeCalled();
+        $this->innerIndex->search(new ShortNameBeginsWith('foobar'))->willYield([ClassRecord::fromName('Foobar')])->shouldBeCalled();
         $this->innerIndex->flush()->shouldBeCalled();
-        $this->index->search('foobar');
+        $this->index->search(new ShortNameBeginsWith('foobar'));
         $this->index->flush();
     }
 

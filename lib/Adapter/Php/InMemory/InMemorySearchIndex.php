@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Adapter\Php\InMemory;
 
 use Generator;
+use Phpactor\Indexer\Model\Query\Criteria;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\RecordFactory;
 use Phpactor\Indexer\Model\Record\ClassRecord;
@@ -18,14 +19,16 @@ class InMemorySearchIndex implements SearchIndex
     /**
      * @return Generator<Record>
      */
-    public function search(string $query): Generator
+    public function search(Criteria $criteria): Generator
     {
         foreach ($this->buffer as [$recordType, $identifier]) {
-            if (!preg_match('{' . $query. '}', $identifier)) {
+            $record = RecordFactory::create($recordType, $identifier);
+
+            if (!$criteria->isSatisfiedBy($record)) {
                 continue;
             }
 
-            yield RecordFactory::create($recordType, $identifier);
+            yield $record;
         }
     }
 

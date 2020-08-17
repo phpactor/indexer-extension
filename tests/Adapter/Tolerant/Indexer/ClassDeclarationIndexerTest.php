@@ -4,6 +4,7 @@ namespace Phpactor\Indexer\Tests\Adapter\Tolerant\Indexer;
 
 use Generator;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\ClassDeclarationIndexer;
+use Phpactor\Indexer\Model\Query\Criteria\ShortNameBeginsWith;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Tests\Adapter\Tolerant\TolerantIndexerTestCase;
 use Prophecy\Argument;
@@ -69,7 +70,7 @@ class ClassDeclarationIndexerTest extends TolerantIndexerTestCase
         $this->workspace()->reset();
         $this->workspace()->loadManifest($manifest);
         $agent = $this->runIndexer(new ClassDeclarationIndexer(), 'src');
-        $foundRecords = $agent->search()->search($search);
+        $foundRecords = $agent->search()->search(new ShortNameBeginsWith($search));
 
         foreach ($expectedRecords as $record) {
             foreach ($foundRecords as $foundRecord) {
