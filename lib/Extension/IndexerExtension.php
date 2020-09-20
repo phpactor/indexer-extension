@@ -12,6 +12,7 @@ use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
 use Phpactor\AmpFsWatch\Watcher\Null\NullWatcher;
 use Phpactor\AmpFsWatch\Watcher\PatternMatching\PatternMatchingWatcher;
 use Phpactor\AmpFsWatch\Watcher\PhpPollWatcher\PhpPollWatcher;
+use Phpactor\AmpFsWatch\Watcher\Watchman\WatchmanWatcher;
 use Phpactor\Container\Container;
 use Phpactor\Container\ContainerBuilder;
 use Phpactor\Container\Extension;
@@ -55,6 +56,7 @@ class IndexerExtension implements Extension
     public const PARAM_INDEXER_BUFFER_TIME = 'indexer.buffer_time';
     public const PARAM_REFERENCES_DEEP_REFERENCES = 'indexer.reference_finder.deep';
     public const PARAM_IMPLEMENTATIONS_DEEP_REFERENCES = 'indexer.implementation_finder.deep';
+    public const PARAM_STUB_PATHS = 'indexer.stub_paths';
 
     const TAG_WATCHER = 'indexer.watcher';
 
@@ -71,7 +73,7 @@ class IndexerExtension implements Extension
     public function configure(Resolver $schema)
     {
         $schema->setDefaults([
-            self::PARAM_ENABLED_WATCHERS => ['inotify', 'find', 'php'],
+            self::PARAM_ENABLED_WATCHERS => ['watchman', 'inotify', 'find', 'php'],
             self::PARAM_INDEX_PATH => '%cache%/index/%project_id%',
             self::PARAM_INCLUDE_PATTERNS => [
                 '/**/*.php',
@@ -81,6 +83,7 @@ class IndexerExtension implements Extension
                 '/vendor/**/tests/**/*',
                 '/vendor/composer/**/*',
             ],
+            self::PARAM_STUB_PATHS => [],
             self::PARAM_INDEXER_POLL_TIME => 5000,
             self::PARAM_INDEXER_BUFFER_TIME => 500,
             self::PARAM_PROJECT_ROOT => '%project_root%',
@@ -90,6 +93,7 @@ class IndexerExtension implements Extension
         $schema->setDescriptions([
             self::PARAM_ENABLED_WATCHERS => 'List of allowed watchers. The first watcher that supports the current system will be used',
             self::PARAM_INDEX_PATH => 'Path where the index should be saved',
+            self::PARAM_STUB_PATHS => 'Paths to folders where code stubs are located',
             self::PARAM_INCLUDE_PATTERNS => 'Glob patterns to include while indexing',
             self::PARAM_EXCLUDE_PATTERNS => 'Glob patterns to exclude while indexing',
             self::PARAM_INDEXER_POLL_TIME => 'For polling indexers only: the time, in milliseconds, between polls (e.g. filesystem scans)',
@@ -181,14 +185,20 @@ class IndexerExtension implements Extension
         });
 
         $container->register(IndexAgentBuilder::class, function (Container $container) {
-            $indexPath = $container->get(
+            $resolver = $container->get(
                 FilePathResolverExtension::SERVICE_FILE_PATH_RESOLVER
-            )->resolve(
+            );
+            $indexPath = $resolver->resolve(
                 $container->getParameter(self::PARAM_INDEX_PATH)
             );
             return IndexAgentBuilder::create($indexPath, $this->projectRoot($container))
                 ->setExcludePatterns($container->get(self::SERVICE_INDEXER_EXCLUDE_PATTERNS))
-                ->setIncludePatterns($container->get(self::SERVICE_INDEXER_INCLUDE_PATTERNS));
+                ->setIncludePatterns(array_merge(
+                    $container->get(self::SERVICE_INDEXER_INCLUDE_PATTERNS),
+                    array_map(function (string $path) use ($resolver) {
+                        return $resolver->resolve($path);
+                    }, $container->getParameter(self::PARAM_STUB_PATHS))
+                ));
         });
 
         $container->register(Indexer::class, function (Container $container) {
@@ -204,6 +214,7 @@ class IndexerExtension implements Extension
 
         $container->register(self::SERVICE_INDEXER_INCLUDE_PATTERNS, function (Container $container) {
             $projectRoot = $container->getParameter(FilePathResolverExtension::PARAM_PROJECT_ROOT);
+
             return array_map(function (string $pattern) use ($projectRoot) {
                 return Path::join([$projectRoot, $pattern]);
             }, $container->getParameter(self::PARAM_INCLUDE_PATTERNS));
@@ -283,17 +294,23 @@ class IndexerExtension implements Extension
                 ));
             }
 
-            $watchers = array_filter(array_map(
-                function (string $name, string $serviceId) use ($container, $enabledWatchers) {
+            $watchers = (function (Container $container, array $watchers, array $enabledWatchers) {
+                $filtered = [];
+                foreach ($watchers as $name => $serviceId) {
                     if (!in_array($name, $enabledWatchers)) {
-                        return null;
+                        continue;
                     }
 
-                    return $container->get($serviceId);
-                },
-                array_keys($watchers),
-                array_values($watchers)
-            ));
+                    $filtered[$name] = $container->get($serviceId);
+                };
+
+                $ordered = [];
+                foreach ($enabledWatchers as $enabledWatcher) {
+                    $ordered[] = $filtered[$enabledWatcher];
+                }
+
+                return $ordered;
+            })($container, $watchers, $enabledWatchers);
 
             if ($watchers === []) {
                 return new NullWatcher();
@@ -320,6 +337,17 @@ class IndexerExtension implements Extension
 
         // register watchers - order of registration currently determines
         // priority
+
+        $container->register(WatchmanWatcher::class, function (Container $container) {
+            return new BufferedWatcher(new WatchmanWatcher(
+                $container->get(WatcherConfig::class),
+                $container->get(LoggingExtension::SERVICE_LOGGER)
+            ), $container->getParameter(self::PARAM_INDEXER_BUFFER_TIME));
+        }, [
+            self::TAG_WATCHER => [
+                'name' => 'watchman',
+            ]
+        ]);
 
         $container->register(InotifyWatcher::class, function (Container $container) {
             return new BufferedWatcher(new InotifyWatcher(

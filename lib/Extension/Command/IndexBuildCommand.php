@@ -111,6 +111,8 @@ class IndexBuildCommand extends Command
                 Loop::stop();
             });
 
+            $output->writeln(sprintf('<info>Watching for file changes with </>%s<info>...</>', $this->watcher->describe()));
+
             while (null !== $file = yield $process->wait()) {
                 $job = $this->indexer->getJob($file->path());
                 foreach ($job->generator() as $filePath) {
