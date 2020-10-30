@@ -14,7 +14,7 @@ class FilesystemFileListProvider implements FileListProvider
     /**
      * @var array<string>
      */
-    private $excludePatterns = [];
+    private $excludePatterns;
 
     /**
      * @var array<string>

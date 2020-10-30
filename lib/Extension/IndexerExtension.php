@@ -193,12 +193,10 @@ class IndexerExtension implements Extension
             );
             return IndexAgentBuilder::create($indexPath, $this->projectRoot($container))
                 ->setExcludePatterns($container->get(self::SERVICE_INDEXER_EXCLUDE_PATTERNS))
-                ->setIncludePatterns(array_merge(
+                ->setIncludePatterns(
                     $container->get(self::SERVICE_INDEXER_INCLUDE_PATTERNS),
-                    array_map(function (string $path) use ($resolver) {
-                        return $resolver->resolve($path);
-                    }, $container->getParameter(self::PARAM_STUB_PATHS))
-                ));
+                )
+                ->setStubPaths($container->getParameter(self::PARAM_STUB_PATHS));
         });
 
         $container->register(Indexer::class, function (Container $container) {
