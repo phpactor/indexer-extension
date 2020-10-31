@@ -2,11 +2,15 @@
 
 namespace Phpactor\Indexer\Model;
 
+use AppendIterator;
 use ArrayIterator;
 use Countable;
 use Iterator;
 use IteratorAggregate;
+use MultipleIterator;
 use SplFileInfo;
+
+
 
 /**
  * @implements \IteratorAggregate<SplFileInfo>
@@ -26,6 +30,11 @@ class FileList implements IteratorAggregate, Countable
         $this->splFileInfos = new ArrayIterator(iterator_to_array($splFileInfos));
     }
 
+    public static function empty(): self
+    {
+        return new self(new ArrayIterator([]));
+    }
+
     /**
      * @param Iterator<SplFileInfo> $splFileInfos
      */
@@ -37,6 +46,15 @@ class FileList implements IteratorAggregate, Countable
     public static function fromSingleFilePath(?string $subPath): self
     {
         return new self(new ArrayIterator([ new SplFileInfo($subPath) ]));
+    }
+
+    public function merge(FileList $fileList): self
+    {
+        $iterator = new AppendIterator();
+        $iterator->append($this->splFileInfos);
+        $iterator->append($fileList->splFileInfos);
+
+        return new self($iterator);
     }
 
     /**

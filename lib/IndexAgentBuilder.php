@@ -12,6 +12,7 @@ use Phpactor\Indexer\Adapter\Php\Serialized\SerializedIndex;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexer;
 use Phpactor\Indexer\Model\FileListProvider;
+use Phpactor\Indexer\Model\FileListProvider\ChainFileListProvider;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexAccess;
 use Phpactor\Indexer\Model\Index\SearchAwareIndex;
@@ -33,7 +34,7 @@ use Phpactor\Indexer\Model\TestIndexAgent;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
-class IndexAgentBuilder
+final class IndexAgentBuilder
 {
     /**
      * @var string
@@ -51,6 +52,11 @@ class IndexAgentBuilder
     private $includePatterns = [
         '/**/*.php',
     ];
+
+    /**
+     * @var array<string>
+     */
+    private $stubPaths = [];
 
     /**
      * @var array<string>
@@ -89,6 +95,13 @@ class IndexAgentBuilder
     public function setLogger(LoggerInterface $logger): self
     {
         $this->logger = $logger;
+
+        return $this;
+    }
+
+    public function addStubPath(string $path): self
+    {
+        $this->stubPaths[] = $path;
 
         return $this;
     }
@@ -164,18 +177,14 @@ class IndexAgentBuilder
 
     private function buildFileListProvider(): FileListProvider
     {
-        return new FilesystemFileListProvider(
-            $this->buildFilesystem(),
-            $this->includePatterns,
-            $this->excludePatterns
-        );
+        return new ChainFileListProvider(...$this->buildFileListProviders());
     }
 
-    private function buildFilesystem(): SimpleFilesystem
+    private function buildFilesystem(string $root): SimpleFilesystem
     {
         return new SimpleFilesystem(
             $this->indexRoot,
-            new SimpleFileListProvider(FilePath::fromString($this->projectRoot))
+            new SimpleFileListProvider(FilePath::fromString($root))
         );
     }
 
@@ -212,5 +221,37 @@ class IndexAgentBuilder
     private function buildRecordSerializer(): RecordSerializer
     {
         return new PhpSerializer();
+    }
+
+    /**
+     * @return array<FileListProvider>
+     */
+    private function buildFileListProviders(): array
+    {
+        $providers = [
+            new FilesystemFileListProvider(
+                $this->buildFilesystem($this->projectRoot),
+                $this->includePatterns,
+                $this->excludePatterns
+            )
+        ];
+
+        foreach ($this->stubPaths as $stubPath) {
+            $providers[] = new FilesystemFileListProvider(
+                $this->buildFilesystem($stubPath)
+            );
+        }
+
+        return $providers;
+    }
+
+    /**
+     * @param array<string> $stubPaths
+     */
+    public function setStubPaths(array $stubPaths): self
+    {
+        $this->stubPaths = $stubPaths;
+
+        return $this;
     }
 }
