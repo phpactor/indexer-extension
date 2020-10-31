@@ -29,6 +29,7 @@ use Phpactor\Indexer\Adapter\Worse\IndexerClassSourceLocator;
 use Phpactor\Indexer\Adapter\Worse\IndexerFunctionSourceLocator;
 use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedReferenceFinder;
 use Phpactor\Indexer\Adapter\Worse\WorseRecordReferenceEnhancer;
+use Phpactor\Indexer\Extension\Command\IndexSearchCommand;
 use Phpactor\Indexer\IndexAgent;
 use Phpactor\Indexer\IndexAgentBuilder;
 use Phpactor\Indexer\Model\IndexAccess;
@@ -159,6 +160,10 @@ class IndexerExtension implements Extension
         $container->register(IndexQueryCommand::class, function (Container $container) {
             return new IndexQueryCommand($container->get(QueryClient::class));
         }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:query']]);
+
+        $container->register(IndexSearchCommand::class, function (Container $container) {
+            return new IndexSearchCommand($container->get(SearchClient::class));
+        }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:search']]);
     }
 
     private function registerModel(ContainerBuilder $container): void
