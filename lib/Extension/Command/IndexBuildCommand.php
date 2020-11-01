@@ -5,6 +5,7 @@ namespace Phpactor\Indexer\Extension\Command;
 use Amp\Loop;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\Indexer\Model\Indexer;
+use Phpactor\Indexer\Model\MemoryUsage;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
@@ -30,11 +31,17 @@ class IndexBuildCommand extends Command
      */
     private $watcher;
 
+    /**
+     * @var MemoryUsage
+     */
+    private $usage;
+
     public function __construct(Indexer $indexer, Watcher $watcher)
     {
         parent::__construct();
         $this->indexer = $indexer;
         $this->watcher = $watcher;
+        $this->usage = MemoryUsage::create();
     }
 
     protected function configure(): void
@@ -80,6 +87,10 @@ class IndexBuildCommand extends Command
         $output->writeln('<info>Building index:</info>');
         $output->write(PHP_EOL);
         $progress = new ProgressBar($output, $job->size(), 0.001);
+        $progress->setFormat(' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%');
+        $progress->setPlaceholderFormatterDefinition('memory', function() {
+            return MemoryUsage::create()->memoryUsageFormatted();
+        });
         foreach ($job->generator() as $filePath) {
             if ($output->isVerbose()) {
                 $output->writeln(sprintf('Updated %s', $filePath));
