@@ -12,8 +12,6 @@ class MemoryUsageTest extends TestCase
     {
         $limit = MemoryUsage::create()->memoryLimit();
         self::assertIsInt($limit);
-        $limit = MemoryUsage::create()->memoryUsageFormatted();
-        var_dump($limit);
     }
 
     public function testMemoryUsage(): void
@@ -37,43 +35,43 @@ class MemoryUsageTest extends TestCase
         yield 'infinite memory' => [
             '-1',
             0,
-            '0.00 / ∞ mb'
+            '0/∞ mb'
         ];
 
         yield [
             '1048576',
             0,
-            '0.00 / 1.05 mb'
+            '0/1 mb'
         ];
 
         yield [
             '1000000',
             1000000,
-            '1.00 / 1.00 mb'
+            '1/1 mb'
         ];
 
         yield [
             '1000K',
             1000000,
-            '1.00 / 1.00 mb'
+            '1/1 mb'
         ];
 
         yield [
             '1M',
             1000000,
-            '1.00 / 1.00 mb'
+            '1/1 mb'
         ];
 
         yield [
             '100M',
             1000000,
-            '1.00 / 100.00 mb'
+            '1/100 mb'
         ];
 
         yield [
             '1G',
             1000000,
-            '1.00 / 1,000.00 mb'
+            '1/1,000 mb'
         ];
     }
 }

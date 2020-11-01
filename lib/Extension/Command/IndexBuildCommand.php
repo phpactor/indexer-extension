@@ -88,7 +88,7 @@ class IndexBuildCommand extends Command
         $output->write(PHP_EOL);
         $progress = new ProgressBar($output, $job->size(), 0.001);
         $progress->setFormat(' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%');
-        $progress->setPlaceholderFormatterDefinition('memory', function() {
+        $progress->setPlaceholderFormatterDefinition('memory', function () {
             return MemoryUsage::create()->memoryUsageFormatted();
         });
         foreach ($job->generator() as $filePath) {

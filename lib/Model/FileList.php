@@ -7,10 +7,7 @@ use ArrayIterator;
 use Countable;
 use Iterator;
 use IteratorAggregate;
-use MultipleIterator;
 use SplFileInfo;
-
-
 
 /**
  * @implements \IteratorAggregate<SplFileInfo>
