@@ -57,7 +57,7 @@ class IndexerExtension implements Extension
     public const PARAM_INDEXER_BUFFER_TIME = 'indexer.buffer_time';
     public const PARAM_REFERENCES_DEEP_REFERENCES = 'indexer.reference_finder.deep';
     public const PARAM_IMPLEMENTATIONS_DEEP_REFERENCES = 'indexer.implementation_finder.deep';
-    public const PARAM_STUB_PATHS = 'indexer.stub_paths';
+    public const PARAM_EXTERNAL_SOURCE_PATHS = 'indexer.stub_paths';
 
     const TAG_WATCHER = 'indexer.watcher';
 
@@ -84,7 +84,7 @@ class IndexerExtension implements Extension
                 '/vendor/**/tests/**/*',
                 '/vendor/composer/**/*',
             ],
-            self::PARAM_STUB_PATHS => [],
+            self::PARAM_EXTERNAL_SOURCE_PATHS => [],
             self::PARAM_INDEXER_POLL_TIME => 5000,
             self::PARAM_INDEXER_BUFFER_TIME => 500,
             self::PARAM_PROJECT_ROOT => '%project_root%',
@@ -94,7 +94,7 @@ class IndexerExtension implements Extension
         $schema->setDescriptions([
             self::PARAM_ENABLED_WATCHERS => 'List of allowed watchers. The first watcher that supports the current system will be used',
             self::PARAM_INDEX_PATH => 'Path where the index should be saved',
-            self::PARAM_STUB_PATHS => 'Paths to folders where code stubs are located',
+            self::PARAM_EXTERNAL_SOURCE_PATHS => 'Paths to folders where external sources are located',
             self::PARAM_INCLUDE_PATTERNS => 'Glob patterns to include while indexing',
             self::PARAM_EXCLUDE_PATTERNS => 'Glob patterns to exclude while indexing',
             self::PARAM_INDEXER_POLL_TIME => 'For polling indexers only: the time, in milliseconds, between polls (e.g. filesystem scans)',
@@ -156,7 +156,7 @@ class IndexerExtension implements Extension
                 $container->get(Watcher::class)
             );
         }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:build']]);
-        
+
         $container->register(IndexQueryCommand::class, function (Container $container) {
             return new IndexQueryCommand($container->get(QueryClient::class));
         }, [ ConsoleExtension::TAG_COMMAND => ['name' => 'index:query']]);
@@ -196,12 +196,15 @@ class IndexerExtension implements Extension
             $indexPath = $resolver->resolve(
                 $container->getParameter(self::PARAM_INDEX_PATH)
             );
+            $resolvedExternalSourcePaths = array_map(function (string $path) use ($resolver) {
+                return $resolver->resolve($path);
+            }, $container->getParameter(self::PARAM_EXTERNAL_SOURCE_PATHS));
             return IndexAgentBuilder::create($indexPath, $this->projectRoot($container))
                 ->setExcludePatterns($container->get(self::SERVICE_INDEXER_EXCLUDE_PATTERNS))
                 ->setIncludePatterns(
                     $container->get(self::SERVICE_INDEXER_INCLUDE_PATTERNS),
                 )
-                ->setStubPaths($container->getParameter(self::PARAM_STUB_PATHS));
+                ->setExternalSourcePaths($resolvedExternalSourcePaths);
         });
 
         $container->register(Indexer::class, function (Container $container) {
@@ -222,7 +225,7 @@ class IndexerExtension implements Extension
                 return Path::join([$projectRoot, $pattern]);
             }, $container->getParameter(self::PARAM_INCLUDE_PATTERNS));
         });
-        
+
         $container->register(WorseRecordReferenceEnhancer::class, function (Container $container) {
             return new WorseRecordReferenceEnhancer(
                 $container->get(WorseReflectionExtension::SERVICE_REFLECTOR),

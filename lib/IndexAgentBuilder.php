@@ -56,7 +56,7 @@ final class IndexAgentBuilder
     /**
      * @var array<string>
      */
-    private $stubPaths = [];
+    private $externalSourcePaths = [];
 
     /**
      * @var array<string>
@@ -101,7 +101,7 @@ final class IndexAgentBuilder
 
     public function addStubPath(string $path): self
     {
-        $this->stubPaths[] = $path;
+        $this->externalSourcePaths[] = $path;
 
         return $this;
     }
@@ -236,9 +236,9 @@ final class IndexAgentBuilder
             )
         ];
 
-        foreach ($this->stubPaths as $stubPath) {
+        foreach ($this->externalSourcePaths as $externalSourcePath) {
             $providers[] = new FilesystemFileListProvider(
-                $this->buildFilesystem($stubPath)
+                $this->buildFilesystem($externalSourcePath)
             );
         }
 
@@ -246,11 +246,11 @@ final class IndexAgentBuilder
     }
 
     /**
-     * @param array<string> $stubPaths
+     * @param array<string> $externalSourcePaths
      */
-    public function setStubPaths(array $stubPaths): self
+    public function setExternalSourcePaths(array $externalSourcePaths): self
     {
-        $this->stubPaths = $stubPaths;
+        $this->externalSourcePaths = $externalSourcePaths;
 
         return $this;
     }
