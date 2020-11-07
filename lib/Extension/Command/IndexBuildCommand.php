@@ -93,9 +93,9 @@ class IndexBuildCommand extends Command
         $output->write(PHP_EOL);
 
         $output->writeln(sprintf(
-            '<bg=green;fg=black;option>Done in %s seconds using %sb of memory</>',
+            '<bg=green;fg=black;option>Done in %s seconds using %s of memory</>',
             number_format(microtime(true) - $start, 2),
-            number_format(memory_get_usage(true))
+            $this->formatMemory(memory_get_usage(true))
         ));
     }
 
@@ -120,5 +120,15 @@ class IndexBuildCommand extends Command
                 }
             }
         });
+    }
+
+    /**
+     * @see https://www.php.net/manual/en/function.memory-get-usage.php#96280
+     */
+    private function formatMemory(int $memoryInBytes): string
+    {
+        $unit = ['B', 'KiB', 'MiB', 'GiB'];
+
+        return @round($memoryInBytes / pow(1024, ($i = floor(log($memoryInBytes, 1024)))), 2).' '.$unit[$i];
     }
 }
