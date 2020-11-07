@@ -2,7 +2,6 @@
 
 namespace Phpactor\Indexer\Model;
 
-use AppendIterator;
 use ArrayIterator;
 use Countable;
 use Iterator;
@@ -15,21 +14,27 @@ use SplFileInfo;
 class FileList implements IteratorAggregate, Countable
 {
     /**
-     * @var Iterator<SplFileInfo>
+     * Indexed by full path
+     *
+     * @var array<string, SplFileInfo>
      */
     private $splFileInfos;
 
     /**
-     * @param Iterator<SplFileInfo> $splFileInfos
+     * @param iterable<SplFileInfo> $splFileInfos
      */
-    public function __construct(Iterator $splFileInfos)
+    public function __construct(iterable $splFileInfos)
     {
-        $this->splFileInfos = new ArrayIterator(iterator_to_array($splFileInfos));
+        $this->splFileInfos = [];
+
+        foreach ($splFileInfos as $splFileInfo) {
+            $this->splFileInfos[$splFileInfo->getPathname()] = $splFileInfo;
+        }
     }
 
     public static function empty(): self
     {
-        return new self(new ArrayIterator([]));
+        return new self([]);
     }
 
     /**
@@ -40,18 +45,14 @@ class FileList implements IteratorAggregate, Countable
         return new self($splFileInfos);
     }
 
-    public static function fromSingleFilePath(?string $subPath): self
+    public static function fromSingleFilePath(string $subPath): self
     {
-        return new self(new ArrayIterator([ new SplFileInfo($subPath) ]));
+        return new self([new SplFileInfo($subPath)]);
     }
 
     public function merge(FileList $fileList): self
     {
-        $iterator = new AppendIterator();
-        $iterator->append($this->splFileInfos);
-        $iterator->append($fileList->splFileInfos);
-
-        return new self($iterator);
+        return new self(array_merge($this->splFileInfos, $fileList->splFileInfos));
     }
 
     /**
@@ -59,11 +60,11 @@ class FileList implements IteratorAggregate, Countable
      */
     public function getIterator(): Iterator
     {
-        return $this->splFileInfos;
+        return new ArrayIterator($this->splFileInfos);
     }
 
     public function count(): int
     {
-        return count(iterator_to_array($this->splFileInfos));
+        return count($this->splFileInfos);
     }
 }
