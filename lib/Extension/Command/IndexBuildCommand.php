@@ -127,8 +127,16 @@ class IndexBuildCommand extends Command
      */
     private function formatMemory(int $memoryInBytes): string
     {
-        $unit = ['B', 'KiB', 'MiB', 'GiB'];
+        if (0 === $memoryInBytes) {
+            return '0 B';
+        }
 
-        return @round($memoryInBytes / pow(1024, ($i = floor(log($memoryInBytes, 1024)))), 2).' '.$unit[$i];
+        $unit = ['B', 'KiB', 'MiB'];
+        // Never exceed 2 since it's not handled
+        $factor = min(floor(log($memoryInBytes, 1024)), 2);
+        $orderOfMagnitude = pow(1024, $factor);
+        $memoryInUnit = $memoryInBytes / $orderOfMagnitude;
+
+        return sprintf('%.2f %s', $memoryInUnit, $unit[$factor]);
     }
 }
