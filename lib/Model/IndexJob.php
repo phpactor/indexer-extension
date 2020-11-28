@@ -36,7 +36,6 @@ class IndexJob
 
     public function run(): void
     {
-        /** @phpstan-ignore-next-line */
         iterator_to_array($this->generator());
     }
 
