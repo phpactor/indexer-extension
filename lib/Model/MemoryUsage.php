@@ -45,7 +45,7 @@ final class MemoryUsage
         return sprintf('%s/%s mb', $this->formatMemory($this->memoryUsage), $this->formatMemory($this->memoryLimit));
     }
 
-    public function memoryLimit(): int
+    public function memoryLimit(): ?int
     {
         return $this->memoryLimit;
     }

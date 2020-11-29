@@ -10,8 +10,10 @@ class MemoryUsageTest extends TestCase
 {
     public function testMemoryLimit(): void
     {
-        $limit = MemoryUsage::create()->memoryLimit();
-        self::assertIsInt($limit);
+        MemoryUsage::create()->memoryLimit();
+
+        // the result is system dependent
+        $this->addToAssertionCount(1);
     }
 
     public function testMemoryUsage(): void
