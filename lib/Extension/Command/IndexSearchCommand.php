@@ -2,12 +2,7 @@
 
 namespace Phpactor\Indexer\Extension\Command;
 
-use Phpactor\Indexer\Model\Query\Criteria\AndCriteria;
-use Phpactor\Indexer\Model\Query\Criteria\FqnBeginsWith;
-use Phpactor\Indexer\Model\Query\Criteria\IsClass;
-use Phpactor\Indexer\Model\Query\Criteria\IsFunction;
-use Phpactor\Indexer\Model\Query\Criteria\IsMember;
-use Phpactor\Indexer\Model\Query\Criteria\ShortNameBeginsWith;
+use Phpactor\Indexer\Model\Query\Criteria;
 use Phpactor\Indexer\Model\SearchClient;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -20,9 +15,11 @@ class IndexSearchCommand extends Command
     const ARG_SEARCH = 'search';
     const OPT_FQN_BEGINS = 'fqn-begins';
     const OPT_SHORT_NAME_BEGINS = 'short-name-begins';
+    const OPT_SHORT_NAME = 'short-name';
     const OPT_IS_FUNCTION = 'is-function';
     const OPT_IS_CLASS = 'is-class';
     const OPT_IS_MEMBER = 'is-member';
+    const OPT_LIMIT = 'limit';
 
 
     /**
@@ -38,49 +35,60 @@ class IndexSearchCommand extends Command
 
     protected function configure(): void
     {
+        $this->setDescription('Search the index');
+
         $this->addOption(self::OPT_FQN_BEGINS, null, InputOption::VALUE_REQUIRED, 'FQN begins with');
         $this->addOption(self::OPT_SHORT_NAME_BEGINS, null, InputOption::VALUE_REQUIRED, 'Short-name begins with');
+        $this->addOption(self::OPT_SHORT_NAME, null, InputOption::VALUE_REQUIRED, 'Exact short name');
         $this->addOption(self::OPT_IS_FUNCTION, null, InputOption::VALUE_NONE, 'Functions only');
         $this->addOption(self::OPT_IS_CLASS, null, InputOption::VALUE_NONE, 'Classes only');
-        $this->addOption(self::OPT_IS_MEMBER, null, InputOption::VALUE_NONE, 'Is Member');
-        $this->setDescription(
-            'Search the index'
-        );
+        $this->addOption(self::OPT_LIMIT, 'l', InputOption::VALUE_REQUIRED, 'Limit number of results');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $shortName = $input->getOption(self::OPT_SHORT_NAME);
         $shortNameBegins = $input->getOption(self::OPT_SHORT_NAME_BEGINS);
         $fqnBegins = $input->getOption(self::OPT_FQN_BEGINS);
         $isFunction = $input->getOption(self::OPT_IS_FUNCTION);
         $isClass = $input->getOption(self::OPT_IS_CLASS);
-        $isMember = $input->getOption(self::OPT_IS_MEMBER);
-        assert(is_string($search));
+        $limitRaw = $input->getOption(self::OPT_LIMIT);
+        $limit = is_numeric($limitRaw) ? (int)$limitRaw : null;
 
         $criterias = [];
 
+        if ($shortName) {
+            /** @phpstan-ignore-next-line */
+            $criterias[] = Criteria::exactShortName($shortName);
+        }
+
         if ($shortNameBegins) {
-            $criterias[] = new ShortNameBeginsWith($shortNameBegins);
+            /** @phpstan-ignore-next-line */
+            $criterias[] = Criteria::shortNameBeginsWith($shortNameBegins);
         }
 
         if ($fqnBegins) {
-            $criterias[] = new FqnBeginsWith($fqnBegins);
+            /** @phpstan-ignore-next-line */
+            $criterias[] = Criteria::fqnBeginsWith($fqnBegins);
         }
 
         if ($isFunction) {
-            $criterias[] = new IsFunction();
-        }
-
-        if ($isMember) {
-            $criterias[] = new IsMember();
+            $criterias[] = Criteria::isFunction();
         }
 
         if ($isClass) {
-            $criterias[] = new IsClass();
+            $criterias[] = Criteria::isClass();
         }
 
-        foreach ($this->searchClient->search(new AndCriteria(...$criterias)) as $result) {
-            $output->writeln(sprintf('<comment>%s</> <fg=cyan>#</> %s', $result->recordType(), $result->identifier()));
+        foreach ($this->searchClient->search(Criteria::and(...$criterias)) as $index => $result) {
+            if ($limit && $index === $limit) {
+                break;
+            }
+            $output->writeln(sprintf(
+                '<comment>%s</> <fg=cyan>#</> %s',
+                $result->recordType(),
+                $result->identifier()
+            ));
         }
 
         return 0;
