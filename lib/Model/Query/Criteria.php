@@ -4,6 +4,7 @@ namespace Phpactor\Indexer\Model\Query;
 
 use Phpactor\Indexer\Model\Query\Criteria\AndCriteria;
 use Phpactor\Indexer\Model\Query\Criteria\ExactShortName;
+use Phpactor\Indexer\Model\Query\Criteria\FqnBeginsWith;
 use Phpactor\Indexer\Model\Query\Criteria\IsClass;
 use Phpactor\Indexer\Model\Query\Criteria\IsFunction;
 use Phpactor\Indexer\Model\Query\Criteria\IsMember;
@@ -23,6 +24,11 @@ abstract class Criteria
     public static function shortNameBeginsWith(string $name): ShortNameBeginsWith
     {
         return new ShortNameBeginsWith($name);
+    }
+
+    public static function fqnBeginsWith(string $name): FqnBeginsWith
+    {
+        return new FqnBeginsWith($name);
     }
 
     public static function and(Criteria ...$criterias): AndCriteria

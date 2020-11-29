@@ -34,7 +34,7 @@ $container = PhpactorContainer::fromExtensions([
     IndexerExtension::PARAM_EXCLUDE_PATTERNS => ['cache'],
     IndexerExtension::PARAM_ENABLED_WATCHERS => ['watchman', 'find'],
     WorseReflectionExtension::PARAM_ENABLE_CACHE => true,
-    LoggingExtension::PARAM_ENABLED => true,
+    LoggingExtension::PARAM_ENABLED => false,
     LoggingExtension::PARAM_LEVEL => 'debug',
     LoggingExtension::PARAM_PATH=> 'php://stdout',
 ]);
