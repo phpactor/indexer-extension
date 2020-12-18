@@ -4,5 +4,4 @@ parameters:
     paths:
         - lib
     ignoreErrors:
-        - "{should return TRecord of }"
-
+        - '{should return TRecord of }'
