@@ -1,7 +1,7 @@
 Project Indexer
 ===============
 
-[![Build Status](https://travis-ci.org/phpactor/indexer-extension.svg?branch=master)](https://travis-ci.org/phpactor/indexer-extension)
+![CI](https://github.com/phpactor/indexer-extension/workflows/CI/badge.svg)
 
 Provides indexing and index-querying capabiltities for [Phpactor](https://github.com/phpactor/phpactor)
 
