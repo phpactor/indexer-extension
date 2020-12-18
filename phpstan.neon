@@ -3,5 +3,5 @@ parameters:
     inferPrivatePropertyTypeFromConstructor: true
     paths:
         - lib
-    ignoreErrors:
-        - '{should return TRecord of }'
+includes:
+    - phpstan-baseline.neon
