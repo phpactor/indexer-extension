@@ -29,7 +29,7 @@ class FilesystemFileListProviderTest extends IntegrationTestCase
     private $index;
 
 
-    protected function setUp(): void
+    protected function setUp(): void: void
     {
         $this->filesystem = new SimpleFilesystem($this->workspace()->path());
         $this->provider = new FilesystemFileListProvider($this->filesystem);

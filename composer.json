@@ -27,7 +27,7 @@
         "phpactor/amp-fswatch": "^0.2.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.0",
+        "phpunit/phpunit": "^9.0",
         "phpactor/rpc-extension": "^0.2.0",
         "friendsofphp/php-cs-fixer": "^2.15.0",
         "phpstan/phpstan": "~0.12.0",

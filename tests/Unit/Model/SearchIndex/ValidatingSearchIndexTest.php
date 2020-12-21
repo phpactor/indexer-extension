@@ -29,7 +29,7 @@ class ValidatingSearchIndexTest extends IntegrationTestCase
      */
     private $searchIndex;
 
-    protected function setUp(): void
+    protected function setUp(): void: void
     {
         $this->innerSearchIndex = new InMemorySearchIndex();
         $this->index = new InMemoryIndex();

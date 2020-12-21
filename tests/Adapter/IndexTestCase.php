@@ -18,7 +18,7 @@ abstract class IndexTestCase extends IntegrationTestCase
         self::assertCount(2, $references);
     }
 
-    protected function setUp(): void
+    protected function setUp(): void: void
     {
         $this->workspace()->reset();
         $this->workspace()->loadManifest(file_get_contents(__DIR__ . '/Manifest/buildIndex.php.test'));

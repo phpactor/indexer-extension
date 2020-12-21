@@ -14,7 +14,7 @@ class FileSearchIndexTest extends IntegrationTestCase
      */
     private $index;
 
-    protected function setUp(): void
+    protected function setUp(): void: void
     {
         $this->workspace()->reset();
         $this->index = new FileSearchIndex($this->workspace()->path('search'));

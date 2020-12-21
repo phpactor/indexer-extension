@@ -11,7 +11,7 @@ use Phpactor\TextDocument\TextDocumentBuilder;
 
 class IndexedImplementationFinderTest extends IntegrationTestCase
 {
-    protected function setUp(): void
+    protected function setUp(): void: void
     {
         $this->workspace()->reset();
     }

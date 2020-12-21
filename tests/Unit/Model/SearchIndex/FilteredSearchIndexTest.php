@@ -23,7 +23,7 @@ class FilteredSearchIndexTest extends IntegrationTestCase
      */
     private $index;
 
-    protected function setUp(): void
+    protected function setUp(): void: void
     {
         $this->innerIndex = $this->prophesize(SearchIndex::class);
         $this->index = new FilteredSearchIndex($this->innerIndex->reveal(), [ClassRecord::RECORD_TYPE]);

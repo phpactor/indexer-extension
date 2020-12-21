@@ -30,7 +30,7 @@ use RuntimeException;
 
 class IndexerExtensionTest extends IntegrationTestCase
 {
-    protected function setUp(): void
+    protected function setUp(): void: void
     {
         $this->initProject();
     }
