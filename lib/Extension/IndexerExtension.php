@@ -74,7 +74,7 @@ class IndexerExtension implements Extension
     public function configure(Resolver $schema)
     {
         $schema->setDefaults([
-            self::PARAM_ENABLED_WATCHERS => ['watchman', 'inotify', 'find', 'php'],
+            self::PARAM_ENABLED_WATCHERS => ['inotify', 'watchman', 'find', 'php'],
             self::PARAM_INDEX_PATH => '%cache%/index/%project_id%',
             self::PARAM_INCLUDE_PATTERNS => [
                 '/**/*.php',
