@@ -1,10 +1,8 @@
 {
     "name": "phpactor/indexer-extension",
-    "description": "Indexer and related integrations",
     "type": "phpactor-extension",
+    "description": "Indexer and related integrations",
     "license": "MIT",
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "authors": [
         {
             "name": "Daniel Leech",
@@ -13,28 +11,35 @@
     ],
     "require": {
         "php": "^7.3",
-        "phpactor/container": "^1.3.3",
-        "phpactor/worse-reflection": "^0.4",
-        "phpactor/source-code-filesystem": "~0.1.5",
-        "phpactor/name-specification": "^0.1",
-        "thecodingmachine/safe": "^1.0",
         "dantleech/invoke": "^1.0",
+        "phpactor/amp-fswatch": "^0.2.0",
+        "phpactor/container": "^1.3.3",
+        "phpactor/name-specification": "^0.1",
         "phpactor/reference-finder": "^0.1.3",
         "phpactor/reference-finder-extension": "^0.1.0",
-        "phpactor/text-document": "^1.1.3",
-        "phpactor/worse-reflection-extension": "^0.2.0",
+        "phpactor/source-code-filesystem": "~0.1.5",
         "phpactor/source-code-filesystem-extension": "^0.1.3",
-        "phpactor/amp-fswatch": "^0.2.0"
+        "phpactor/text-document": "^1.1.3",
+        "phpactor/worse-reflection": "^0.4",
+        "phpactor/worse-reflection-extension": "^0.2.0",
+        "thecodingmachine/safe": "^1.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.0",
-        "phpactor/rpc-extension": "^0.2.0",
-        "friendsofphp/php-cs-fixer": "^2.15.0",
-        "phpstan/phpstan": "~0.12.0",
-        "phpactor/test-utils": "^1.0.2",
+        "ergebnis/composer-normalize": "^2.0",
+        "friendsofphp/php-cs-fixer": "^2.17",
         "phpactor/console-extension": "^0.1.2",
-        "symfony/var-dumper": "^5.1",
-        "phpbench/phpbench": "^1.0@dev"
+        "phpactor/rpc-extension": "^0.2.0",
+        "phpactor/test-utils": "^1.0.2",
+        "phpbench/phpbench": "^1.0@dev",
+        "phpstan/phpstan": "~0.12.0",
+        "phpunit/phpunit": "^8.0",
+        "symfony/var-dumper": "^5.1"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.3.x-dev"
+        },
+        "phpactor.extension_class": "Phpactor\\Indexer\\Extension\\IndexerExtension"
     },
     "autoload": {
         "psr-4": {
@@ -46,12 +51,8 @@
             "Phpactor\\Indexer\\Tests\\": "tests/"
         }
     },
-    "extra": {
-        "phpactor.extension_class": "Phpactor\\Indexer\\Extension\\IndexerExtension",
-        "branch-alias": {
-            "dev-master": "0.3.x-dev"
-        }
-    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "scripts": {
         "integrate": [
             "vendor/bin/phpstan analyse",
