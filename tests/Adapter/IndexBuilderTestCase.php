@@ -528,6 +528,7 @@ class Foobar
 }
 EOT
         );
+        usleep(50);
 
         $index = $this->buildIndex($index);
 
