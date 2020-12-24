@@ -13,6 +13,7 @@ use Prophecy\Argument;
 
 class FilteredSearchIndexTest extends IntegrationTestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
     /**
      * @var ObjectProphecy
      */
