@@ -15,6 +15,7 @@ use Psr\Log\LoggerInterface;
 
 class FileRepositoryTest extends IntegrationTestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
     public function testResetRemovesTheIndex()
     {
         $repo = $this->createFileRepository();
@@ -26,8 +27,8 @@ class FileRepositoryTest extends IntegrationTestCase
 
         $repo->reset();
 
-        self::assertFileNotExists($this->workspace()->path('index/something.cache'));
-        self::assertFileNotExists($this->workspace()->path('index/something/else/some.cache', 'bar'));
+        self::assertFileDoesNotExist($this->workspace()->path('index/something.cache'));
+        self::assertFileDoesNotExist($this->workspace()->path('index/something/else/some.cache', 'bar'));
     }
 
     public function testRemovesClassRecord(): void

@@ -13,6 +13,7 @@ use Phpactor\Indexer\Tests\IntegrationTestCase;
 
 class FilesystemFileListProviderTest extends IntegrationTestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
     /**
      * @var FilesystemFileListProvider
      */
