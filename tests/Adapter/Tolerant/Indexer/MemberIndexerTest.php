@@ -86,7 +86,7 @@ class MemberIndexerTest extends TolerantIndexerTestCase
 
         yield MemberRecord::TYPE_PROPERTY => [
             "// File: src/file1.php\n<?php Foobar::\$foobar;",
-            MemberReference::create(MemberRecord::TYPE_PROPERTY, 'Foobar', '$foobar'),
+            MemberReference::create(MemberRecord::TYPE_PROPERTY, 'Foobar', 'foobar'),
             [ 0, 0, 1 ]
         ];
 
@@ -100,6 +100,12 @@ class MemberIndexerTest extends TolerantIndexerTestCase
             "// File: src/file1.php\n<?php class Foobar { function bar() {} function foo() { self::bar(); } }",
             MemberReference::create(MemberRecord::TYPE_METHOD, 'Foobar', 'bar'),
             [ 0, 0, 1 ]
+        ];
+
+        yield 'self (property)' => [
+            "// File: src/file1.php\n<?php class Foobar { static \$barProp; function foo() { self::\$barProp = 5; \$var1 = self::\$barProp; } }",
+            MemberReference::create(MemberRecord::TYPE_PROPERTY, 'Foobar', 'barProp'),
+            [ 0, 0, 2 ]
         ];
 
         yield 'parent' => [
