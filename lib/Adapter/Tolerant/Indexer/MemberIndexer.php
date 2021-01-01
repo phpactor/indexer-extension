@@ -106,7 +106,7 @@ class MemberIndexer implements TolerantIndexer
             return (string)$memberName->getText($node->getFileContents());
         }
 
-        return $memberName->getText();
+        return $memberName->getName();
     }
 
     private function indexMemberAccessExpression(Index $index, SplFileInfo $info, MemberAccessExpression $node): void
