@@ -6,6 +6,7 @@ use Generator;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\ClassLikeReferenceIndexer;
 use Phpactor\Indexer\Model\LocationConfidence;
 use Phpactor\Indexer\Tests\Adapter\Tolerant\TolerantIndexerTestCase;
+use function iterator_to_array;
 
 class ClassLikeReferenceIndexerTest extends TolerantIndexerTestCase
 {
@@ -73,10 +74,46 @@ class ClassLikeReferenceIndexerTest extends TolerantIndexerTestCase
             [0, 0, 1]
         ];
 
+        yield 'class multiple implements 2' => [
+            "// File: src/file1.php\n<?php class Barfoo implements Foo,Bar {};",
+            'Bar',
+            [0, 0, 1]
+        ];
+
         yield 'abstract class implements' => [
             "// File: src/file1.php\n<?php abstract class Barfoo implements Foobar,Barfoo {};",
             'Foobar',
             [0, 0, 1]
+        ];
+
+        yield 'use class (basic)' => [
+            "// File: src/file1.php\n<?php use Bar\Foo;",
+            'Bar\Foo',
+            [0, 0, 1]
+        ];
+
+        yield 'use class (grouped)' => [
+            "// File: src/file1.php\n<?php use Bar\{Foo};",
+            'Bar\Foo',
+            [0, 0, 1]
+        ];
+
+        yield 'use class (grouped multiple)' => [
+            "// File: src/file1.php\n<?php use Bar\{Foo, MyBar};",
+            'Bar\MyBar',
+            [0, 0, 1]
+        ];
+
+        yield 'use trait (basic)' => [
+            "// File: src/file1.php\n<?php class C { use T; }",
+            'T',
+            [0, 0, 1]
+        ];
+
+        yield 'use trait (namespaced)' => [
+            "// File: src/file1.php\n<?php use N\T; class C { use T; }",
+            'N\T',
+            [0, 0, 2]
         ];
     }
 }

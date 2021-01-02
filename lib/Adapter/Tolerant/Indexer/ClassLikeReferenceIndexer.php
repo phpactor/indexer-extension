@@ -4,7 +4,11 @@ namespace Phpactor\Indexer\Adapter\Tolerant\Indexer;
 
 use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\Expression\CallExpression;
+use Microsoft\PhpParser\Node\NamespaceUseClause;
+use Microsoft\PhpParser\Node\NamespaceUseGroupClause;
 use Microsoft\PhpParser\Node\QualifiedName;
+use Microsoft\PhpParser\Node\TraitUseClause;
+use Microsoft\PhpParser\ResolvedName;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\Record\ClassRecord;
@@ -48,9 +52,32 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
     public function index(Index $index, SplFileInfo $info, Node $node): void
     {
         assert($node instanceof QualifiedName);
+        
+        $name = null;
+        if ($node->parent instanceof NamespaceUseClause) {
+            /** @var NamespaceUseClause $node */
+            $name = $node->getText();
+        } else if ($node->parent instanceof NamespaceUseGroupClause) {
+            /** @var NamespaceUseClause $useClause */
+            $useClause = $node->getFirstAncestor(NamespaceUseClause::class);
+            $name = $useClause->namespaceName->getText() . $node->getText();
+        } else if($node->parent->parent instanceof TraitUseClause) {
+            $localName = $node->getText();
+            /** @var ResolvedName[] $namespaceImportTable */
+            list($namespaceImportTable, $functionImportTable, $constImportTable) = $node->getImportTablesForCurrentScope();
 
-        $name = $node->getResolvedName() ? $node->getResolvedName() : null;
+            if (isset($namespaceImportTable[$localName])) {
+                $name = (string)$namespaceImportTable[$localName];
+            }
 
+            if(empty($name))
+                $name = $localName;
+        }
+        
+        /** @var QualifiedName $node */
+        if(empty($name))
+            $name = $node->getResolvedName() ? $node->getResolvedName() : null;
+        
         if (null === $name) {
             return;
         }
