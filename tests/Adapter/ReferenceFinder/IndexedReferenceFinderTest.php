@@ -45,7 +45,6 @@ class IndexedReferenceFinderTest extends IntegrationTestCase
 
         $locations = iterator_to_array($locations);
 
-        // dump($locations);
         $sureLocations = array_filter($locations, function (PotentialLocation $location) {
             return $location->isSurely();
         });
