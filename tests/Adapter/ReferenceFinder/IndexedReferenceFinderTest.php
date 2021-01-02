@@ -45,6 +45,7 @@ class IndexedReferenceFinderTest extends IntegrationTestCase
 
         $locations = iterator_to_array($locations);
 
+        // dump($locations);
         $sureLocations = array_filter($locations, function (PotentialLocation $location) {
             return $location->isSurely();
         });
@@ -188,6 +189,21 @@ EOT
 EOT
         ,
             2, 4 // total number is multipled due to implementation recursion
+        ];
+
+        yield 'static properties' => [
+            <<<'EOT'
+// File: project/foobar.php
+<?php class Foobar { public static $staticProp; function f(){ self::$staticProp = 5; } }
+
+// File: project/subject.php
+<?php Foobar::$st<>aticProp = 5;
+
+// File: project/class1.php
+<?php var $b = Foobar::$staticProp;
+EOT
+        ,
+            3
         ];
     }
 
