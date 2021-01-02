@@ -18,6 +18,7 @@ class IndexedNameSearcherTest extends IndexTestCase
         foreach ($searcher->search('Foo') as $result) {
             assert($result instanceof NameSearchResult);
             self::assertEquals('Foobar', $result->name()->head()->__toString());
+            self::assertStringContainsString('Foobar.php', $result->uri()->__toString());
         }
     }
 }
