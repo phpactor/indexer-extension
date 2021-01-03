@@ -20,7 +20,7 @@
         "phpactor/source-code-filesystem": "~0.1.5",
         "phpactor/source-code-filesystem-extension": "^0.1.3",
         "phpactor/text-document": "^1.1.3",
-        "phpactor/worse-reflection": "^0.4",
+        "phpactor/worse-reflection": "^0.4.4",
         "phpactor/worse-reflection-extension": "^0.2.0",
         "thecodingmachine/safe": "^1.0"
     },
