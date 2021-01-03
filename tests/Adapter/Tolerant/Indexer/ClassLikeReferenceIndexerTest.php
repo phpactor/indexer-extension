@@ -86,24 +86,6 @@ class ClassLikeReferenceIndexerTest extends TolerantIndexerTestCase
             [0, 0, 1]
         ];
 
-        yield 'use class (basic)' => [
-            "// File: src/file1.php\n<?php use Bar\Foo;",
-            'Bar\Foo',
-            [0, 0, 1]
-        ];
-
-        yield 'use class (grouped)' => [
-            "// File: src/file1.php\n<?php use Bar\{Foo};",
-            'Bar\Foo',
-            [0, 0, 1]
-        ];
-
-        yield 'use class (grouped multiple)' => [
-            "// File: src/file1.php\n<?php use Bar\{Foo, MyBar};",
-            'Bar\MyBar',
-            [0, 0, 1]
-        ];
-
         yield 'use trait (basic)' => [
             "// File: src/file1.php\n<?php class C { use T; }",
             'T',
@@ -113,7 +95,7 @@ class ClassLikeReferenceIndexerTest extends TolerantIndexerTestCase
         yield 'use trait (namespaced)' => [
             "// File: src/file1.php\n<?php use N\T; class C { use T; }",
             'N\T',
-            [0, 0, 2]
+            [0, 0, 1]
         ];
     }
 }

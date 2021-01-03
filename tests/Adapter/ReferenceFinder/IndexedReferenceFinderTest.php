@@ -19,6 +19,7 @@ class IndexedReferenceFinderTest extends IntegrationTestCase
 
     /**
      * @dataProvider provideClasses
+     * @dataProvider provideTraits
      * @dataProvider provideFunctions
      * @dataProvider provideMembers
      * @dataProvider provideUnknown
@@ -100,6 +101,54 @@ EOT
         ,
             2
         ];
+    }
+
+    
+    /**
+     * @return Generator<mixed>
+     */
+    public function provideTraits(): Generator
+    {
+        yield 'single trait' => [
+            <<<'EOT'
+// File: project/subject.php
+<?php class Foo { use Ba<>r; };
+EOT
+            ,
+            1
+        ];
+
+        yield 'implementation' => [
+            <<<'EOT'
+// File: project/subject.php
+<?php class Foo { use Ba<>r; };
+
+// File: project/other.php
+<?php
+$b = new Foo();
+EOT
+            ,
+            2
+        ];
+
+        // TODO: This fails 
+//         yield 'implementation (method)' => [
+//             <<<'EOT'
+// // File: project/subject.php
+// <?php trait Bar { function f<>unc(); }
+
+// // File: project/foo.php
+// <?php class Foo { use Bar; };
+
+// // File: project/other.php
+
+// <?php
+// $b = new Foo();
+// $b->func();
+// EOT
+//             ,
+//             2
+//         ];
     }
 
     /**

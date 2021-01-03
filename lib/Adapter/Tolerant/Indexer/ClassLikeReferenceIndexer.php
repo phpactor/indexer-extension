@@ -13,6 +13,7 @@ use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
+use Phpactor\WorseReflection\Bridge\TolerantParser\Patch\TolerantQualifiedNameResolver;
 use SplFileInfo;
 
 class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
@@ -53,32 +54,12 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
     {
         assert($node instanceof QualifiedName);
         
-        $name = null;
-        if ($node->parent instanceof NamespaceUseClause) {
-            /** @var NamespaceUseClause $node */
-            $name = $node->getText();
-        } else if ($node->parent instanceof NamespaceUseGroupClause) {
-            /** @var NamespaceUseClause $useClause */
-            $useClause = $node->getFirstAncestor(NamespaceUseClause::class);
-            $name = $useClause->namespaceName->getText() . $node->getText();
-        } else if($node->parent->parent instanceof TraitUseClause) {
-            $localName = $node->getText();
-            /** @var ResolvedName[] $namespaceImportTable */
-            list($namespaceImportTable, $functionImportTable, $constImportTable) = $node->getImportTablesForCurrentScope();
+        $name = 
+            ($node->parent->parent instanceof TraitUseClause) ?
+                TolerantQualifiedNameResolver::getResolvedName($node) :
+                $node->getResolvedName();
 
-            if (isset($namespaceImportTable[$localName])) {
-                $name = (string)$namespaceImportTable[$localName];
-            }
-
-            if(empty($name))
-                $name = $localName;
-        }
-        
-        /** @var QualifiedName $node */
-        if(empty($name))
-            $name = $node->getResolvedName() ? $node->getResolvedName() : null;
-        
-        if (null === $name) {
+        if (empty($name)) {
             return;
         }
 
