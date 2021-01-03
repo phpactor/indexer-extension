@@ -131,7 +131,7 @@ EOT
             2
         ];
 
-        // TODO: This fails 
+        // TODO: This fails
 //         yield 'implementation (method)' => [
 //             <<<'EOT'
 // // File: project/subject.php

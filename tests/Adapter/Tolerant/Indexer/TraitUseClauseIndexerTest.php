@@ -4,7 +4,6 @@ namespace Phpactor\Indexer\Tests\Adapter\Tolerant\Indexer;
 
 use Generator;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\TraitUseClauseIndexer;
-use Phpactor\Indexer\Model\LocationConfidence;
 use Phpactor\Indexer\Tests\Adapter\Tolerant\TolerantIndexerTestCase;
 
 class TraitUseClauseIndexerTest extends TolerantIndexerTestCase

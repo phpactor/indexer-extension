@@ -4,11 +4,8 @@ namespace Phpactor\Indexer\Adapter\Tolerant\Indexer;
 
 use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\Expression\CallExpression;
-use Microsoft\PhpParser\Node\NamespaceUseClause;
-use Microsoft\PhpParser\Node\NamespaceUseGroupClause;
 use Microsoft\PhpParser\Node\QualifiedName;
 use Microsoft\PhpParser\Node\TraitUseClause;
-use Microsoft\PhpParser\ResolvedName;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\Record\ClassRecord;
@@ -54,7 +51,7 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
     {
         assert($node instanceof QualifiedName);
         
-        $name = 
+        $name =
             ($node->parent->parent instanceof TraitUseClause) ?
                 TolerantQualifiedNameResolver::getResolvedName($node) :
                 $node->getResolvedName();

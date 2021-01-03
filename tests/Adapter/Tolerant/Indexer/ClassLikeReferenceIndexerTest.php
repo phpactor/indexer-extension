@@ -6,7 +6,6 @@ use Generator;
 use Phpactor\Indexer\Adapter\Tolerant\Indexer\ClassLikeReferenceIndexer;
 use Phpactor\Indexer\Model\LocationConfidence;
 use Phpactor\Indexer\Tests\Adapter\Tolerant\TolerantIndexerTestCase;
-use function iterator_to_array;
 
 class ClassLikeReferenceIndexerTest extends TolerantIndexerTestCase
 {
