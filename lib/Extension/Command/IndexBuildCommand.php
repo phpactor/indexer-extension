@@ -86,6 +86,12 @@ class IndexBuildCommand extends Command
         $output->writeln('done');
         $output->writeln('<info>Building index:</info>');
         $output->write(PHP_EOL);
+
+        if ($job->size() === 0) {
+            $output->writeln('No files found');
+            return;
+        }
+
         $progress = new ProgressBar($output, $job->size(), 0.001);
         $progress->setFormat(' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%');
         $progress->setPlaceholderFormatterDefinition('memory', function () {
