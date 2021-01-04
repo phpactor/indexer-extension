@@ -4,6 +4,7 @@
 /tests/Assets/workspace
 /composer.lock
 /.php_cs.cache
+/.vscode
 /stubs
 /.phpunit.result.cache
 .phpunit.result.cache

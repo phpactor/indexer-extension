@@ -73,9 +73,27 @@ class ClassLikeReferenceIndexerTest extends TolerantIndexerTestCase
             [0, 0, 1]
         ];
 
+        yield 'class multiple implements 2' => [
+            "// File: src/file1.php\n<?php class Barfoo implements Foo,Bar {};",
+            'Bar',
+            [0, 0, 1]
+        ];
+
         yield 'abstract class implements' => [
             "// File: src/file1.php\n<?php abstract class Barfoo implements Foobar,Barfoo {};",
             'Foobar',
+            [0, 0, 1]
+        ];
+
+        yield 'use trait (basic)' => [
+            "// File: src/file1.php\n<?php class C { use T; }",
+            'T',
+            [0, 0, 1]
+        ];
+
+        yield 'use trait (namespaced)' => [
+            "// File: src/file1.php\n<?php use N\T; class C { use T; }",
+            'N\T',
             [0, 0, 1]
         ];
     }

@@ -19,6 +19,7 @@ class IndexedReferenceFinderTest extends IntegrationTestCase
 
     /**
      * @dataProvider provideClasses
+     * @dataProvider provideTraits
      * @dataProvider provideFunctions
      * @dataProvider provideMembers
      * @dataProvider provideUnknown
@@ -98,6 +99,35 @@ class Bar extends Foo {}
 Bar::bar();
 EOT
         ,
+            2
+        ];
+    }
+
+    
+    /**
+     * @return Generator<mixed>
+     */
+    public function provideTraits(): Generator
+    {
+        yield 'single trait' => [
+            <<<'EOT'
+// File: project/subject.php
+<?php class Foo { use Ba<>r; };
+EOT
+            ,
+            1
+        ];
+
+        yield 'implementation' => [
+            <<<'EOT'
+// File: project/subject.php
+<?php class Foo { use Ba<>r; };
+
+// File: project/other.php
+<?php
+$b = new Foo();
+EOT
+            ,
             2
         ];
     }
@@ -188,6 +218,21 @@ EOT
 EOT
         ,
             2, 4 // total number is multipled due to implementation recursion
+        ];
+
+        yield 'static properties' => [
+            <<<'EOT'
+// File: project/foobar.php
+<?php class Foobar { public static $staticProp; function f(){ self::$staticProp = 5; } }
+
+// File: project/subject.php
+<?php Foobar::$st<>aticProp = 5;
+
+// File: project/class1.php
+<?php var $b = Foobar::$staticProp;
+EOT
+        ,
+            3
         ];
     }
 

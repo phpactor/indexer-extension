@@ -5,10 +5,12 @@ namespace Phpactor\Indexer\Adapter\Tolerant\Indexer;
 use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\Expression\CallExpression;
 use Microsoft\PhpParser\Node\QualifiedName;
+use Microsoft\PhpParser\Node\TraitUseClause;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
+use Phpactor\WorseReflection\Bridge\TolerantParser\Patch\TolerantQualifiedNameResolver;
 use SplFileInfo;
 
 class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
@@ -48,10 +50,13 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
     public function index(Index $index, SplFileInfo $info, Node $node): void
     {
         assert($node instanceof QualifiedName);
+        
+        $name =
+            $node->parent->parent instanceof TraitUseClause ?
+                TolerantQualifiedNameResolver::getResolvedName($node) :
+                $node->getResolvedName();
 
-        $name = $node->getResolvedName() ? $node->getResolvedName() : null;
-
-        if (null === $name) {
+        if (empty($name)) {
             return;
         }
 
