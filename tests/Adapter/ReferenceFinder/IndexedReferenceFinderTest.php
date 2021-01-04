@@ -130,25 +130,6 @@ EOT
             ,
             2
         ];
-
-        // TODO: This fails
-//         yield 'implementation (method)' => [
-//             <<<'EOT'
-// // File: project/subject.php
-// <?php trait Bar { function f<>unc(); }
-
-// // File: project/foo.php
-// <?php class Foo { use Bar; };
-
-// // File: project/other.php
-
-// <?php
-// $b = new Foo();
-// $b->func();
-// EOT
-//             ,
-//             2
-//         ];
     }
 
     /**
