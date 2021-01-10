@@ -30,7 +30,7 @@
         "phpactor/console-extension": "^0.1.2",
         "phpactor/rpc-extension": "^0.2.0",
         "phpactor/test-utils": "^1.0.2",
-        "phpbench/phpbench": "^1.0@dev",
+        "phpbench/phpbench": "^1.0.0-alpha5",
         "phpstan/phpstan": "~0.12.0",
         "phpunit/phpunit": "^9.0",
         "symfony/var-dumper": "^5.1",
