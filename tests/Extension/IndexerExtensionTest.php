@@ -65,7 +65,7 @@ class IndexerExtensionTest extends IntegrationTestCase
         $request = Request::fromNameAndParameters('index', []);
         $response = $handler->handle($request);
         self::assertInstanceOf(EchoResponse::class, $response);
-        self::assertRegExp('{Indexed [0-9]+ files}', $response->message());
+        self::assertMatchesRegularExpression('{Indexed [0-9]+ files}', $response->message());
     }
 
     public function testThrowsExceptionIfEnabledWatcherDoesntExist()
