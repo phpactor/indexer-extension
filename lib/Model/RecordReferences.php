@@ -43,11 +43,6 @@ class RecordReferences implements IteratorAggregate
         }));
     }
 
-    private function add(RecordReference $reference): void
-    {
-        $this->references[] = $reference;
-    }
-
     /**
      * @return Iterator<int, RecordReference>
      */
@@ -74,5 +69,10 @@ class RecordReferences implements IteratorAggregate
     public function file(): FileRecord
     {
         return $this->file;
+    }
+
+    private function add(RecordReference $reference): void
+    {
+        $this->references[] = $reference;
     }
 }

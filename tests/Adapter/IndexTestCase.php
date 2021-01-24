@@ -7,6 +7,11 @@ use function Safe\file_get_contents;
 
 abstract class IndexTestCase extends IntegrationTestCase
 {
+    protected function setUp(): void
+    {
+        $this->workspace()->reset();
+        $this->workspace()->loadManifest(file_get_contents(__DIR__ . '/Manifest/buildIndex.php.test'));
+    }
     public function testBuild(): void
     {
         $agent = $this->indexAgent();
@@ -16,11 +21,5 @@ abstract class IndexTestCase extends IntegrationTestCase
         );
 
         self::assertCount(2, $references);
-    }
-
-    protected function setUp(): void
-    {
-        $this->workspace()->reset();
-        $this->workspace()->loadManifest(file_get_contents(__DIR__ . '/Manifest/buildIndex.php.test'));
     }
 }

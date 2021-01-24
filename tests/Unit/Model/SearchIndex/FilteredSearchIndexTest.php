@@ -2,7 +2,6 @@
 
 namespace Phpactor\Indexer\Tests\Unit\Model\SearchIndex;
 
-use PHPUnit\Framework\TestCase;
 use Phpactor\Indexer\Model\Query\Criteria\ShortNameBeginsWith;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;

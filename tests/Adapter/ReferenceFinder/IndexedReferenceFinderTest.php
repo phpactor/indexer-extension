@@ -61,43 +61,43 @@ class IndexedReferenceFinderTest extends IntegrationTestCase
     {
         yield 'single class' => [
             <<<'EOT'
-// File: project/subject.php
-<?php new Fo<>o();
-EOT
+                // File: project/subject.php
+                <?php new Fo<>o();
+                EOT
         ,
             1
         ];
 
         yield 'class references' => [
             <<<'EOT'
-// File: project/subject.php
-<?php class Fo<>o {}
-// File: project/class1.php
-<?php
+                // File: project/subject.php
+                <?php class Fo<>o {}
+                // File: project/class1.php
+                <?php
 
-new Foo();
-// File: project/class2.php
-<?php
+                new Foo();
+                // File: project/class2.php
+                <?php
 
-Foo::bar();
-EOT
+                Foo::bar();
+                EOT
         ,
             2
         ];
 
         yield 'class deep references' => [
             <<<'EOT'
-// File: project/subject.php
-<?php class Fo<>o {}
-// File: project/class1.php
-<?php
+                // File: project/subject.php
+                <?php class Fo<>o {}
+                // File: project/class1.php
+                <?php
 
-class Bar extends Foo {}
-// File: project/class2.php
-<?php
+                class Bar extends Foo {}
+                // File: project/class2.php
+                <?php
 
-Bar::bar();
-EOT
+                Bar::bar();
+                EOT
         ,
             2
         ];
@@ -111,22 +111,22 @@ EOT
     {
         yield 'single trait' => [
             <<<'EOT'
-// File: project/subject.php
-<?php class Foo { use Ba<>r; };
-EOT
+                // File: project/subject.php
+                <?php class Foo { use Ba<>r; };
+                EOT
             ,
             1
         ];
 
         yield 'implementation' => [
             <<<'EOT'
-// File: project/subject.php
-<?php class Foo { use Ba<>r; };
+                // File: project/subject.php
+                <?php class Foo { use Ba<>r; };
 
-// File: project/other.php
-<?php
-$b = new Foo();
-EOT
+                // File: project/other.php
+                <?php
+                $b = new Foo();
+                EOT
             ,
             2
         ];
@@ -139,17 +139,17 @@ EOT
     {
         yield 'function references' => [
             <<<'EOT'
-// File: project/subject.php
-<?php function he<>llo_world() {}
-// File: project/class1.php
-<?php
+                // File: project/subject.php
+                <?php function he<>llo_world() {}
+                // File: project/class1.php
+                <?php
 
-hello_world();
-// File: project/class2.php
-<?php
+                hello_world();
+                // File: project/class2.php
+                <?php
 
-hello_world();
-EOT
+                hello_world();
+                EOT
         ,
             2
         ];
@@ -162,75 +162,75 @@ EOT
     {
         yield 'static members' => [
             <<<'EOT'
-// File: project/subject.php
-<?php Foobar::b<>ar() {}
-// File: project/class1.php
-<?php Foobar::bar() {}
-// File: project/class2.php
-<?php
-<?php Foobar::bar() {}
-EOT
+                // File: project/subject.php
+                <?php Foobar::b<>ar() {}
+                // File: project/class1.php
+                <?php Foobar::bar() {}
+                // File: project/class2.php
+                <?php
+                <?php Foobar::bar() {}
+                EOT
         ,
             3
         ];
 
         yield 'namespaced static members' => [
             <<<'EOT'
-// File: project/subject.php
-<?php namespace Bar; Foobar::b<>ar() {}
-// File: project/class1.php
-<?php Bar\Foobar::bar() {}
-// File: project/class2.php
-<?php
-<?php use Bar\Foobar; Foobar::bar() {}
-EOT
+                // File: project/subject.php
+                <?php namespace Bar; Foobar::b<>ar() {}
+                // File: project/class1.php
+                <?php Bar\Foobar::bar() {}
+                // File: project/class2.php
+                <?php
+                <?php use Bar\Foobar; Foobar::bar() {}
+                EOT
         ,
             3
         ];
 
         yield 'instance members' => [
             <<<'EOT'
-// File: project/subject.php
-<?php namespace Bar; $foo = new Foobar(); $foo->b<>ar();
+                // File: project/subject.php
+                <?php namespace Bar; $foo = new Foobar(); $foo->b<>ar();
 
-// File: project/class1.php
-<?php namespace Bar; class Foobar { public function bar() {}}
+                // File: project/class1.php
+                <?php namespace Bar; class Foobar { public function bar() {}}
 
-EOT
+                EOT
         ,
             1, 1
         ];
 
         yield 'deep members' => [
             <<<'EOT'
-// File: project/subject.php
-<?php namespace Bar; $foo = new Foobar(); $foo->b<>ar();
+                // File: project/subject.php
+                <?php namespace Bar; $foo = new Foobar(); $foo->b<>ar();
 
-// File: project/subject1.php
-<?php namespace Bar; $foo = new Barfoo(); $foo->bar();
+                // File: project/subject1.php
+                <?php namespace Bar; $foo = new Barfoo(); $foo->bar();
 
-// File: project/class1.php
-<?php namespace Bar; class Foobar extends Barfoo { public function bar() {}}
+                // File: project/class1.php
+                <?php namespace Bar; class Foobar extends Barfoo { public function bar() {}}
 
-// File: project/class2.php
-<?php namespace Bar; class Barfoo { public function bar() {}}
+                // File: project/class2.php
+                <?php namespace Bar; class Barfoo { public function bar() {}}
 
-EOT
+                EOT
         ,
             2, 4 // total number is multipled due to implementation recursion
         ];
 
         yield 'static properties' => [
             <<<'EOT'
-// File: project/foobar.php
-<?php class Foobar { public static $staticProp; function f(){ self::$staticProp = 5; } }
+                // File: project/foobar.php
+                <?php class Foobar { public static $staticProp; function f(){ self::$staticProp = 5; } }
 
-// File: project/subject.php
-<?php Foobar::$st<>aticProp = 5;
+                // File: project/subject.php
+                <?php Foobar::$st<>aticProp = 5;
 
-// File: project/class1.php
-<?php var $b = Foobar::$staticProp;
-EOT
+                // File: project/class1.php
+                <?php var $b = Foobar::$staticProp;
+                EOT
         ,
             3
         ];
@@ -243,9 +243,9 @@ EOT
     {
         yield 'variable' => [
             <<<'EOT'
-// File: project/subject.php
-<?php $a<>sd;
-EOT
+                // File: project/subject.php
+                <?php $a<>sd;
+                EOT
         ,
             0
         ];

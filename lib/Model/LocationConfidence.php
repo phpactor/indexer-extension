@@ -25,6 +25,11 @@ class LocationConfidence
         $this->confidence = $confidence;
     }
 
+    public function __toString(): string
+    {
+        return $this->confidence;
+    }
+
     public static function maybe(Location $location): self
     {
         return new self($location, self::CONFIDENCE_MAYBE);
@@ -58,10 +63,5 @@ class LocationConfidence
     public function location(): Location
     {
         return $this->location;
-    }
-
-    public function __toString(): string
-    {
-        return $this->confidence;
     }
 }

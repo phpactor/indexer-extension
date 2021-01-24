@@ -3,7 +3,6 @@
 namespace Phpactor\Indexer\Tests\Unit\Model\SearchIndex;
 
 use Generator;
-use PHPUnit\Framework\TestCase;
 use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryIndex;
 use Phpactor\Indexer\Adapter\Php\InMemory\InMemorySearchIndex;
 use Phpactor\Indexer\Model\Query\Criteria\ShortNameBeginsWith;

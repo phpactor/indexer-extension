@@ -13,36 +13,20 @@ use Phpactor\Extension\Logger\LoggingExtension;
 use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
 use Phpactor\Extension\Console\ConsoleExtension;
 use Phpactor\Container\PhpactorContainer;
-use Phpactor\Filesystem\Adapter\Simple\SimpleFileListProvider;
-use Phpactor\Filesystem\Domain\FilePath;
-use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
-use Phpactor\Indexer\Adapter\Php\Serialized\SerializedIndex;
-use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Adapter\Worse\WorseRecordReferenceEnhancer;
 use Phpactor\Indexer\Extension\IndexerExtension;
 use Phpactor\Container\Container;
-use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
-use Phpactor\Filesystem\Domain\MappedFilesystemRegistry;
 use Phpactor\Indexer\IndexAgent;
 use Phpactor\Indexer\IndexAgentBuilder;
-use Phpactor\Indexer\Model\FileListProvider;
 use Phpactor\Indexer\Model\QueryClient;
-use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Model\TestIndexAgent;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\TestUtils\Workspace;
-use Phpactor\Indexer\Adapter\Filesystem\FilesystemFileListProvider;
-use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryIndex;
-use Phpactor\Indexer\Model\FileList;
-use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryRepository;
 use Phpactor\Indexer\Model\Index;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Phpactor\WorseReflection\Core\SourceCodeLocator\StubSourceLocator;
 use Phpactor\WorseReflection\ReflectorBuilder;
-use Phpactor\Indexer\Adapter\Worse\WorseIndexBuilder;
-use Phpactor\Indexer\Model\IndexBuilder;
 use Symfony\Component\Process\Process;
 
 class IntegrationTestCase extends TestCase
@@ -115,7 +99,8 @@ class IntegrationTestCase extends TestCase
             return $container[$key];
         }
 
-        $container[$key] = PhpactorContainer::fromExtensions([
+        $container[$key] = PhpactorContainer::fromExtensions(
+            [
             ConsoleExtension::class,
             IndexerExtension::class,
             FilePathResolverExtension::class,
@@ -126,8 +111,8 @@ class IntegrationTestCase extends TestCase
             RpcExtension::class,
             ComposerAutoloaderExtension::class,
             ReferenceFinderExtension::class,
-        ], 
-        array_merge([
+        ],
+            array_merge([
             FilePathResolverExtension::PARAM_APPLICATION_ROOT => __DIR__ . '/../',
             FilePathResolverExtension::PARAM_PROJECT_ROOT => $this->workspace()->path(),
             IndexerExtension::PARAM_INDEX_PATH => $this->workspace()->path('/cache'),
@@ -143,7 +128,8 @@ class IntegrationTestCase extends TestCase
     private function createLogger(): LoggerInterface
     {
         return new class extends AbstractLogger {
-            public function log($level, $message, array $context = []) {
+            public function log($level, $message, array $context = []): void
+            {
                 fwrite(STDOUT, sprintf("[%s] %s\n", $level, $message));
             }
         };

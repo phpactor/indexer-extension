@@ -121,7 +121,7 @@ class IndexBuildCommand extends Command
         Loop::run(function () use ($output) {
             $process = yield $this->watcher->watch();
 
-            Loop::onSignal(SIGINT, function () use ($output, $process) {
+            Loop::onSignal(SIGINT, function () use ($output, $process): void {
                 $output->write('Shutting down watchers...');
                 $process->stop();
                 $output->writeln('done');

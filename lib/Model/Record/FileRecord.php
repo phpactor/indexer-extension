@@ -10,9 +10,8 @@ use SplFileInfo;
 
 class FileRecord implements HasPath, Record
 {
-    public const RECORD_TYPE = 'file';
-
     use HasPathTrait;
+    public const RECORD_TYPE = 'file';
 
     /**
      * @var array<array{string,string,int}>
@@ -22,6 +21,15 @@ class FileRecord implements HasPath, Record
     public function __construct(string $filePath)
     {
         $this->setFilePath($filePath);
+    }
+
+    public function __wakeup(): void
+    {
+        if (null === $this->filePath) {
+            throw new CorruptedRecord(sprintf(
+                'Record was corrupted'
+            ));
+        }
     }
 
     /**
@@ -64,15 +72,6 @@ class FileRecord implements HasPath, Record
         return new RecordReferences($this, array_map(function (array $reference) {
             return new RecordReference(...$reference);
         }, $this->references));
-    }
-
-    public function __wakeup(): void
-    {
-        if (null === $this->filePath) {
-            throw new CorruptedRecord(sprintf(
-                'Record was corrupted'
-            ));
-        }
     }
 
     public function removeReferencesToRecordType(string $type): self

@@ -2,6 +2,8 @@
 
 namespace Phpactor\Indexer\Model;
 
+use RuntimeException;
+
 interface IndexAccess
 {
     /**
@@ -11,7 +13,7 @@ interface IndexAccess
      * If the record is of an unknown type (e.g. not ClassRecord or FunctionRecord)
      * then an exception will be thrown.
      *
-     * @throws \RuntimeException
+     * @throws RuntimeException
      *
      * @template TRecord of \Phpactor\Indexer\Model\Record
      * @param TRecord $record

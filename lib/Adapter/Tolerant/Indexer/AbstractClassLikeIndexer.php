@@ -16,6 +16,9 @@ use SplFileInfo;
 
 abstract class AbstractClassLikeIndexer implements TolerantIndexer
 {
+    public function beforeParse(Index $index, SplFileInfo $info): void
+    {
+    }
     protected function removeImplementations(Index $index, ClassRecord $record): void
     {
         foreach ($record->implements() as $implementedClass) {
@@ -68,9 +71,5 @@ abstract class AbstractClassLikeIndexer implements TolerantIndexer
         $record->setType($type);
 
         return $record;
-    }
-
-    public function beforeParse(Index $index, SplFileInfo $info): void
-    {
     }
 }
