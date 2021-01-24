@@ -7,6 +7,11 @@ use Phpactor\Indexer\Model\Record\FunctionRecord;
 
 class InMemoryRepository
 {
+
+    /**
+     * @var int
+     */
+    public $lastUpdate = 0;
     /**
      * @var array<ClassRecord>
      */
@@ -16,11 +21,6 @@ class InMemoryRepository
      * @var array<FunctionRecord>
      */
     private $functions = [];
-
-    /**
-     * @var int
-     */
-    public $lastUpdate = 0;
 
     public function putClass(ClassRecord $class): void
     {

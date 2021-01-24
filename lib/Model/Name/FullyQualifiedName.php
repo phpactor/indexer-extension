@@ -14,14 +14,14 @@ class FullyQualifiedName
         $this->fqn = $fqn;
     }
 
-    public static function fromString(string $fqn): self
-    {
-        return new self($fqn);
-    }
-
     public function __toString(): string
     {
         return $this->fqn;
+    }
+
+    public static function fromString(string $fqn): self
+    {
+        return new self($fqn);
     }
 
     public function head(): self

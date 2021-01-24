@@ -1,6 +1,11 @@
 parameters:
 	ignoreErrors:
 		-
+			message: "#^Property Phpactor\\\\Indexer\\\\Adapter\\\\Php\\\\FileSearchIndex\\:\\:\\$subjects \\(array\\<array\\(string, string\\)\\>\\) does not accept array\\<int, array\\<int, string\\>&nonEmpty\\>\\.$#"
+			count: 1
+			path: lib/Adapter/Php/FileSearchIndex.php
+
+		-
 			message: "#^Method Phpactor\\\\Indexer\\\\Adapter\\\\Php\\\\Serialized\\\\FileRepository\\:\\:get\\(\\) should return TRecord of Phpactor\\\\Indexer\\\\Model\\\\Record\\|null but returns Phpactor\\\\Indexer\\\\Model\\\\Record\\.$#"
 			count: 1
 			path: lib/Adapter/Php/Serialized/FileRepository.php

@@ -12,6 +12,11 @@ use function Safe\file_get_contents;
 
 abstract class IndexBuilderTestCase extends IntegrationTestCase
 {
+    protected function setUp(): void
+    {
+        $this->workspace()->reset();
+        $this->workspace()->loadManifest(file_get_contents(__DIR__ . '/Manifest/buildIndex.php.test'));
+    }
     /**
      * @dataProvider provideIndexesClassLike
      * @dataProvider provideIndexesReferences
@@ -35,7 +40,7 @@ abstract class IndexBuilderTestCase extends IntegrationTestCase
         yield 'class' => [
             "// File: project/test.php\n<?php class ThisClass {}",
             'ThisClass',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 self::assertInstanceOf(ClassRecord::class, $record);
                 self::assertEquals($this->workspace()->path('project/test.php'), $record->filePath());
                 self::assertEquals('ThisClass', $record->fqn());
@@ -47,7 +52,7 @@ abstract class IndexBuilderTestCase extends IntegrationTestCase
         yield 'namespaced class' => [
             "// File: project/test.php\n<?php namespace Foobar { class ThisClass {} }",
             'Foobar\\ThisClass',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 self::assertEquals('Foobar\\ThisClass', $record->fqn());
             }
         ];
@@ -55,7 +60,7 @@ abstract class IndexBuilderTestCase extends IntegrationTestCase
         yield 'extended class has implementations' => [
             "// File: project/test.php\n<?php class Foobar {} class Barfoo extends Foobar {}",
             'Foobar',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 self::assertCount(1, $record->implementations());
             }
         ];
@@ -63,22 +68,22 @@ abstract class IndexBuilderTestCase extends IntegrationTestCase
         yield 'namespaced extended abstract class has implementations' => [
             "// File: project/test.php\n<?php namespace Foobar; abstract class Foobar {} class Barfoo extends Foobar {}",
             'Foobar\Foobar',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 self::assertCount(1, $record->implementations());
             }
         ];
 
         yield 'interface referenced by alias from another namespace' => [
             <<<'EOT'
-// File: project/test.php
-<?php namespace Foobar; interface Barfoo {} 
-// File: project/test2.php
-<?php namespace Barfoo;
-use Foobar\Barfoo as BarBar;
-class Barfoo implements BarBar {}
-EOT
+                // File: project/test.php
+                <?php namespace Foobar; interface Barfoo {} 
+                // File: project/test2.php
+                <?php namespace Barfoo;
+                use Foobar\Barfoo as BarBar;
+                class Barfoo implements BarBar {}
+                EOT
             , 'Foobar\Barfoo',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 self::assertCount(1, $record->implementations());
             }
         ];
@@ -86,7 +91,7 @@ EOT
         yield 'class implements' => [
             "// File: project/test.php\n<?php class Foobar {} class Barfoo extends Foobar {}",
             'Barfoo',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 self::assertCount(1, $record->implements());
             }
         ];
@@ -94,7 +99,7 @@ EOT
         yield 'interface has class implementation' => [
             "// File: project/test.php\n<?php interface Foobar {} class ThisClass implements Foobar {}",
             'Foobar',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 self::assertCount(1, $record->implementations());
             }
         ];
@@ -102,7 +107,7 @@ EOT
         yield 'namespaced interface has class implementation' => [
             "// File: project/test.php\n<?php namespace Foobar; interface Foobar {} class ThisClass implements Foobar {}",
             'Foobar\Foobar',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 self::assertCount(1, $record->implementations());
             }
         ];
@@ -110,7 +115,7 @@ EOT
         yield 'interface implements' => [
             "// File: project/test.php\n<?php interface Foobar {} interface Barfoo extends Foobar {}",
             'Foobar',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 self::assertCount(1, $record->implementations());
             }
         ];
@@ -119,7 +124,7 @@ EOT
         yield 'namespaced interface implements' => [
             "// File: project/test.php\n<?php namespace Foobar; interface Foobar {} interface Barfoo extends Foobar {}",
             'Foobar\Foobar',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 self::assertCount(1, $record->implementations());
             }
         ];
@@ -127,7 +132,7 @@ EOT
         yield 'interface has class implementations' => [
             "// File: project/test.php\n<?php interface Foobar {} class ThisClass implements Foobar {} class ThatClass implements Foobar {}",
             'Foobar',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 self::assertCount(2, $record->implementations());
             }
         ];
@@ -135,7 +140,7 @@ EOT
         yield 'interface' => [
             "// File: project/test.php\n<?php interface ThisInterface {}",
             'ThisInterface',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 self::assertInstanceOf(ClassRecord::class, $record);
                 self::assertEquals($this->workspace()->path('project/test.php'), $record->filePath());
                 self::assertEquals('ThisInterface', $record->fqn());
@@ -147,7 +152,7 @@ EOT
         yield 'namespaced interface' => [
             "// File: project/test.php\n<?php namespace Foobar {interface ThisInterface {}}",
             'Foobar\\ThisInterface',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 self::assertEquals('Foobar\\ThisInterface', $record->fqn());
             }
         ];
@@ -155,7 +160,7 @@ EOT
         yield 'trait' => [
             "// File: project/test.php\n<?php trait ThisTrait {}",
             'ThisTrait',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 self::assertInstanceOf(ClassRecord::class, $record);
                 self::assertEquals($this->workspace()->path('project/test.php'), $record->filePath());
                 self::assertEquals('ThisTrait', $record->fqn());
@@ -166,24 +171,24 @@ EOT
 
         yield 'class uses trait' => [
             <<<'EOT'
-// File: project/test1.php
-<?php
-namespace Foobar;
+                // File: project/test1.php
+                <?php
+                namespace Foobar;
 
-trait ThisIsTrait {}
-// File: project/test2.php
-<?php
-namespace Barfoo;
+                trait ThisIsTrait {}
+                // File: project/test2.php
+                <?php
+                namespace Barfoo;
 
-use Foobar\ThisIsTrait;
+                use Foobar\ThisIsTrait;
 
-class Hoo
-{
-    use ThisIsTrait;
-}
-EOT
+                class Hoo
+                {
+                    use ThisIsTrait;
+                }
+                EOT
             , 'Foobar\ThisIsTrait',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 self::assertCount(1, $record->implementations());
             }
         ];
@@ -196,43 +201,43 @@ EOT
     {
         yield 'single reference' => [
             <<<'EOT'
-// File: project/test1.php
-<?php
-class Foobar
-{
-}
-// File: project/test2.php
-<?php
-new Foobar();
-EOT
+                // File: project/test1.php
+                <?php
+                class Foobar
+                {
+                }
+                // File: project/test2.php
+                <?php
+                new Foobar();
+                EOT
             , 'Foobar',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 self::assertCount(1, $record->references());
             }
         ];
 
         yield 'multiple references' => [
             <<<'EOT'
-// File: project/test1.php
-<?php
-class Foobar
-{
-}
+                // File: project/test1.php
+                <?php
+                class Foobar
+                {
+                }
 
-// File: project/test2.php
-<?php
-new Foobar();
-new Foobar();
-new Foobar();
+                // File: project/test2.php
+                <?php
+                new Foobar();
+                new Foobar();
+                new Foobar();
 
-// File: project/test3.php
-<?php
-new Foobar();
-new Foobar();
-new Foobar();
-EOT
+                // File: project/test3.php
+                <?php
+                new Foobar();
+                new Foobar();
+                new Foobar();
+                EOT
             , 'Foobar',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 // there is one file reference per class
                 self::assertCount(2, $record->references());
             }
@@ -240,28 +245,28 @@ EOT
 
         yield 'incoming namespaced references' => [
             <<<'EOT'
-// File: project/test1.php
-<?php
+                // File: project/test1.php
+                <?php
 
-namespace Foobar;
+                namespace Foobar;
 
-class Foobar
-{
-}
+                class Foobar
+                {
+                }
 
-// File: project/test2.php
-<?php
+                // File: project/test2.php
+                <?php
 
-new Foobar\Foobar();
+                new Foobar\Foobar();
 
-// File: project/test3.php
-<?php
+                // File: project/test3.php
+                <?php
 
-use Foobar\Foobar;
-new Foobar();
-EOT
+                use Foobar\Foobar;
+                new Foobar();
+                EOT
             , 'Foobar\Foobar',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 // there is one file reference per class
                 self::assertCount(2, $record->references());
             }
@@ -269,33 +274,33 @@ EOT
 
         yield 'outgoing namespaced references' => [
             <<<'EOT'
-// File: project/test1.php
-<?php
+                // File: project/test1.php
+                <?php
 
-namespace Foobar;
+                namespace Foobar;
 
-use Test\Something;
+                use Test\Something;
 
-class Foobar
-{
-    public function something()
-    {
-        new Something();
-    }
-}
+                class Foobar
+                {
+                    public function something()
+                    {
+                        new Something();
+                    }
+                }
 
-// File: project/test2.php
-<?php
+                // File: project/test2.php
+                <?php
 
-namespace Test;
+                namespace Test;
 
-class Something
-{
-}
+                class Something
+                {
+                }
 
-EOT
+                EOT
             , 'Test\Something',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 // there is one file reference per class
                 self::assertCount(1, $record->references());
             }
@@ -303,18 +308,18 @@ EOT
 
         yield 'static call reference' => [
             <<<'EOT'
-// File: project/test1.php
-<?php
-class Foobar
-{
-}
+                // File: project/test1.php
+                <?php
+                class Foobar
+                {
+                }
 
-// File: project/test2.php
-<?php
-Foobar::foobar();
-EOT
+                // File: project/test2.php
+                <?php
+                Foobar::foobar();
+                EOT
             , 'Foobar',
-            function (ClassRecord $record) {
+            function (ClassRecord $record): void {
                 // there is one file reference per class
                 self::assertCount(1, $record->references());
             }
@@ -344,15 +349,15 @@ EOT
     {
         yield 'function' => [
             <<<'EOT'
-// File: project/test1.php
-<?php function foobar();
+                // File: project/test1.php
+                <?php function foobar();
 
-// File: project/test2.php
-<?php
-foobar();
-EOT
+                // File: project/test2.php
+                <?php
+                foobar();
+                EOT
             , 'foobar',
-            function (FunctionRecord $record) {
+            function (FunctionRecord $record): void {
                 // there is one file reference per class
                 self::assertCount(1, $record->references());
             }
@@ -360,17 +365,17 @@ EOT
 
         yield 'namespaced function' => [
             <<<'EOT'
-// File: project/test1.php
-<?php 
-namespace Barfoos;
-foobar();
+                // File: project/test1.php
+                <?php 
+                namespace Barfoos;
+                foobar();
 
-// File: project/test2.php
-<?php
-Barfoos\foobar();
-EOT
+                // File: project/test2.php
+                <?php
+                Barfoos\foobar();
+                EOT
             , 'Barfoos\foobar',
-            function (FunctionRecord $record) {
+            function (FunctionRecord $record): void {
                 // there is one file reference per class
                 self::assertCount(1, $record->references());
                 self::assertNull($record->filePath());
@@ -379,18 +384,18 @@ EOT
 
         yield 'declaration is indexed' => [
             <<<'EOT'
-// File: project/test1.php
-<?php 
-namespace Barfoos;
+                // File: project/test1.php
+                <?php 
+                namespace Barfoos;
 
-function foobar() {};
+                function foobar() {};
 
-// File: project/test2.php
-<?php
-Barfoos\foobar();
-EOT
+                // File: project/test2.php
+                <?php
+                Barfoos\foobar();
+                EOT
             , 'Barfoos\foobar',
-            function (FunctionRecord $record) {
+            function (FunctionRecord $record): void {
                 self::assertCount(1, $record->references());
                 self::assertEquals($this->workspace()->path('project/test1.php'), $record->filePath());
             }
@@ -441,12 +446,12 @@ EOT
         $this->workspace()->put(
             'project/Foobar.php',
             <<<'EOT'
-<?php
+                <?php
 
-class Foobar extends AbstractClass
-{
-}
-EOT
+                class Foobar extends AbstractClass
+                {
+                }
+                EOT
         );
 
         $this->buildIndex($index);
@@ -471,12 +476,12 @@ EOT
         $this->workspace()->put(
             'project/AbstractClassImplementation1.php',
             <<<'EOT'
-<?php
+                <?php
 
-class AbstractClassImplementation1
-{
-}
-EOT
+                class AbstractClassImplementation1
+                {
+                }
+                EOT
         );
 
         $index = $this->buildIndex($index);
@@ -493,22 +498,22 @@ EOT
         $this->workspace()->put(
             'project/0000.php',
             <<<'EOT'
-<?php
+                <?php
 
-class Foobar extends AbstractClass
-{
-}
-EOT
+                class Foobar extends AbstractClass
+                {
+                }
+                EOT
         );
         $this->workspace()->put(
             'project/ZZZZ.php',
             <<<'EOT'
-<?php
+                <?php
 
-class ZedFoobar extends AbstractClass
-{
-}
-EOT
+                class ZedFoobar extends AbstractClass
+                {
+                }
+                EOT
         );
 
         $index = $this->buildIndex();
@@ -521,12 +526,12 @@ EOT
         $this->workspace()->put(
             'project/0000.php',
             <<<'EOT'
-<?php
+                <?php
 
-class Foobar
-{
-}
-EOT
+                class Foobar
+                {
+                }
+                EOT
         );
         usleep(50);
 
@@ -537,11 +542,5 @@ EOT
         );
 
         self::assertCount(3, $references);
-    }
-
-    protected function setUp(): void
-    {
-        $this->workspace()->reset();
-        $this->workspace()->loadManifest(file_get_contents(__DIR__ . '/Manifest/buildIndex.php.test'));
     }
 }

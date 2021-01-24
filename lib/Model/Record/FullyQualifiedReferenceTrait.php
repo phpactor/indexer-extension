@@ -23,6 +23,15 @@ trait FullyQualifiedReferenceTrait
         $this->fqn = $fqn;
     }
 
+    public function __wakeup(): void
+    {
+        if (null === $this->fqn) {
+            throw new CorruptedRecord(sprintf(
+                'Record was corrupted'
+            ));
+        }
+    }
+
     public function setStart(ByteOffset $start): self
     {
         $this->start = $start->toInt();
@@ -42,15 +51,6 @@ trait FullyQualifiedReferenceTrait
     public function identifier(): string
     {
         return $this->fqn;
-    }
-
-    public function __wakeup(): void
-    {
-        if (null === $this->fqn) {
-            throw new CorruptedRecord(sprintf(
-                'Record was corrupted'
-            ));
-        }
     }
 
     public function shortName(): string

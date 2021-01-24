@@ -2,21 +2,19 @@
 
 namespace Phpactor\Indexer\Tests\Unit\Adapter\Php\Serialized;
 
-use PHPUnit\Framework\TestCase;
 use Phpactor\Indexer\Adapter\Php\Serialized\FileRepository;
 use Phpactor\Indexer\Model\Exception\CorruptedRecord;
 use Phpactor\Indexer\Model\RecordSerializer;
 use Phpactor\Indexer\Model\RecordSerializer\PhpSerializer;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
-use Phpactor\Name\FullyQualifiedName;
 use Prophecy\Argument;
 use Psr\Log\LoggerInterface;
 
 class FileRepositoryTest extends IntegrationTestCase
 {
     use \Prophecy\PhpUnit\ProphecyTrait;
-    public function testResetRemovesTheIndex()
+    public function testResetRemovesTheIndex(): void
     {
         $repo = $this->createFileRepository();
         $this->workspace()->put('index/something.cache', 'foo');

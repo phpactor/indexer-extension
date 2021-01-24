@@ -115,15 +115,6 @@ class FileRepository
         return $deserialized;
     }
 
-    private function ensureDirectoryExists(string $path): void
-    {
-        if (file_exists($path)) {
-            return;
-        }
-
-        mkdir($path, 0777, true);
-    }
-
     public function putTimestamp(int $time = null): void
     {
         $time = $time ?? time();
@@ -137,36 +128,10 @@ class FileRepository
         return $this->lastUpdate;
     }
 
-    private function initializeLastUpdate(): void
-    {
-        $this->lastUpdate = file_exists($this->timestampPath()) ?
-            (int)file_get_contents($this->timestampPath()) :
-            0
-        ;
-    }
-
-    private function timestampPath(): string
-    {
-        return $this->path . '/timestamp';
-    }
-
     public function reset(): void
     {
         Filesystem::removeDir($this->path);
         $this->putTimestamp(0);
-    }
-
-    private function pathFor(Record $record): string
-    {
-        $hash = md5($record->identifier());
-        return sprintf(
-            '%s/%s_%s/%s/%s.cache',
-            $this->path,
-            $record->recordType(),
-            substr($hash, 0, 1),
-            substr($hash, 1, 1),
-            $hash
-        );
     }
 
     public function remove(Record $record): void
@@ -195,6 +160,41 @@ class FileRepository
             file_put_contents($path, $this->serializer->serialize($record));
         }
         $this->buffer = [];
+    }
+
+    private function ensureDirectoryExists(string $path): void
+    {
+        if (file_exists($path)) {
+            return;
+        }
+
+        mkdir($path, 0777, true);
+    }
+
+    private function initializeLastUpdate(): void
+    {
+        $this->lastUpdate = file_exists($this->timestampPath()) ?
+            (int)file_get_contents($this->timestampPath()) :
+            0
+        ;
+    }
+
+    private function timestampPath(): string
+    {
+        return $this->path . '/timestamp';
+    }
+
+    private function pathFor(Record $record): string
+    {
+        $hash = md5($record->identifier());
+        return sprintf(
+            '%s/%s_%s/%s/%s.cache',
+            $this->path,
+            $record->recordType(),
+            substr($hash, 0, 1),
+            substr($hash, 1, 1),
+            $hash
+        );
     }
 
     private function bufferKey(Record $record): string

@@ -48,57 +48,57 @@ class IndexedImplementationFinderTest extends IntegrationTestCase
     {
         yield 'interface implementations' => [
             <<<'EOT'
-// File: project/subject.php
-<?php interface Fo<>oInterface {}
-// File: project/class.php
-<?php
+                // File: project/subject.php
+                <?php interface Fo<>oInterface {}
+                // File: project/class.php
+                <?php
 
-class Foobar implements FooInterface {}
-class Barfoo implements FooInterface {}
-EOT
+                class Foobar implements FooInterface {}
+                class Barfoo implements FooInterface {}
+                EOT
         ,
             2
         ];
 
         yield 'class implementations' => [
             <<<'EOT'
-// File: project/subject.php
-<?php class Fo<>o {}
-// File: project/class.php
-<?php
+                // File: project/subject.php
+                <?php class Fo<>o {}
+                // File: project/class.php
+                <?php
 
-class Foobar extends Foo {}
-class Barfoo extends Foo {}
-EOT
+                class Foobar extends Foo {}
+                class Barfoo extends Foo {}
+                EOT
         ,
             2
         ];
 
         yield 'abstract class implementations' => [
             <<<'EOT'
-// File: project/subject.php
-<?php abstract class Fo<>o {}
-// File: project/class.php
-<?php
+                // File: project/subject.php
+                <?php abstract class Fo<>o {}
+                // File: project/class.php
+                <?php
 
-class Foobar extends Foo {}
-class Barfoo extends Foo {}
-EOT
+                class Foobar extends Foo {}
+                class Barfoo extends Foo {}
+                EOT
         ,
             2
         ];
 
         yield 'implementations of abstract class implementation' => [
             <<<'EOT'
-// File: project/subject.php
-<?php abstract class Fo<>o {}
-// File: project/class.php
-<?php
+                // File: project/subject.php
+                <?php abstract class Fo<>o {}
+                // File: project/class.php
+                <?php
 
-class Foobar extends Foo {}
-class Barfoo extends Foo {}
-class Carfoo extends Barfoo {}
-EOT
+                class Foobar extends Foo {}
+                class Barfoo extends Foo {}
+                class Carfoo extends Barfoo {}
+                EOT
         ,
             3
         ];
@@ -111,69 +111,69 @@ EOT
     {
         yield 'none' => [
             <<<'EOT'
-// File: project/subject.php
-<?php interface FooInterface {
-   public function doT<>his();
-}
-EOT
+                // File: project/subject.php
+                <?php interface FooInterface {
+                   public function doT<>his();
+                }
+                EOT
         ,
             0
         ];
 
         yield 'interface member' => [
             <<<'EOT'
-// File: project/subject.php
-<?php interface FooInterface {
-   public function doT<>his();
-}
-// File: project/class.php
-<?php
+                // File: project/subject.php
+                <?php interface FooInterface {
+                   public function doT<>his();
+                }
+                // File: project/class.php
+                <?php
 
-class Foobar implements FooInterface {
-    public function doThis();
-}
-class Barfoo implements FooInterface {
-    public function doThis();
-}
-EOT
+                class Foobar implements FooInterface {
+                    public function doThis();
+                }
+                class Barfoo implements FooInterface {
+                    public function doThis();
+                }
+                EOT
         ,
             2
         ];
 
         yield 'does not count abstract class member' => [
             <<<'EOT'
-// File: project/subject.php
-<?php abstract class Foo {
-   abstract public function doT<>his();
-}
-// File: project/class.php
-<?php
+                // File: project/subject.php
+                <?php abstract class Foo {
+                   abstract public function doT<>his();
+                }
+                // File: project/class.php
+                <?php
 
-class Foobar extends Foo {
-    public function doThis();
-}
-EOT
+                class Foobar extends Foo {
+                    public function doThis();
+                }
+                EOT
         ,
             1
         ];
 
         yield 'member implementations of abstract class implementation' => [
             <<<'EOT'
-// File: project/subject.php
-<?php $foo = new Foo();
-   $foo->d<>oThis();
-}
-// File: project/class.php
-<?php
-class Bar {
-    public function doThis();
-}
+                // File: project/subject.php
+                <?php $foo = new Foo();
+                   $foo->d<>oThis();
+                }
+                // File: project/class.php
+                <?php
+                class Bar {
+                    public function doThis();
+                }
 
-// File: project/foo.php
-<?php
-class Foo extends Bar {
-}
-EOT
+                // File: project/foo.php
+                <?php
+                class Foo extends Bar {
+                }
+                EOT
         ,
             1
         ];

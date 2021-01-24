@@ -131,6 +131,46 @@ final class IndexAgentBuilder
         return new RealIndexAgent($index, $query, $search, $indexer);
     }
 
+    /**
+     * @param array<TolerantIndexer> $indexers
+     */
+    public function setIndexers(array $indexers): self
+    {
+        $this->indexers = $indexers;
+
+        return $this;
+    }
+
+    /**
+     * @param array<string> $excludePatterns
+     */
+    public function setExcludePatterns(array $excludePatterns): self
+    {
+        $this->excludePatterns = $excludePatterns;
+
+        return $this;
+    }
+
+    /**
+     * @param array<string> $includePatterns
+     */
+    public function setIncludePatterns(array $includePatterns): self
+    {
+        $this->includePatterns = $includePatterns;
+
+        return $this;
+    }
+
+    /**
+     * @param array<string> $stubPaths
+     */
+    public function setStubPaths(array $stubPaths): self
+    {
+        $this->stubPaths = $stubPaths;
+
+        return $this;
+    }
+
     private function buildIndex(): Index
     {
         $repository = new FileRepository(
@@ -188,36 +228,6 @@ final class IndexAgentBuilder
         );
     }
 
-    /**
-     * @param array<TolerantIndexer> $indexers
-     */
-    public function setIndexers(array $indexers): self
-    {
-        $this->indexers = $indexers;
-
-        return $this;
-    }
-
-    /**
-     * @param array<string> $excludePatterns
-     */
-    public function setExcludePatterns(array $excludePatterns): self
-    {
-        $this->excludePatterns = $excludePatterns;
-
-        return $this;
-    }
-
-    /**
-     * @param array<string> $includePatterns
-     */
-    public function setIncludePatterns(array $includePatterns): self
-    {
-        $this->includePatterns = $includePatterns;
-
-        return $this;
-    }
-
     private function buildRecordSerializer(): RecordSerializer
     {
         return new PhpSerializer();
@@ -243,15 +253,5 @@ final class IndexAgentBuilder
         }
 
         return $providers;
-    }
-
-    /**
-     * @param array<string> $stubPaths
-     */
-    public function setStubPaths(array $stubPaths): self
-    {
-        $this->stubPaths = $stubPaths;
-
-        return $this;
     }
 }

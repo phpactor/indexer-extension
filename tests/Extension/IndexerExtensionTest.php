@@ -5,20 +5,12 @@ namespace Phpactor\Indexer\Tests\Extension;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\Watcher\Null\NullWatcher;
 use Phpactor\Extension\ReferenceFinder\ReferenceFinderExtension;
-use Phpactor\Extension\ComposerAutoloader\ComposerAutoloaderExtension;
-use Phpactor\Extension\ClassToFile\ClassToFileExtension;
 use Phpactor\Extension\Rpc\Request;
 use Phpactor\Extension\Rpc\RequestHandler;
 use Phpactor\Extension\Rpc\Response\EchoResponse;
 use Phpactor\Extension\Rpc\RpcExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
-use Phpactor\Extension\SourceCodeFilesystem\SourceCodeFilesystemExtension;
-use Phpactor\Extension\Logger\LoggingExtension;
-use Phpactor\FilePathResolverExtension\FilePathResolverExtension;
-use Phpactor\Indexer\Adapter\ReferenceFinder\IndexedImplementationFinder;
 use Phpactor\Indexer\Extension\IndexerExtension;
-use Phpactor\Extension\Console\ConsoleExtension;
-use Phpactor\Container\PhpactorContainer;
 use Phpactor\Indexer\Model\Indexer;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
 use Phpactor\ReferenceFinder\ChainImplementationFinder;
@@ -35,7 +27,7 @@ class IndexerExtensionTest extends IntegrationTestCase
         $this->initProject();
     }
 
-    public function testReturnsImplementationFinder()
+    public function testReturnsImplementationFinder(): void
     {
         $container = $this->container();
         $finder = $container->get(ReferenceFinderExtension::SERVICE_IMPLEMENTATION_FINDER);
@@ -49,7 +41,7 @@ class IndexerExtensionTest extends IntegrationTestCase
         self::assertInstanceOf(ChainReferenceFinder::class, $finder);
     }
 
-    public function testBuildIndex()
+    public function testBuildIndex(): void
     {
         $container = $this->container();
         $indexer = $container->get(Indexer::class);
@@ -57,7 +49,7 @@ class IndexerExtensionTest extends IntegrationTestCase
         $indexer->getJob()->run();
     }
 
-    public function testRpcHandler()
+    public function testRpcHandler(): void
     {
         $container = $this->container();
         $handler = $container->get(RpcExtension::SERVICE_REQUEST_HANDLER);
@@ -68,7 +60,7 @@ class IndexerExtensionTest extends IntegrationTestCase
         self::assertMatchesRegularExpression('{Indexed [0-9]+ files}', $response->message());
     }
 
-    public function testThrowsExceptionIfEnabledWatcherDoesntExist()
+    public function testThrowsExceptionIfEnabledWatcherDoesntExist(): void
     {
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Unknown watchers "foobar" specified, available watchers: ');
@@ -78,7 +70,7 @@ class IndexerExtensionTest extends IntegrationTestCase
         $container->get(Watcher::class);
     }
 
-    public function testUseNullWatcherIfEnabledWatchersIsEmpty()
+    public function testUseNullWatcherIfEnabledWatchersIsEmpty(): void
     {
         $container = $this->container([
             IndexerExtension::PARAM_ENABLED_WATCHERS => [],
@@ -86,7 +78,7 @@ class IndexerExtensionTest extends IntegrationTestCase
         self::assertInstanceOf(NullWatcher::class, $container->get(Watcher::class));
     }
 
-    public function testSourceLocator()
+    public function testSourceLocator(): void
     {
         $this->initProject();
 

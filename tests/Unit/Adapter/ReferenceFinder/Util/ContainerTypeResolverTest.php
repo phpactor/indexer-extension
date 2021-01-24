@@ -3,7 +3,6 @@
 namespace Phpactor\Indexer\Tests\Unit\Adapter\ReferenceFinder\Util;
 
 use Generator;
-use PHPUnit\Framework\TestCase;
 use Phpactor\Indexer\Adapter\ReferenceFinder\Util\ContainerTypeResolver;
 use Phpactor\Indexer\Tests\IntegrationTestCase;
 use Phpactor\TestUtils\ExtractOffset;
@@ -19,8 +18,7 @@ class ContainerTypeResolverTest extends IntegrationTestCase
         string $memberName,
         ?string $containerType,
         ?string $expectedType
-    )
-    {
+    ): void {
         $this->workspace()->reset();
         $this->workspace()->loadManifest(implode("\n", $manifest));
         $source = $this->workspace()->getContents('test.php');

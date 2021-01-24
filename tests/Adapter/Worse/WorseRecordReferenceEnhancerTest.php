@@ -38,20 +38,20 @@ class WorseRecordReferenceEnhancerTest extends IntegrationTestCase
     {
         yield [
             <<<'EOT'
-<?php
+                <?php
 
-namespace Foo;
+                namespace Foo;
 
-class Foobar
-{
-    public function bar(): string
-    {
-    }
-}
+                class Foobar
+                {
+                    public function bar(): string
+                    {
+                    }
+                }
 
-$foobar = new Foobar();
-$foobar->b<>ar();
-EOT
+                $foobar = new Foobar();
+                $foobar->b<>ar();
+                EOT
         ,
             'Foo\Foobar',
         ];

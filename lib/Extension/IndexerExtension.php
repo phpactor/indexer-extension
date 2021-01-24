@@ -71,7 +71,7 @@ class IndexerExtension implements Extension
     /**
      * {@inheritDoc}
      */
-    public function configure(Resolver $schema)
+    public function configure(Resolver $schema): void
     {
         $schema->setDefaults([
             self::PARAM_ENABLED_WATCHERS => ['inotify', 'watchman', 'find', 'php'],
@@ -94,7 +94,7 @@ class IndexerExtension implements Extension
         $schema->setDescriptions([
             self::PARAM_ENABLED_WATCHERS => 'List of allowed watchers. The first watcher that supports the current system will be used',
             self::PARAM_INDEX_PATH => 'Path where the index should be saved',
-            self::PARAM_STUB_PATHS => "Paths to external folders to index. They will be indexed only once, if you want to take any changes into account you will have to reindex your project manually.",
+            self::PARAM_STUB_PATHS => 'Paths to external folders to index. They will be indexed only once, if you want to take any changes into account you will have to reindex your project manually.',
             self::PARAM_INCLUDE_PATTERNS => 'Glob patterns to include while indexing',
             self::PARAM_EXCLUDE_PATTERNS => 'Glob patterns to exclude while indexing',
             self::PARAM_INDEXER_POLL_TIME => 'For polling indexers only: the time, in milliseconds, between polls (e.g. filesystem scans)',
@@ -108,7 +108,7 @@ class IndexerExtension implements Extension
     /**
      * {@inheritDoc}
      */
-    public function load(ContainerBuilder $container)
+    public function load(ContainerBuilder $container): void
     {
         $this->registerCommands($container);
         $this->registerModel($container);

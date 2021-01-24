@@ -2,10 +2,7 @@
 
 namespace Phpactor\Indexer\Tests\Unit\Adapter\Filesystem;
 
-use PHPUnit\Framework\TestCase;
 use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
-use Phpactor\Filesystem\Domain\Filesystem;
-use Phpactor\Filesystem\Domain\FilesystemRegistry;
 use Phpactor\Indexer\Adapter\Filesystem\FilesystemFileListProvider;
 use Phpactor\Indexer\Adapter\Php\InMemory\InMemoryIndex;
 use Phpactor\Indexer\Model\Index;
@@ -38,7 +35,7 @@ class FilesystemFileListProviderTest extends IntegrationTestCase
         $this->index = $this->prophesize(Index::class);
     }
 
-    public function testProvidesSingleFile()
+    public function testProvidesSingleFile(): void
     {
         $this->workspace()->put('foo.php', '<?php echo "hello";');
         $index = new InMemoryIndex();
@@ -46,7 +43,7 @@ class FilesystemFileListProviderTest extends IntegrationTestCase
         self::assertEquals(1, $list->count());
     }
 
-    public function testProvidesFromFilesystemRoot()
+    public function testProvidesFromFilesystemRoot(): void
     {
         $this->workspace()->put('foo.php', '<?php echo "hello";');
         $this->workspace()->put('bar.php', '<?php echo "hello";');
@@ -57,7 +54,7 @@ class FilesystemFileListProviderTest extends IntegrationTestCase
         self::assertEquals(2, $list->count());
     }
 
-    public function testDoesNotUseCacheIfSubPathProvided()
+    public function testDoesNotUseCacheIfSubPathProvided(): void
     {
         $this->workspace()->put('foo.php', '<?php echo "hello";');
 
