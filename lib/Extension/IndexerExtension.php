@@ -259,6 +259,10 @@ class IndexerExtension implements Extension
 
     private function registerRpc(ContainerBuilder $container): void
     {
+        if (!class_exists(RpcExtension::class)) {
+            return;
+        }
+
         $container->register(IndexHandler::class, function (Container $container) {
             return new IndexHandler(
                 $container->get(Indexer::class),
