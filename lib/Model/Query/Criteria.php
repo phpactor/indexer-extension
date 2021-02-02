@@ -6,6 +6,7 @@ use Phpactor\Indexer\Model\Query\Criteria\AndCriteria;
 use Phpactor\Indexer\Model\Query\Criteria\ExactShortName;
 use Phpactor\Indexer\Model\Query\Criteria\FqnBeginsWith;
 use Phpactor\Indexer\Model\Query\Criteria\IsClass;
+use Phpactor\Indexer\Model\Query\Criteria\IsConstant;
 use Phpactor\Indexer\Model\Query\Criteria\IsFunction;
 use Phpactor\Indexer\Model\Query\Criteria\IsMember;
 use Phpactor\Indexer\Model\Query\Criteria\OrCriteria;
@@ -54,5 +55,10 @@ abstract class Criteria
     public static function isFunction(): IsFunction
     {
         return new IsFunction();
+    }
+
+    public static function isConstant(): IsConstant
+    {
+        return new IsConstant();
     }
 }

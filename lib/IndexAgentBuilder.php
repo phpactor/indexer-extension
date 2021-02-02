@@ -25,6 +25,7 @@ use Phpactor\Indexer\Model\RecordReferenceEnhancer\NullRecordReferenceEnhancer;
 use Phpactor\Indexer\Model\RecordSerializer;
 use Phpactor\Indexer\Model\RecordSerializer\PhpSerializer;
 use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record\ConstantRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Model\SearchClient\HydratingSearchClient;
 use Phpactor\Indexer\Model\SearchIndex;
@@ -197,6 +198,7 @@ final class IndexAgentBuilder
         $search = new FilteredSearchIndex($search, [
             ClassRecord::RECORD_TYPE,
             FunctionRecord::RECORD_TYPE,
+            ConstantRecord::RECORD_TYPE,
         ]);
 
         return $search;

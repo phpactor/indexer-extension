@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Model;
 
 use Phpactor\Indexer\Model\Record\ClassRecord;
+use Phpactor\Indexer\Model\Record\ConstantRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
 use Phpactor\Indexer\Model\Record\MemberRecord;
@@ -23,6 +24,9 @@ class RecordFactory
         }
         if ($type === MemberRecord::RECORD_TYPE) {
             return MemberRecord::fromIdentifier($identifier);
+        }
+        if ($type === ConstantRecord::RECORD_TYPE) {
+            return ConstantRecord::fromName($identifier);
         }
 
         throw new RuntimeException(sprintf(
