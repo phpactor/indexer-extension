@@ -64,5 +64,23 @@ class ConstantDeclarationIndexerTest extends TolerantIndexerTestCase
                 ));
             }
         ];
+        yield 'declare 1' => [
+            "// File: src/file1.php\n<?php define('FOOBAR', 1)",
+            function (IndexAgent $agent): void {
+                self::assertInstanceOf(
+                    ConstantRecord::class,
+                    $agent->query()->constant()->get('FOOBAR')
+                );
+
+                self::assertCount(1, iterator_to_array(
+                    $agent->search()->search(
+                        Criteria::and(
+                            Criteria::isConstant(),
+                            Criteria::fqnBeginsWith('FOOBAR')
+                        )
+                    )
+                ));
+            }
+        ];
     }
 }
