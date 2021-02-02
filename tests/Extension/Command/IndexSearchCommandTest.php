@@ -44,5 +44,11 @@ class IndexSearchCommandTest extends IntegrationTestCase
                 '--limit=1'
             ]
         ];
+
+        yield 'constant' => [
+            [
+                '--is-constant',
+            ]
+        ];
     }
 }

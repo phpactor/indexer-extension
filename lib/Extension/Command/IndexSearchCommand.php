@@ -18,6 +18,7 @@ class IndexSearchCommand extends Command
     const OPT_IS_FUNCTION = 'is-function';
     const OPT_IS_CLASS = 'is-class';
     const OPT_IS_MEMBER = 'is-member';
+    const OPT_IS_CONSTANT = 'is-constant';
     const OPT_LIMIT = 'limit';
 
 
@@ -40,6 +41,7 @@ class IndexSearchCommand extends Command
         $this->addOption(self::OPT_SHORT_NAME_BEGINS, null, InputOption::VALUE_REQUIRED, 'Short-name begins with');
         $this->addOption(self::OPT_SHORT_NAME, null, InputOption::VALUE_REQUIRED, 'Exact short name');
         $this->addOption(self::OPT_IS_FUNCTION, null, InputOption::VALUE_NONE, 'Functions only');
+        $this->addOption(self::OPT_IS_CONSTANT, null, InputOption::VALUE_NONE, 'Constants only');
         $this->addOption(self::OPT_IS_CLASS, null, InputOption::VALUE_NONE, 'Classes only');
         $this->addOption(self::OPT_LIMIT, 'l', InputOption::VALUE_REQUIRED, 'Limit number of results');
     }
@@ -50,6 +52,7 @@ class IndexSearchCommand extends Command
         $shortNameBegins = $input->getOption(self::OPT_SHORT_NAME_BEGINS);
         $fqnBegins = $input->getOption(self::OPT_FQN_BEGINS);
         $isFunction = $input->getOption(self::OPT_IS_FUNCTION);
+        $isConstant = $input->getOption(self::OPT_IS_CONSTANT);
         $isClass = $input->getOption(self::OPT_IS_CLASS);
         $limitRaw = $input->getOption(self::OPT_LIMIT);
         $limit = is_numeric($limitRaw) ? (int)$limitRaw : null;
@@ -73,6 +76,10 @@ class IndexSearchCommand extends Command
 
         if ($isFunction) {
             $criterias[] = Criteria::isFunction();
+        }
+
+        if ($isConstant) {
+            $criterias[] = Criteria::isConstant();
         }
 
         if ($isClass) {
