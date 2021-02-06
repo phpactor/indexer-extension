@@ -7,6 +7,7 @@ use Phpactor\Indexer\Model\Query\Criteria;
 use Phpactor\Indexer\Model\Record;
 use Phpactor\Indexer\Model\RecordFactory;
 use Phpactor\Indexer\Model\SearchIndex;
+use Safe\Exceptions\FilesystemException;
 use function Safe\file_get_contents;
 use function Safe\file_put_contents;
 
@@ -92,9 +93,20 @@ class FileSearchIndex implements SearchIndex
 
         $this->open();
 
-        file_put_contents($this->path, implode("\n", array_unique(array_map(function (array $parts) {
+        $content = implode("\n", array_unique(array_map(function (array $parts) {
             return implode(self::DELIMITER, $parts);
-        }, $this->subjects))));
+        }, $this->subjects)));
+
+        try {
+            file_put_contents($this->path, $content);
+        } catch (FilesystemException $e) {
+            if (file_exists(dirname($this->path))) {
+                throw $e;
+            }
+
+            mkdir(dirname($this->path), 0777, true);
+            file_put_contents($this->path, $content);
+        }
 
         $this->dirty = false;
     }
