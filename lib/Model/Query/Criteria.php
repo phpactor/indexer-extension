@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Model\Query;
 
 use Phpactor\Indexer\Model\Query\Criteria\AndCriteria;
+use Phpactor\Indexer\Model\Query\Criteria\ShortNameContains;
 use Phpactor\Indexer\Model\Query\Criteria\ExactShortName;
 use Phpactor\Indexer\Model\Query\Criteria\FqnBeginsWith;
 use Phpactor\Indexer\Model\Query\Criteria\IsClass;
@@ -60,5 +61,10 @@ abstract class Criteria
     public static function isConstant(): IsConstant
     {
         return new IsConstant();
+    }
+
+    public static function shortNameContains(string $substr): ShortNameContains
+    {
+        return new ShortNameContains($substr);
     }
 }
