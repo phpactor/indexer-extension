@@ -219,7 +219,7 @@ final class IndexAgentBuilder
             $builder,
             $index,
             $this->buildFileListProvider(),
-            new DirtyFileListProvider($this->indexRoot . '/dirty')
+            $this->buildDirtyTracker()
         );
     }
 
@@ -260,6 +260,13 @@ final class IndexAgentBuilder
             );
         }
 
+        $providers[] = $this->buildDirtyTracker();
+
         return $providers;
+    }
+
+    private function buildDirtyTracker(): DirtyFileListProvider
+    {
+        return new DirtyFileListProvider($this->indexRoot . '/dirty');
     }
 }

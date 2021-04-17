@@ -33,11 +33,14 @@ class DirtyFileListProviderTest extends IntegrationTestCase
         $this->workspace()->put(self::EXAMPLE_FILE_1, '');
         $tracker->markDirty(TextDocumentUri::fromString($this->workspace()->path(self::EXAMPLE_FILE_1)));
 
+        self::assertFileExists($this->workspace()->path('dirty'));
+
         $files = $tracker->provideFileList(new InMemoryIndex([]));
         self::assertCount(1, $files);
 
         $files = $tracker->provideFileList(new InMemoryIndex([]));
         self::assertCount(0, $files);
+        self::assertFileDoesNotExist($this->workspace()->path('dirty'));
     }
 
     public function testDoNotDuplicate(): void
