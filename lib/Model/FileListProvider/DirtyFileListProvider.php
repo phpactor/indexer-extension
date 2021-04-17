@@ -9,6 +9,7 @@ use Phpactor\Indexer\Model\FileListProvider;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\TextDocument\TextDocument;
 use Phpactor\TextDocument\TextDocumentUri;
+use RuntimeException;
 use SplFileInfo;
 
 class DirtyFileListProvider implements FileListProvider, DirtyDocumentTracker
@@ -18,6 +19,8 @@ class DirtyFileListProvider implements FileListProvider, DirtyDocumentTracker
      */
     private $dirtyPath;
 
+    private $seen = [];
+
     public function __construct(string $dirtyPath)
     {
         $this->dirtyPath = $dirtyPath;
@@ -25,9 +28,19 @@ class DirtyFileListProvider implements FileListProvider, DirtyDocumentTracker
 
     public function markDirty(TextDocumentUri $uri): void
     {
-        $handle = fopen($this->dirtyPath, 'a');
+        if (isset($this->seen[$uri->path()])) {
+            return;
+        }
+        $handle = @fopen($this->dirtyPath, 'a');
+        if (false === $handle) {
+            throw new RuntimeException(sprintf(
+                'Dirty index file path "%s" cannot be created, maybe the directory does not exist?',
+                $this->dirtyPath
+            ));
+        }
         fwrite($handle, $uri->path() . "\n");
         fclose($handle);
+        $this->seen[$uri->path()] = true;
     }
 
     public function provideFileList(Index $index, ?string $subPath = null): FileList
