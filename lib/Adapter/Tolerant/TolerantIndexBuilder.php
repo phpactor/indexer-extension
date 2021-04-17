@@ -16,9 +16,9 @@ use Phpactor\Indexer\Adapter\Tolerant\Indexer\TraitUseClauseIndexer;
 use Phpactor\Indexer\Model\Exception\CannotIndexNode;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexBuilder;
+use Phpactor\TextDocument\TextDocument;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use SplFileInfo;
 
 final class TolerantIndexBuilder implements IndexBuilder
 {
@@ -76,20 +76,14 @@ final class TolerantIndexBuilder implements IndexBuilder
         );
     }
 
-    public function index(SplFileInfo $info): void
+    public function index(TextDocument $document): void
     {
-        $contents = @file_get_contents($info->getPathname());
-
-        if (false === $contents) {
-            return;
-        }
-
         foreach ($this->indexers as $indexer) {
-            $indexer->beforeParse($this->index, $info);
+            $indexer->beforeParse($this->index, $document);
         }
 
-        $node = $this->parser->parseSourceFile($contents, $info->getPathname());
-        $this->indexNode($info, $node);
+        $node = $this->parser->parseSourceFile($document->__toString(), $document->uri()->path());
+        $this->indexNode($document, $node);
     }
 
     public function done(): void
@@ -97,25 +91,25 @@ final class TolerantIndexBuilder implements IndexBuilder
         $this->index->done();
     }
 
-    private function indexNode(SplFileInfo $info, Node $node): void
+    private function indexNode(TextDocument $document, Node $node): void
     {
         foreach ($this->indexers as $indexer) {
             try {
                 if ($indexer->canIndex($node)) {
-                    $indexer->index($this->index, $info, $node);
+                    $indexer->index($this->index, $document, $node);
                 }
             } catch (CannotIndexNode $cannotIndexNode) {
                 $this->logger->warning(sprintf(
                     'Cannot index node of class "%s" in file "%s": %s',
                     get_class($node),
-                    $info->getPathname(),
+                    $document->uri()->__toString(),
                     $cannotIndexNode->getMessage()
                 ));
             }
         }
 
         foreach ($node->getChildNodes() as $childNode) {
-            $this->indexNode($info, $childNode);
+            $this->indexNode($document, $childNode);
         }
     }
 }

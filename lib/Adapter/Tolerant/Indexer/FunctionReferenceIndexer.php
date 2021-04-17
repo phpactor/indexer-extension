@@ -9,7 +9,7 @@ use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
-use SplFileInfo;
+use Phpactor\TextDocument\TextDocument;
 
 class FunctionReferenceIndexer extends AbstractClassLikeIndexer
 {
@@ -18,9 +18,9 @@ class FunctionReferenceIndexer extends AbstractClassLikeIndexer
         return $node instanceof QualifiedName && $node->parent instanceof CallExpression;
     }
 
-    public function beforeParse(Index $index, SplFileInfo $info): void
+    public function beforeParse(Index $index, TextDocument $document): void
     {
-        $fileRecord = $index->get(FileRecord::fromFileInfo($info));
+        $fileRecord = $index->get(FileRecord::fromPath($document->uri()->path()));
         assert($fileRecord instanceof FileRecord);
 
         foreach ($fileRecord->references() as $outgoingReference) {
@@ -35,7 +35,7 @@ class FunctionReferenceIndexer extends AbstractClassLikeIndexer
         }
     }
 
-    public function index(Index $index, SplFileInfo $info, Node $node): void
+    public function index(Index $index, TextDocument $document, Node $node): void
     {
         assert($node instanceof QualifiedName);
 
@@ -48,10 +48,10 @@ class FunctionReferenceIndexer extends AbstractClassLikeIndexer
 
         $targetRecord = $index->get(FunctionRecord::fromName($name));
         assert($targetRecord instanceof FunctionRecord);
-        $targetRecord->addReference($info->getPathname());
+        $targetRecord->addReference($document->uri()->path());
         $index->write($targetRecord);
 
-        $fileRecord = $index->get(FileRecord::fromFileInfo($info));
+        $fileRecord = $index->get(FileRecord::fromPath($document->uri()->path()));
         assert($fileRecord instanceof FileRecord);
         $fileRecord->addReference(new RecordReference(FunctionRecord::RECORD_TYPE, $targetRecord->identifier(), $node->getStart()));
         $index->write($fileRecord);

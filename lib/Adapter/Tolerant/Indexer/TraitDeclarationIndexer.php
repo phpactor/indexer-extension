@@ -5,7 +5,7 @@ namespace Phpactor\Indexer\Adapter\Tolerant\Indexer;
 use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\Statement\TraitDeclaration;
 use Phpactor\Indexer\Model\Index;
-use SplFileInfo;
+use Phpactor\TextDocument\TextDocument;
 
 class TraitDeclarationIndexer extends AbstractClassLikeIndexer
 {
@@ -14,10 +14,10 @@ class TraitDeclarationIndexer extends AbstractClassLikeIndexer
         return $node instanceof TraitDeclaration;
     }
 
-    public function index(Index $index, SplFileInfo $info, Node $node): void
+    public function index(Index $index, TextDocument $document, Node $node): void
     {
         assert($node instanceof TraitDeclaration);
-        $record = $this->getClassLikeRecord('trait', $node, $index, $info);
+        $record = $this->getClassLikeRecord('trait', $node, $index, $document);
         $index->write($record);
     }
 }

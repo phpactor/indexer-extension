@@ -6,7 +6,7 @@ use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\Statement\InterfaceDeclaration;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Index;
-use SplFileInfo;
+use Phpactor\TextDocument\TextDocument;
 
 class InterfaceDeclarationIndexer extends AbstractClassLikeIndexer
 {
@@ -15,10 +15,10 @@ class InterfaceDeclarationIndexer extends AbstractClassLikeIndexer
         return $node instanceof InterfaceDeclaration;
     }
 
-    public function index(Index $index, SplFileInfo $info, Node $node): void
+    public function index(Index $index, TextDocument $document, Node $node): void
     {
         assert($node instanceof InterfaceDeclaration);
-        $record = $this->getClassLikeRecord('interface', $node, $index, $info);
+        $record = $this->getClassLikeRecord('interface', $node, $index, $document);
 
         // remove any references to this interface and other classes before
         // updating with the current data

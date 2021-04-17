@@ -11,7 +11,7 @@ use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\WorseReflection\Bridge\TolerantParser\Patch\TolerantQualifiedNameResolver;
-use SplFileInfo;
+use Phpactor\TextDocument\TextDocument;
 
 class TraitUseClauseIndexer implements TolerantIndexer
 {
@@ -20,7 +20,7 @@ class TraitUseClauseIndexer implements TolerantIndexer
         return $node instanceof TraitUseClause;
     }
 
-    public function index(Index $index, SplFileInfo $info, Node $node): void
+    public function index(Index $index, TextDocument $document, Node $node): void
     {
         assert($node instanceof TraitUseClause);
 
@@ -52,7 +52,7 @@ class TraitUseClauseIndexer implements TolerantIndexer
         }
     }
 
-    public function beforeParse(Index $index, SplFileInfo $info): void
+    public function beforeParse(Index $index, TextDocument $document): void
     {
     }
 }

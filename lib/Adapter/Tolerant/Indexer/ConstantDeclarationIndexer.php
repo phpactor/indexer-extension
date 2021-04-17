@@ -13,8 +13,8 @@ use Microsoft\PhpParser\Node\StringLiteral;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexer;
 use Phpactor\Indexer\Model\Record\ConstantRecord;
 use Phpactor\TextDocument\ByteOffset;
-use SplFileInfo;
 use Phpactor\Indexer\Model\Index;
+use Phpactor\TextDocument\TextDocument;
 
 class ConstantDeclarationIndexer implements TolerantIndexer
 {
@@ -41,24 +41,24 @@ class ConstantDeclarationIndexer implements TolerantIndexer
         return false;
     }
 
-    public function index(Index $index, SplFileInfo $info, Node $node): void
+    public function index(Index $index, TextDocument $document, Node $node): void
     {
         if ($node instanceof ConstDeclaration) {
-            $this->fromConstDeclaration($node, $index, $info);
+            $this->fromConstDeclaration($node, $index, $document);
             return;
         }
 
         if ($node instanceof CallExpression) {
-            $this->fromDefine($node, $index, $info);
+            $this->fromDefine($node, $index, $document);
             return;
         }
     }
 
-    public function beforeParse(Index $index, SplFileInfo $info): void
+    public function beforeParse(Index $index, TextDocument $document): void
     {
     }
 
-    private function fromConstDeclaration(Node $node, Index $index, SplFileInfo $info): void
+    private function fromConstDeclaration(Node $node, Index $index, TextDocument $document): void
     {
         assert($node instanceof ConstDeclaration);
         if (!$node->constElements instanceof ConstElementList) {
@@ -69,12 +69,12 @@ class ConstantDeclarationIndexer implements TolerantIndexer
             $record = $index->get(ConstantRecord::fromName($constNode->getNamespacedName()->getFullyQualifiedNameText()));
             assert($record instanceof ConstantRecord);
             $record->setStart(ByteOffset::fromInt($node->getStart()));
-            $record->setFilePath($info->getPathname());
+            $record->setFilePath($document->uri()->path());
             $index->write($record);
         }
     }
 
-    private function fromDefine(CallExpression $node, Index $index, SplFileInfo $info): void
+    private function fromDefine(CallExpression $node, Index $index, TextDocument $document): void
     {
         assert($node instanceof CallExpression);
 
@@ -94,7 +94,7 @@ class ConstantDeclarationIndexer implements TolerantIndexer
             $record = $index->get(ConstantRecord::fromName($string->getStringContentsText()));
             assert($record instanceof ConstantRecord);
             $record->setStart(ByteOffset::fromInt($node->getStart()));
-            $record->setFilePath($info->getPathname());
+            $record->setFilePath($document->uri()->path());
             $index->write($record);
         }
     }

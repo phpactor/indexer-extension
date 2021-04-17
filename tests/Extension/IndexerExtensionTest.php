@@ -16,9 +16,11 @@ use Phpactor\Indexer\Tests\IntegrationTestCase;
 use Phpactor\ReferenceFinder\ChainImplementationFinder;
 use Phpactor\ReferenceFinder\ChainReferenceFinder;
 use Phpactor\ReferenceFinder\ReferenceFinder;
+use Phpactor\TextDocument\TextDocumentBuilder;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionClass;
 use Phpactor\WorseReflection\Reflector;
 use RuntimeException;
+use function iterator_to_array;
 
 class IndexerExtensionTest extends IntegrationTestCase
 {
@@ -47,6 +49,26 @@ class IndexerExtensionTest extends IntegrationTestCase
         $indexer = $container->get(Indexer::class);
         $this->assertInstanceOf(Indexer::class, $indexer);
         $indexer->getJob()->run();
+    }
+
+    public function testIndexDirtyFile(): void
+    {
+        $container = $this->container();
+        $indexer = $container->get(Indexer::class);
+        $this->assertInstanceOf(Indexer::class, $indexer);
+        assert($indexer instanceof Indexer);
+        $this->workspace()->put('foo', 'asd');
+        $indexer->indexDirty(
+            TextDocumentBuilder::create('<?php echo "Hello!";')->uri($this->workspace()->path('foo'))->build()
+        );
+
+        $files = iterator_to_array($indexer->getJob()->generator());
+        $lastFile = array_pop($files);
+        self::assertEquals($this->workspace()->path('foo'), $lastFile, 'Dirty file was included in job');
+
+        $files = iterator_to_array($indexer->getJob()->generator());
+        $lastFile = array_pop($files);
+        self::assertNotEquals($this->workspace()->path('foo'), $lastFile, 'Dirty file was not included again');
     }
 
     public function testRpcHandler(): void

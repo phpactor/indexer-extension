@@ -2,7 +2,8 @@
 
 namespace Phpactor\Indexer\Model;
 
-use SplFileInfo;
+use Phpactor\Indexer\Model\DirtyDocumentTracker\NullDirtyDocumentTracker;
+use Phpactor\TextDocument\TextDocument;
 
 class Indexer
 {
@@ -21,11 +22,17 @@ class Indexer
      */
     private $provider;
 
-    public function __construct(IndexBuilder $builder, Index $index, FileListProvider $provider)
+    /**
+     * @var DirtyDocumentTracker
+     */
+    private $dirtyDocumentTracker;
+
+    public function __construct(IndexBuilder $builder, Index $index, FileListProvider $provider, ?DirtyDocumentTracker $dirtyDocumentTracker = null)
     {
         $this->builder = $builder;
         $this->index = $index;
         $this->provider = $provider;
+        $this->dirtyDocumentTracker = $dirtyDocumentTracker ?: new NullDirtyDocumentTracker();
     }
 
     public function getJob(?string $subPath = null): IndexJob
@@ -36,9 +43,18 @@ class Indexer
         );
     }
 
-    public function index(SplFileInfo $file): void
+    public function index(TextDocument $textDocument): void
     {
-        $this->builder->index($file);
+        $this->builder->index($textDocument);
+    }
+
+    /**
+     * Index a file but mark it as dirty so that it will be reloaded from disk on the next indexing run.
+     */
+    public function indexDirty(TextDocument $textDocument): void
+    {
+        $this->dirtyDocumentTracker->markDirty($textDocument->uri());
+        $this->builder->index($textDocument);
     }
 
     public function reset(): void

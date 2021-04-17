@@ -2,11 +2,11 @@
 
 namespace Phpactor\Indexer\Model;
 
-use SplFileInfo;
+use Phpactor\TextDocument\TextDocument;
 
 interface IndexBuilder
 {
-    public function index(SplFileInfo $info): void;
+    public function index(TextDocument $document): void;
 
     public function done(): void;
 }

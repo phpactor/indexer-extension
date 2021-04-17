@@ -15,7 +15,7 @@ use Phpactor\Indexer\Model\MemberReference;
 use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\Indexer\Model\Record\MemberRecord;
-use SplFileInfo;
+use Phpactor\TextDocument\TextDocument;
 
 class MemberIndexer implements TolerantIndexer
 {
@@ -24,9 +24,9 @@ class MemberIndexer implements TolerantIndexer
         return $node instanceof ScopedPropertyAccessExpression || $node instanceof MemberAccessExpression;
     }
 
-    public function beforeParse(Index $index, SplFileInfo $info): void
+    public function beforeParse(Index $index, TextDocument $document): void
     {
-        $fileRecord = $index->get(FileRecord::fromFileInfo($info));
+        $fileRecord = $index->get(FileRecord::fromPath($document->uri()->path()));
         assert($fileRecord instanceof FileRecord);
 
         foreach ($fileRecord->references() as $outgoingReference) {
@@ -43,20 +43,20 @@ class MemberIndexer implements TolerantIndexer
         }
     }
 
-    public function index(Index $index, SplFileInfo $info, Node $node): void
+    public function index(Index $index, TextDocument $document, Node $node): void
     {
         if ($node instanceof ScopedPropertyAccessExpression) {
-            $this->indexScopedPropertyAccess($index, $info, $node);
+            $this->indexScopedPropertyAccess($index, $document, $node);
             return;
         }
 
         if ($node instanceof MemberAccessExpression) {
-            $this->indexMemberAccessExpression($index, $info, $node);
+            $this->indexMemberAccessExpression($index, $document, $node);
             return;
         }
     }
 
-    private function indexScopedPropertyAccess(Index $index, SplFileInfo $info, ScopedPropertyAccessExpression $node): void
+    private function indexScopedPropertyAccess(Index $index, TextDocument $document, ScopedPropertyAccessExpression $node): void
     {
         $containerType = $node->scopeResolutionQualifier;
 
@@ -73,7 +73,7 @@ class MemberIndexer implements TolerantIndexer
 
         $memberType = $this->resolveScopedPropertyAccessMemberType($node);
 
-        $this->writeIndex($index, $memberType, $containerType, $memberName, $info, $this->resolveStart($node->memberName));
+        $this->writeIndex($index, $memberType, $containerType, $memberName, $document, $this->resolveStart($node->memberName));
     }
 
     private function resolveScopedPropertyAccessMemberType(ScopedPropertyAccessExpression $node): string
@@ -113,7 +113,7 @@ class MemberIndexer implements TolerantIndexer
         return (string)$memberName->getName();
     }
 
-    private function indexMemberAccessExpression(Index $index, SplFileInfo $info, MemberAccessExpression $node): void
+    private function indexMemberAccessExpression(Index $index, TextDocument $document, MemberAccessExpression $node): void
     {
         $memberName = $node->memberName;
 
@@ -130,17 +130,17 @@ class MemberIndexer implements TolerantIndexer
 
         $memberType = $this->resolveMemberAccessType($node);
 
-        $this->writeIndex($index, $memberType, null, (string)$memberName, $info, $this->resolveStart($node->memberName));
+        $this->writeIndex($index, $memberType, null, (string)$memberName, $document, $this->resolveStart($node->memberName));
     }
 
-    private function writeIndex(Index $index, string $memberType, ?string $containerFqn, string $memberName, SplFileInfo $info, int $offsetStart): void
+    private function writeIndex(Index $index, string $memberType, ?string $containerFqn, string $memberName, TextDocument $document, int $offsetStart): void
     {
         $record = $index->get(MemberRecord::fromMemberReference(MemberReference::create($memberType, $containerFqn, $memberName)));
         assert($record instanceof MemberRecord);
-        $record->addReference($info->getPathname());
+        $record->addReference($document->uri()->path());
         $index->write($record);
         
-        $fileRecord = $index->get(FileRecord::fromFileInfo($info));
+        $fileRecord = $index->get(FileRecord::fromPath($document->uri()->path()));
         assert($fileRecord instanceof FileRecord);
         $fileRecord->addReference(RecordReference::fromRecordAndOffsetAndContainerType($record, $offsetStart, $containerFqn));
         $index->write($fileRecord);

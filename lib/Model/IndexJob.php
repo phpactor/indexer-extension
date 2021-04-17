@@ -3,6 +3,8 @@
 namespace Phpactor\Indexer\Model;
 
 use Generator;
+use Phpactor\TextDocument\TextDocumentBuilder;
+use SplFileInfo;
 
 class IndexJob
 {
@@ -28,7 +30,16 @@ class IndexJob
     public function generator(): Generator
     {
         foreach ($this->fileList as $fileInfo) {
-            $this->indexBuilder->index($fileInfo);
+            assert($fileInfo instanceof SplFileInfo);
+            $contents = @file_get_contents($fileInfo->getPathname());
+
+            if (false === $contents) {
+                continue;
+            }
+
+            $this->indexBuilder->index(
+                TextDocumentBuilder::create($contents)->uri($fileInfo->getPathname())->build()
+            );
             yield $fileInfo->getPathname();
         }
         $this->indexBuilder->done();
