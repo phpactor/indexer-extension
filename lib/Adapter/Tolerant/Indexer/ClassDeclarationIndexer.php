@@ -6,6 +6,7 @@ use Microsoft\PhpParser\Node;
 use Phpactor\Indexer\Model\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Microsoft\PhpParser\Node\Statement\ClassDeclaration;
+use Phpactor\TextDocument\TextDocument;
 use SplFileInfo;
 use Phpactor\Indexer\Model\Index;
 
@@ -16,10 +17,10 @@ class ClassDeclarationIndexer extends AbstractClassLikeIndexer
         return $node instanceof ClassDeclaration;
     }
 
-    public function index(Index $index, SplFileInfo $info, Node $node): void
+    public function index(Index $index, TextDocument $document, Node $node): void
     {
         assert($node instanceof ClassDeclaration);
-        $record = $this->getClassLikeRecord('class', $node, $index, $info);
+        $record = $this->getClassLikeRecord('class', $node, $index, $document);
 
         $this->removeImplementations($index, $record);
         $record->clearImplemented();

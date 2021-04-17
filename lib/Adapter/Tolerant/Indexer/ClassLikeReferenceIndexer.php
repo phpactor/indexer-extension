@@ -12,6 +12,7 @@ use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\WorseReflection\Bridge\TolerantParser\Patch\TolerantQualifiedNameResolver;
 use SplFileInfo;
+use Phpactor\TextDocument\TextDocument;
 
 class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
 {
@@ -28,9 +29,9 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
         return $node instanceof QualifiedName && !$node->parent instanceof CallExpression;
     }
 
-    public function beforeParse(Index $index, SplFileInfo $info): void
+    public function beforeParse(Index $index, TextDocument $document): void
     {
-        $fileRecord = $index->get(FileRecord::fromFileInfo($info));
+        $fileRecord = $index->get(FileRecord::fromPath($document->uri()->path()));
         assert($fileRecord instanceof FileRecord);
 
         foreach ($fileRecord->references() as $outgoingReference) {
@@ -47,7 +48,7 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
         }
     }
 
-    public function index(Index $index, SplFileInfo $info, Node $node): void
+    public function index(Index $index, TextDocument $document, Node $node): void
     {
         assert($node instanceof QualifiedName);
         
@@ -66,11 +67,11 @@ class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer
 
         $targetRecord = $index->get(ClassRecord::fromName($name));
         assert($targetRecord instanceof ClassRecord);
-        $targetRecord->addReference($info->getPathname());
+        $targetRecord->addReference($document->uri()->path());
 
         $index->write($targetRecord);
 
-        $fileRecord = $index->get(FileRecord::fromFileInfo($info));
+        $fileRecord = $index->get(FileRecord::fromPath($document->uri()->path()));
         assert($fileRecord instanceof FileRecord);
         $fileRecord->addReference(new RecordReference(ClassRecord::RECORD_TYPE, $targetRecord->identifier(), $node->getStart()));
         $index->write($fileRecord);

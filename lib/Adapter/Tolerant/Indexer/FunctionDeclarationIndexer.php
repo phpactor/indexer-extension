@@ -8,6 +8,7 @@ use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexer;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\Indexer\Model\Record\FunctionRecord;
+use Phpactor\TextDocument\TextDocument;
 use SplFileInfo;
 
 class FunctionDeclarationIndexer implements TolerantIndexer
@@ -17,17 +18,17 @@ class FunctionDeclarationIndexer implements TolerantIndexer
         return $node instanceof FunctionDeclaration;
     }
 
-    public function index(Index $index, SplFileInfo $info, Node $node): void
+    public function index(Index $index, TextDocument $document, Node $node): void
     {
         assert($node instanceof FunctionDeclaration);
         $record = $index->get(FunctionRecord::fromName($node->getNamespacedName()->getFullyQualifiedNameText()));
         assert($record instanceof FunctionRecord);
         $record->setStart(ByteOffset::fromInt($node->getStart()));
-        $record->setFilePath($info->getPathname());
+        $record->setFilePath($document->uri()->path());
         $index->write($record);
     }
 
-    public function beforeParse(Index $index, SplFileInfo $info): void
+    public function beforeParse(Index $index, TextDocument $document): void
     {
     }
 }

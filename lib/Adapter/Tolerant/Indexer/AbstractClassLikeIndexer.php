@@ -12,11 +12,12 @@ use Phpactor\Indexer\Model\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\Indexer\Model\Index;
+use Phpactor\TextDocument\TextDocument;
 use SplFileInfo;
 
 abstract class AbstractClassLikeIndexer implements TolerantIndexer
 {
-    public function beforeParse(Index $index, SplFileInfo $info): void
+    public function beforeParse(Index $index, TextDocument $document): void
     {
     }
     protected function removeImplementations(Index $index, ClassRecord $record): void
@@ -52,7 +53,7 @@ abstract class AbstractClassLikeIndexer implements TolerantIndexer
         }
     }
 
-    protected function getClassLikeRecord(string $type, Node $node, Index $index, SplFileInfo $info): ClassRecord
+    protected function getClassLikeRecord(string $type, Node $node, Index $index, TextDocument $document): ClassRecord
     {
         assert($node instanceof NamespacedNameInterface);
         $name = $node->getNamespacedName()->getFullyQualifiedNameText();
@@ -60,14 +61,14 @@ abstract class AbstractClassLikeIndexer implements TolerantIndexer
         if (empty($name)) {
             throw new CannotIndexNode(sprintf(
                 'Name is empty for file "%s"',
-                $info->getPathname()
+                $document->uri()->path()
             ));
         }
 
         $record = $index->get(ClassRecord::fromName($name));
         assert($record instanceof ClassRecord);
         $record->setStart(ByteOffset::fromInt($node->getStart()));
-        $record->setFilePath($info->getPathname());
+        $record->setFilePath($document->uri()->path());
         $record->setType($type);
 
         return $record;

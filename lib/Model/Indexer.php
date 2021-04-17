@@ -2,6 +2,7 @@
 
 namespace Phpactor\Indexer\Model;
 
+use Phpactor\TextDocument\TextDocument;
 use SplFileInfo;
 
 class Indexer
@@ -36,9 +37,9 @@ class Indexer
         );
     }
 
-    public function index(SplFileInfo $file): void
+    public function index(TextDocument $textDocument): void
     {
-        $this->builder->index($file);
+        $this->builder->index($textDocument);
     }
 
     public function reset(): void
