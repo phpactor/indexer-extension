@@ -7,7 +7,6 @@ use Microsoft\PhpParser\Node\Statement\InterfaceDeclaration;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\TextDocument\TextDocument;
-use SplFileInfo;
 
 class InterfaceDeclarationIndexer extends AbstractClassLikeIndexer
 {

@@ -11,7 +11,6 @@ use Phpactor\Indexer\Model\RecordReference;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\Indexer\Model\Record\FileRecord;
 use Phpactor\WorseReflection\Bridge\TolerantParser\Patch\TolerantQualifiedNameResolver;
-use SplFileInfo;
 use Phpactor\TextDocument\TextDocument;
 
 class ClassLikeReferenceIndexer extends AbstractClassLikeIndexer

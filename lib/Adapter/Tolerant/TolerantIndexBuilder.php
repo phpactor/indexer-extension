@@ -19,7 +19,6 @@ use Phpactor\Indexer\Model\IndexBuilder;
 use Phpactor\TextDocument\TextDocument;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use SplFileInfo;
 
 final class TolerantIndexBuilder implements IndexBuilder
 {

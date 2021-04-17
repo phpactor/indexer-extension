@@ -7,7 +7,6 @@ use Phpactor\Indexer\Model\DirtyDocumentTracker;
 use Phpactor\Indexer\Model\FileList;
 use Phpactor\Indexer\Model\FileListProvider;
 use Phpactor\Indexer\Model\Index;
-use Phpactor\TextDocument\TextDocument;
 use Phpactor\TextDocument\TextDocumentUri;
 use RuntimeException;
 use SplFileInfo;
@@ -19,6 +18,9 @@ class DirtyFileListProvider implements FileListProvider, DirtyDocumentTracker
      */
     private $dirtyPath;
 
+    /**
+     * @var array<string, bool>
+     */
     private $seen = [];
 
     public function __construct(string $dirtyPath)
@@ -31,6 +33,7 @@ class DirtyFileListProvider implements FileListProvider, DirtyDocumentTracker
         if (isset($this->seen[$uri->path()])) {
             return;
         }
+
         $handle = @fopen($this->dirtyPath, 'a');
         if (false === $handle) {
             throw new RuntimeException(sprintf(
@@ -48,6 +51,9 @@ class DirtyFileListProvider implements FileListProvider, DirtyDocumentTracker
         return FileList::fromInfoIterator($this->paths());
     }
 
+    /**
+     * @return Generator<SplFileInfo>
+     */
     private function paths(): Generator
     {
         $contents = @file_get_contents($this->dirtyPath);

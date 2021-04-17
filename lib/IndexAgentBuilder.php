@@ -13,6 +13,7 @@ use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexBuilder;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexer;
 use Phpactor\Indexer\Model\FileListProvider;
 use Phpactor\Indexer\Model\FileListProvider\ChainFileListProvider;
+use Phpactor\Indexer\Model\FileListProvider\DirtyFileListProvider;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\IndexAccess;
 use Phpactor\Indexer\Model\Index\SearchAwareIndex;
@@ -214,7 +215,12 @@ final class IndexAgentBuilder
 
     private function buildIndexer(IndexBuilder $builder, Index $index): Indexer
     {
-        return new Indexer($builder, $index, $this->buildFileListProvider());
+        return new Indexer(
+            $builder,
+            $index,
+            $this->buildFileListProvider(),
+            new DirtyFileListProvider($this->indexRoot . '/dirty')
+        );
     }
 
     private function buildFileListProvider(): FileListProvider

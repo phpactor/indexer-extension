@@ -3,9 +3,7 @@
 namespace Phpactor\Indexer\Model;
 
 use Phpactor\Indexer\Model\DirtyDocumentTracker\NullDirtyDocumentTracker;
-use Phpactor\Indexer\Model\FileListProvider\DirtyFileListProvider;
 use Phpactor\TextDocument\TextDocument;
-use SplFileInfo;
 
 class Indexer
 {

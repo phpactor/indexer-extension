@@ -4,8 +4,6 @@ namespace Phpactor\Indexer\Model;
 
 use Generator;
 use Phpactor\TextDocument\TextDocumentBuilder;
-use Phpactor\TextDocument\TextDocumentLocator;
-use Phpactor\TextDocument\TextDocumentUri;
 use SplFileInfo;
 
 class IndexJob

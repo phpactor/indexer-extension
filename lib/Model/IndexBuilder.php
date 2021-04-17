@@ -3,7 +3,6 @@
 namespace Phpactor\Indexer\Model;
 
 use Phpactor\TextDocument\TextDocument;
-use SplFileInfo;
 
 interface IndexBuilder
 {

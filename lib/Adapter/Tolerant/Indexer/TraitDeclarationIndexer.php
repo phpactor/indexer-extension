@@ -5,7 +5,6 @@ namespace Phpactor\Indexer\Adapter\Tolerant\Indexer;
 use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\Statement\TraitDeclaration;
 use Phpactor\Indexer\Model\Index;
-use SplFileInfo;
 use Phpactor\TextDocument\TextDocument;
 
 class TraitDeclarationIndexer extends AbstractClassLikeIndexer

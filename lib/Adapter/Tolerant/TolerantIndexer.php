@@ -4,7 +4,6 @@ namespace Phpactor\Indexer\Adapter\Tolerant;
 
 use Microsoft\PhpParser\Node;
 use Phpactor\TextDocument\TextDocument;
-use SplFileInfo;
 use Phpactor\Indexer\Model\Index;
 
 interface TolerantIndexer

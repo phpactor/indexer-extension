@@ -13,7 +13,6 @@ use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\TextDocument\TextDocument;
-use SplFileInfo;
 
 abstract class AbstractClassLikeIndexer implements TolerantIndexer
 {

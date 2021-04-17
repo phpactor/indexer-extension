@@ -7,7 +7,6 @@ use Phpactor\Indexer\Model\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Microsoft\PhpParser\Node\Statement\ClassDeclaration;
 use Phpactor\TextDocument\TextDocument;
-use SplFileInfo;
 use Phpactor\Indexer\Model\Index;
 
 class ClassDeclarationIndexer extends AbstractClassLikeIndexer

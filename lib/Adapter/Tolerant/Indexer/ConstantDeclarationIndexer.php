@@ -13,7 +13,6 @@ use Microsoft\PhpParser\Node\StringLiteral;
 use Phpactor\Indexer\Adapter\Tolerant\TolerantIndexer;
 use Phpactor\Indexer\Model\Record\ConstantRecord;
 use Phpactor\TextDocument\ByteOffset;
-use SplFileInfo;
 use Phpactor\Indexer\Model\Index;
 use Phpactor\TextDocument\TextDocument;
 

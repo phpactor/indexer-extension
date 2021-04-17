@@ -11,7 +11,6 @@ use Phpactor\Indexer\Model\Index;
 use Phpactor\Indexer\Model\Name\FullyQualifiedName;
 use Phpactor\Indexer\Model\Record\ClassRecord;
 use Phpactor\WorseReflection\Bridge\TolerantParser\Patch\TolerantQualifiedNameResolver;
-use SplFileInfo;
 use Phpactor\TextDocument\TextDocument;
 
 class TraitUseClauseIndexer implements TolerantIndexer
