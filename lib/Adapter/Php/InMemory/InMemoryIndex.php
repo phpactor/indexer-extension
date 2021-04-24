@@ -30,7 +30,9 @@ class InMemoryIndex implements Index
     {
         $this->searchIndex = new InMemorySearchIndex();
         $this->lastUpdate = 0;
-        $this->index = $index;
+        foreach ($index as $record) {
+            $this->write($record);
+        }
     }
 
     public function lastUpdate(): int
