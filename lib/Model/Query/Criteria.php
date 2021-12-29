@@ -3,6 +3,7 @@
 namespace Phpactor\Indexer\Model\Query;
 
 use Phpactor\Indexer\Model\Query\Criteria\AndCriteria;
+use Phpactor\Indexer\Model\Query\Criteria\FileAbsolutePathBeginsWith;
 use Phpactor\Indexer\Model\Query\Criteria\ShortNameContains;
 use Phpactor\Indexer\Model\Query\Criteria\ExactShortName;
 use Phpactor\Indexer\Model\Query\Criteria\FqnBeginsWith;
@@ -66,5 +67,10 @@ abstract class Criteria
     public static function shortNameContains(string $substr): ShortNameContains
     {
         return new ShortNameContains($substr);
+    }
+
+    public static function fileAbsolutePathBeginsWith(string $prefix): FileAbsolutePathBeginsWith
+    {
+        return new FileAbsolutePathBeginsWith($prefix);
     }
 }
