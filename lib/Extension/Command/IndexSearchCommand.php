@@ -60,17 +60,14 @@ class IndexSearchCommand extends Command
         $criterias = [];
 
         if ($shortName) {
-            /** @phpstan-ignore-next-line */
             $criterias[] = Criteria::exactShortName($shortName);
         }
 
         if ($shortNameBegins) {
-            /** @phpstan-ignore-next-line */
             $criterias[] = Criteria::shortNameBeginsWith($shortNameBegins);
         }
 
         if ($fqnBegins) {
-            /** @phpstan-ignore-next-line */
             $criterias[] = Criteria::fqnBeginsWith($fqnBegins);
         }
 
