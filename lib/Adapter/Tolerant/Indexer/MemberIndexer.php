@@ -155,7 +155,7 @@ class MemberIndexer implements TolerantIndexer
             return $nodeOrToken->start;
         }
 
-        return $nodeOrToken->getStart();
+        return $nodeOrToken->getStartPosition();
     }
 
     private function resolveContainerType(QualifiedName $containerType, Node $node): ?string
