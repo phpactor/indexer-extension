@@ -11,7 +11,7 @@
     ],
     "require": {
         "php": "^7.3 || ^8.0",
-        "dantleech/invoke": "^1.0",
+        "dantleech/invoke": "^2.0",
         "phpactor/amp-fswatch": "^0.2.0",
         "phpactor/container": "^2.0.0",
         "phpactor/name-specification": "^0.1",
